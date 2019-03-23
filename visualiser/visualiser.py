@@ -80,7 +80,7 @@ def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0
 
 
 CIRCLE_SIZE = 15
-ARROW_PADDING = CIRCLE_SIZE / 500
+ARROW_PADDING = CIRCLE_SIZE / 670
 BEZIER_CONTROL = 0.1
 BEZIER_STEPS = 20
 
@@ -172,15 +172,23 @@ def main():
             for z in graph_data[x][y]:
                 start_x, start_y = graph.layout_provider.graph_layout[x]
                 end_x_orig, end_y_orig = graph.layout_provider.graph_layout[y]
+                angle = math.atan2(start_x - end_x_orig, start_y - end_y_orig)
+                distance = math.hypot(start_x - end_x_orig, start_y - end_y_orig) // 0.4
 
                 # Account for the vertex glyph…
-                angle = math.atan2(start_x - end_x_orig, start_y - end_y_orig)
                 end_x = end_x_orig + ARROW_PADDING * math.sin(angle)
                 end_y = end_y_orig + ARROW_PADDING * math.cos(angle)
 
                 # …and for curved edges
-                mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * math.cos(angle) * (1 if z % 2 else -1) * (z // 2 + 1)
-                mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * math.sin(angle) * (1 if z % 2 else -1) * (z // 2 + 1)
+                if graph_data[x][y][z]['edge_curve'] != -1:
+                    mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
+                            (1 if z % 2 else -1) * (z // 2 + 1)
+                    mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
+                            (1 if z % 2 else -1) * (z // 2 + 1)
+
+                    end_x, end_y = quadratic_bezier(0.995+0.001*distance, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
+                else:
+                    mid_x, mid_y = start_x, start_y
                 """sin = math.cos(graph_data[x][y][z]['edge_curve_angle'])
                 cos = math.cos(graph_data[x][y][z]['edge_curve_angle'])
 
@@ -191,7 +199,7 @@ def main():
                 # start_y = (start_x - end_x) * sin + (start_y - end_y) * cos + end_y
 
                 plot.add_layout(Arrow(end=VeeHead(fill_color="orange", size=10),
-                                      x_start=mid_x, y_start=mid_y, x_end=end_x_orig, y_end=end_y_orig, line_alpha=0))
+                                      x_start=mid_x, y_start=mid_y, x_end=end_x, y_end=end_y, line_alpha=0))
     # Add the graph to the plot and the plot to the doc
     plot.renderers.append(graph)
     curdoc().add_root(plot)
