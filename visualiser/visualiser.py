@@ -14,7 +14,7 @@ from bokeh.palettes import Spectral8
 from data import sample
 
 
-def bfs(graph: networkx.Graph, start: int) -> Tuple[List[int], ...]:
+def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
     depth = [-1 for _ in range(max(graph.nodes) + 1)]
 
     queue = [(start, 0)]
@@ -37,11 +37,47 @@ def bfs(graph: networkx.Graph, start: int) -> Tuple[List[int], ...]:
     for x, x_depth in enumerate(depth):
         result[x_depth].append(x)
 
-    return result
+    return result, depth
 
 
-def tree_layout(G: networkx.Graph) -> dict:
-    pass
+def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0):
+    """g: the graph
+       root: the root node of current branch
+       width: horizontal space allocated for this branch - avoids overlap with other branches
+       vert_gap: gap between levels of hierarchy
+       vert_loc: vertical location of root
+       xcenter: horizontal location of root
+    """
+
+    _, depth = bfs(graph_data, root)
+
+    def h_recur(local_root, local_width, local_vert_loc, local_xcenter,
+                pos=None, parsed=None, level=0):
+        if parsed is None:
+            parsed = []
+        if local_root not in parsed:
+            parsed.append(local_root)
+            if pos is None:
+                pos = {local_root: (local_xcenter, local_vert_loc)}
+            else:
+                pos[local_root] = (local_xcenter, local_vert_loc)
+
+            neighbors = graph_data.neighbors(local_root)
+            neighbors = list(filter(lambda x: depth[x] == level+1, neighbors))
+            print(neighbors)
+
+            if len(neighbors) != 0:
+                dx = local_width / len(neighbors)
+                nextx = local_xcenter - local_width / 2 - dx / 2
+                for neighbor in neighbors:
+                    nextx += dx
+                    # noinspection PyTypeChecker
+                    pos = h_recur(neighbor, local_width=dx,
+                                  local_vert_loc=local_vert_loc - vert_gap, local_xcenter=nextx, pos=pos,
+                                  parsed=parsed, level=level+1)
+        return pos
+
+    return h_recur(root, local_width=width, local_vert_loc=vert_loc, local_xcenter=xcenter)
 
 
 CIRCLE_SIZE = 15
@@ -52,7 +88,7 @@ BEZIER_STEPS = 20
 
 def main():
     # Create a plot
-    plot = figure(title="Attack Vector Graph", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1))
+    plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800, x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
     plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
     # Create a layout
@@ -61,7 +97,9 @@ def main():
     depth = bfs(graph_data, 0)
 
     # Create a bokeh graph
-    graph = from_networkx(graph_data, networkx.shell_layout, scale=1.5, nlist=depth)
+    layout = tree_layout(graph_data, 0)
+    print(layout)
+    graph = from_networkx(graph_data, layout, scale=3, nlist=depth)
 
     # Add colours and glyphs
     graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
@@ -153,12 +191,11 @@ def main():
                 end_x = (end_x - end_x_orig) * cos - (end_y - end_y_orig) * sin + end_x_orig
                 end_y = (end_x - end_x_orig) * sin + (end_y - end_y_orig) * cos + end_y_orig"""
 
-                #start_x = (start_x - end_x) * cos - (start_y - end_y) * sin + end_x
-                #start_y = (start_x - end_x) * sin + (start_y - end_y) * cos + end_y
+                # start_x = (start_x - end_x) * cos - (start_y - end_y) * sin + end_x
+                # start_y = (start_x - end_x) * sin + (start_y - end_y) * cos + end_y
 
                 plot.add_layout(Arrow(end=VeeHead(fill_color="orange", size=10),
                                       x_start=mid_x, y_start=mid_y, x_end=end_x_orig, y_end=end_y_orig, line_alpha=0))
-
     # Add the graph to the plot and the plot to the doc
     plot.renderers.append(graph)
     curdoc().add_root(plot)
