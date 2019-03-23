@@ -64,7 +64,6 @@ def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0
 
             neighbors = graph_data.neighbors(local_root)
             neighbors = list(filter(lambda x: depth[x] == level+1, neighbors))
-            print(neighbors)
 
             if len(neighbors) != 0:
                 dx = local_width / len(neighbors)
@@ -94,12 +93,11 @@ def main():
     # Create a layout
     graph_data = sample()
     n = max(graph_data.nodes) + 1
-    depth = bfs(graph_data, 0)
+    levels, depth = bfs(graph_data, 0)
 
     # Create a bokeh graph
     layout = tree_layout(graph_data, 0)
-    print(layout)
-    graph = from_networkx(graph_data, layout, scale=3, nlist=depth)
+    graph = from_networkx(graph_data, layout)
 
     # Add colours and glyphs
     graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
@@ -115,7 +113,7 @@ def main():
     graph.inspection_policy = EdgesAndLinkedNodes()
 
     # Drawing edges
-    # Support drawing 1) multiple edges, TODO: edges circumventing vertices
+    # Support drawing 1) multiple edges, 3) edges circumventing vertices
     multiplicity = defaultdict(lambda: defaultdict(int))
     for x in graph_data:
         for y in graph_data[x]:
@@ -136,19 +134,22 @@ def main():
     for x, y in bokeh_edges:
         start_x, start_y = graph.layout_provider.graph_layout[x]
         end_x, end_y = graph.layout_provider.graph_layout[y]
-        if multiplicity[x][y] == 1:
+        if multiplicity[x][y] == 1 and \
+                (depth[x] != depth[y] or abs(levels[depth[x]].index(x)-levels[depth[y]].index(y)) != 1):
             xs.append((start_x, end_x))
             ys.append((start_y, end_y))
             graph_data[x][y][0]['edge_curve'] = -1
-            graph_data[x][y][0]['edge_curve_angle'] = math.pi / 2
             continue
 
+        angle = math.atan2(start_x - end_x, start_y - end_y)
+        distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
         for z in range(multiplicity[x][y]):
             graph_data[x][y][z]['edge_curve'] = z
 
-            angle = math.atan2(start_x - end_x, start_y - end_y)
-            mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * math.cos(angle) * (1 if z % 2 else -1) * (z // 2 + 1)
-            mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * math.sin(angle) * (1 if z % 2 else -1) * (z // 2 + 1)
+            mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
+                    (1 if z % 2 else -1) * (z // 2 + 1)
+            mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
+                    (1 if z % 2 else -1) * (z // 2 + 1)
 
             cur_xs = []
             cur_ys = []
@@ -157,11 +158,6 @@ def main():
                 bx, by = quadratic_bezier(t, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
                 cur_xs.append(bx)
                 cur_ys.append(by)
-
-            # Interpolate an angle to correct arrows
-            ax, ay = quadratic_bezier(1, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
-            bx, by = quadratic_bezier(0.8, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
-            graph_data[x][y][z]['edge_curve_angle'] = math.atan2(ax - bx, ay - by) + math.pi / 2
 
             xs.append(cur_xs)
             ys.append(cur_ys)
