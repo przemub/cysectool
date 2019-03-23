@@ -4,14 +4,16 @@ from collections import defaultdict, OrderedDict
 from typing import List, Tuple, Dict
 
 import networkx
-from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, NodesAndLinkedEdges, \
-    EdgesAndLinkedNodes, VeeHead, MultiLine
+from bokeh.layouts import widgetbox, row
+from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
+    Select
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
-from bokeh.plotting import figure, curdoc
 from bokeh.palettes import Spectral8
+from bokeh.plotting import figure, curdoc
 
-from data import sample
+from controls import Sample
+from data import Control, Edge
 
 
 def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
@@ -63,7 +65,7 @@ def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0
                 pos[local_root] = (local_xcenter, local_vert_loc)
 
             neighbors = graph_data.neighbors(local_root)
-            neighbors = list(filter(lambda x: depth[x] == level+1, neighbors))
+            neighbors = list(filter(lambda x: depth[x] == level + 1, neighbors))
 
             if len(neighbors) != 0:
                 dx = local_width / len(neighbors)
@@ -73,7 +75,7 @@ def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0
                     # noinspection PyTypeChecker
                     pos = h_recur(neighbor, local_width=dx,
                                   local_vert_loc=local_vert_loc - vert_gap, local_xcenter=nextx, pos=pos,
-                                  parsed=parsed, level=level+1)
+                                  parsed=parsed, level=level + 1)
         return pos
 
     return h_recur(root, local_width=width, local_vert_loc=vert_loc, local_xcenter=xcenter)
@@ -87,11 +89,21 @@ BEZIER_STEPS = 20
 
 def main():
     # Create a plot
-    plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800, x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
-    plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
+    plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800,
+                  x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
 
-    # Create a layout
-    graph_data = sample()
+    hover = HoverTool()
+    hover.tooltips = [
+        ("start", "@start"),
+        ("end", "@end"),
+        ("flow", "@flow")
+    ]
+
+    plot.add_tools(hover, TapTool(), BoxSelectTool())
+
+    # Import a model and a graph
+    model = Sample()
+    graph_data = model.graph
     n = max(graph_data.nodes) + 1
     levels, depth = bfs(graph_data, 0)
 
@@ -109,7 +121,7 @@ def main():
     graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral8[4], line_width=3)
     graph.edge_renderer.hover_glyph = MultiLine(line_color=Spectral8[1], line_width=3)
 
-    graph.selection_policy = NodesAndLinkedEdges()
+    graph.selection_policy = EdgesAndLinkedNodes()
     graph.inspection_policy = EdgesAndLinkedNodes()
 
     # Drawing edges
@@ -135,7 +147,7 @@ def main():
         start_x, start_y = graph.layout_provider.graph_layout[x]
         end_x, end_y = graph.layout_provider.graph_layout[y]
         if multiplicity[x][y] == 1 and \
-                (depth[x] != depth[y] or abs(levels[depth[x]].index(x)-levels[depth[y]].index(y)) != 1):
+                (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) != 1):
             xs.append((start_x, end_x))
             ys.append((start_y, end_y))
             graph_data[x][y][0]['edge_curve'] = -1
@@ -186,7 +198,8 @@ def main():
                     mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
                             (1 if z % 2 else -1) * (z // 2 + 1)
 
-                    end_x, end_y = quadratic_bezier(0.995+0.001*distance, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
+                    end_x, end_y = quadratic_bezier(0.995 + 0.001 * distance, (start_x, start_y), (mid_x, mid_y),
+                                                    (end_x, end_y))
                 else:
                     mid_x, mid_y = start_x, start_y
                 """sin = math.cos(graph_data[x][y][z]['edge_curve_angle'])
@@ -202,7 +215,45 @@ def main():
                                       x_start=mid_x, y_start=mid_y, x_end=end_x, y_end=end_y, line_alpha=0))
     # Add the graph to the plot and the plot to the doc
     plot.renderers.append(graph)
-    curdoc().add_root(plot)
+
+    # Controls
+    control_levels: Dict[str, int] = {category[0]: 0 for category in model.control_categories}
+
+    def flow_to_bokeh():
+        flow = []
+        for x, y in bokeh_edges:
+            for z in range(multiplicity[x][y]):
+                flow.append(model.edge_flow[Edge(x, y, z)])
+
+        graph.edge_renderer.data_source.data['flow'] = flow
+    flow_to_bokeh()
+
+    def change_security(_attr, old, new):
+        if new == "None":
+            control = model.control_subcategories_inverted[old]
+            control_levels[control[0]] = 0
+        else:
+            control = model.control_subcategories_inverted[new]
+            control_levels[control[0]] = control[1]
+        print(control_levels)
+        flow = model.reflow([item for item in control_levels.items() if item[1] > 0])
+        flow_to_bokeh()
+        print(flow)
+
+    selects = []
+    for category in model.control_categories:
+        select = Select(title=category[1], value="None", options=["None"] +
+                                                                 [model.control_subcategories[(category[0], x)]
+                                                                  for x in range(1, category[2] + 1)])
+        select.on_change('value', change_security)
+        selects.append(select)
+    box = widgetbox(selects)
+
+    # Layout
+    main_row = row([plot, box])
+    curdoc().add_root(main_row)
+
+
 
 
 if __name__.startswith("bk_"):

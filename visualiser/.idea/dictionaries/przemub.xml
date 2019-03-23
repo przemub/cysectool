@@ -2,6 +2,7 @@
   <dictionary name="przemub">
     <words>
       <w>bokeh</w>
+      <w>networkx</w>
     </words>
   </dictionary>
 </component>
