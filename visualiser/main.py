@@ -5,18 +5,16 @@ from typing import List, Tuple, Dict
 
 import colorcet
 import networkx
-from bokeh.core.property.dataspec import field
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, LogTicker, LinearColorMapper, FixedTicker
+    Select, LogColorMapper, ColorBar, FixedTicker
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
-from bokeh.transform import log_cmap
 
 from controls import Sample
-from data import Control, Edge
+from data import Edge
 
 
 def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
@@ -176,8 +174,19 @@ def main():
         end_x, end_y = graph.layout_provider.graph_layout[y]
         if multiplicity[x][y] == 1 and \
                 (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) != 1):
-            xs.append((start_x, end_x))
-            ys.append((start_y, end_y))
+            cur_xs = []
+            cur_ys = []
+
+            # Generate multiple points along the line so HoverTool can display close to the mouse,
+            # not next to an end-point
+            for i in range(BEZIER_STEPS + 1):
+                t = i * (1 / BEZIER_STEPS)
+                bx, by = quadratic_bezier(t, (start_x, start_y), (start_x, start_y), (end_x, end_y))
+                cur_xs.append(bx)
+                cur_ys.append(by)
+            xs.append(cur_xs)
+            ys.append(cur_ys)
+
             graph_data[x][y][0]['edge_curve'] = -1
             continue
 
@@ -280,7 +289,7 @@ def main():
                                                                   for x in range(1, category[2] + 1)])
         select.on_change('value', change_security)
         selects.append(select)
-    box = widgetbox(selects)
+    box = widgetbox(selects, width=380)
 
     cbar = ColorBar(color_mapper=mapper, orientation='vertical',
                     location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
