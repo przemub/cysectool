@@ -86,7 +86,7 @@ class Sample(Model):
         Edge(0, 5, 1): Vulnerability("whaling",
                                      {Control('N1', 1), Control('N1', 2), Control('N1', 3),
                                       Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
-        Edge(0, 3, 0): Vulnerability("fishing",
+        Edge(0, 3, 0): Vulnerability("phishing",
                                      {Control('N1', 1), Control('N1', 2), Control('N1', 3),
                                       Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
         Edge(0, 3, 1): Vulnerability("compromised external systems",
