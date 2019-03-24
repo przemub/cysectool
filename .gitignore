@@ -4,3 +4,8 @@ venv
 *.pyc
 __pycache__
 
+# IDEA
+workspace.xml
+usage.statistics.xml
+tasks.xml
+
