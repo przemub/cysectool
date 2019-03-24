@@ -1,5 +1,6 @@
 backcall==0.1.0
 bokeh==1.0.4
+colorcet==1.0.1
 decorator==4.4.0
 ipython==7.4.0
 ipython-genutils==0.2.0
@@ -9,12 +10,14 @@ MarkupSafe==1.1.1
 networkx==2.2
 numpy==1.16.2
 packaging==19.0
+param==1.8.2
 parso==0.3.4
 pexpect==4.6.0
 pickleshare==0.7.5
 Pillow==5.4.1
 prompt-toolkit==2.0.9
 ptyprocess==0.6.0
+pyct==0.4.6
 Pygments==2.3.1
 pyparsing==2.3.1
 python-dateutil==2.8.0

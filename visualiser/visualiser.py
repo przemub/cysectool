@@ -3,14 +3,17 @@ import sys
 from collections import defaultdict, OrderedDict
 from typing import List, Tuple, Dict
 
+import colorcet
 import networkx
+from bokeh.core.property.dataspec import field
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select
+    Select, LogColorMapper, ColorBar, LogTicker, LinearColorMapper, FixedTicker
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
+from bokeh.transform import log_cmap
 
 from controls import Sample
 from data import Control, Edge
@@ -85,6 +88,27 @@ CIRCLE_SIZE = 15
 ARROW_PADDING = CIRCLE_SIZE / 670
 BEZIER_CONTROL = 0.1
 BEZIER_STEPS = 20
+PALETTE = colorcet.b_diverging_gkr_60_10_c40
+BAR_MAX, BAR_MIN = 0, -3  # 10**value
+
+
+def map_color(value):
+    """
+    Bug in Bokeh makes log mapper work as a linear mapper when used as a data column.
+    In the meantime, log mapper is implemented here for this use.
+    """
+
+    log = math.log10(value)
+    if log > BAR_MAX:
+        log = BAR_MAX
+    if log < BAR_MIN:
+        log = BAR_MIN
+
+    log -= BAR_MIN
+    threshold = int((log / int(BAR_MAX-BAR_MIN)) * 256) - 1
+    print(value, log, threshold)
+
+    return PALETTE[threshold]
 
 
 def main():
@@ -96,7 +120,7 @@ def main():
     hover.tooltips = [
         ("start", "@start"),
         ("end", "@end"),
-        ("flow", "@flow")
+        ("flow", "@flow{0.0[0000]}")
     ]
 
     plot.add_tools(hover, TapTool(), BoxSelectTool())
@@ -117,7 +141,9 @@ def main():
     graph.node_renderer.selection_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[5])
     graph.node_renderer.hover_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[4])
 
-    graph.edge_renderer.glyph = MultiLine(line_color="#000000", line_alpha=0.8, line_width=3)
+    mapper = LogColorMapper(palette=PALETTE, low=10**BAR_MIN, high=10**BAR_MAX)
+    graph.edge_renderer.glyph = MultiLine(line_color='color',
+                                          line_alpha=0.8, line_width=3)
     graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral8[4], line_width=3)
     graph.edge_renderer.hover_glyph = MultiLine(line_color=Spectral8[1], line_width=3)
 
@@ -221,11 +247,15 @@ def main():
 
     def flow_to_bokeh():
         flow = []
+        color = []
         for x, y in bokeh_edges:
             for z in range(multiplicity[x][y]):
                 flow.append(model.edge_flow[Edge(x, y, z)])
+                color.append(map_color(flow[-1]))
 
         graph.edge_renderer.data_source.data['flow'] = flow
+        graph.edge_renderer.data_source.data['color'] = color
+
     flow_to_bokeh()
 
     def change_security(_attr, old, new):
@@ -235,10 +265,8 @@ def main():
         else:
             control = model.control_subcategories_inverted[new]
             control_levels[control[0]] = control[1]
-        print(control_levels)
-        flow = model.reflow([item for item in control_levels.items() if item[1] > 0])
+        model.reflow([item for item in control_levels.items() if item[1] > 0])
         flow_to_bokeh()
-        print(flow)
 
     selects = []
     for category in model.control_categories:
@@ -249,11 +277,13 @@ def main():
         selects.append(select)
     box = widgetbox(selects)
 
+    cbar = ColorBar(color_mapper=mapper, orientation='vertical',
+                    location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
+    plot.add_layout(cbar, 'right')
+
     # Layout
     main_row = row([plot, box])
     curdoc().add_root(main_row)
-
-
 
 
 if __name__.startswith("bk_"):

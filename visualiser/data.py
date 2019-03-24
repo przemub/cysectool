@@ -91,14 +91,12 @@ class Model(metaclass=abc.ABCMeta):
                 flow *= self.flow(control, edge)
             edge_flow[edge] = flow
         self.edge_flow = edge_flow
-        print(edge_flow)
 
         topological_sort = list(networkx.topological_sort(self.graph))
         vertex_flow = {topological_sort[0]: 1}
         for vertex in topological_sort[1:]:
             flow = 0
             for edge in self.graph.in_edges(vertex, data="multiplicity"):
-                print(vertex, edge)
                 flow = max(flow, edge_flow[edge]*vertex_flow[edge[0]])
             vertex_flow[vertex] = flow
         self.vertex_flow = vertex_flow
