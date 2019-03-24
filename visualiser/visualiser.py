@@ -105,7 +105,7 @@ def map_color(value):
         log = BAR_MIN
 
     log -= BAR_MIN
-    threshold = int((log / int(BAR_MAX-BAR_MIN)) * 256) - 1
+    threshold = int((log / int(BAR_MAX-BAR_MIN)) * 255)
     print(value, log, threshold)
 
     return PALETTE[threshold]
@@ -118,9 +118,11 @@ def main():
 
     hover = HoverTool()
     hover.tooltips = [
-        ("start", "@start"),
-        ("end", "@end"),
-        ("flow", "@flow{0.0[0000]}")
+        ("from", "@from_state"),
+        ("to", "@to_state"),
+        ("flow", "@flow{0.0[0000]}"),
+        ("flow reduction", "@edge_flow{0.0[0000]}"),
+        ("vulnerability", "@vuln_name")
     ]
 
     plot.add_tools(hover, TapTool(), BoxSelectTool())
@@ -247,13 +249,16 @@ def main():
 
     def flow_to_bokeh():
         flow = []
+        edge_flow = []
         color = []
         for x, y in bokeh_edges:
             for z in range(multiplicity[x][y]):
-                flow.append(model.edge_flow[Edge(x, y, z)])
+                flow.append(model.tree_flow[Edge(x, y, z)])
+                edge_flow.append(model.edge_flow[Edge(x, y, z)])
                 color.append(map_color(flow[-1]))
 
         graph.edge_renderer.data_source.data['flow'] = flow
+        graph.edge_renderer.data_source.data['edge_flow'] = edge_flow
         graph.edge_renderer.data_source.data['color'] = color
 
     flow_to_bokeh()

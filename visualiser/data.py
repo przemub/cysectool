@@ -56,6 +56,7 @@ class Model(metaclass=abc.ABCMeta):
     # Defining a graph
     n: int
     edges: Sequence[Edge]
+    vertices: Sequence[str]
     vulnerabilities: Mapping[Edge, Vulnerability]
 
     # Simulation results
@@ -104,6 +105,7 @@ class Model(metaclass=abc.ABCMeta):
         tree_flow = {}
         for edge in self.edges:
             tree_flow[edge] = vertex_flow[edge[0]] * edge_flow[edge]
+        self.tree_flow = tree_flow
 
         return tree_flow
 
@@ -112,7 +114,8 @@ class Model(metaclass=abc.ABCMeta):
 
         for edge in self.edges:
             g.add_edge(edge.source, edge.target,
-                       multiplicity=edge.multiplicity)
+                       multiplicity=edge.multiplicity, vuln_name=self.vulnerabilities[edge].name,
+                       from_state=self.vertices[edge.source], to_state=self.vertices[edge.target])
 
         return g
 

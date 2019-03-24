@@ -120,6 +120,8 @@ class Sample(Model):
 
     n = 6
 
+    vertices = ["start", "webserver", "in LAN", "credentials", "website", "control", "root"]
+
     pi0 = {key: value for key, value in zip(edges, [1 for _ in range(len(edges))])}  # default thinning flow coefficient
 
     def default_flow(self, edge: Edge):  # define non-default thinning flow coefficients for specific edges
