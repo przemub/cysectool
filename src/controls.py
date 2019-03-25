@@ -1,7 +1,7 @@
 '''multi-controls, multi-levels, multiplicative, controls as sets of edges.
 Controls' effectiveness varies depending on edge, thinning and multiple sinks'''
 # the extended attack graph2:
-from data import Model, Control, Edge, Vulnerability
+from src.data import Model, Control, Edge, Vulnerability
 
 '''
 ===========================   THE HIGH LEVEL MODEL DEFINITION   ================================
