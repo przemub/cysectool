@@ -1,4 +1,4 @@
-let $: (selectors: string) => (HTMLElement | null) = (arg) => document.querySelector(arg);
+let $: (selectors: string) => HTMLElement | null = (arg) => document.querySelector(arg);
 
 // Avoids bug #8065 in Bokeh
 async function arrow() {
@@ -11,3 +11,4 @@ async function arrow() {
 }
 
 arrow().then();
+

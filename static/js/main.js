@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var $ = function (arg) { return document.querySelector(arg); };
+// Avoids bug #8065 in Bokeh
 function arrow() {
     return __awaiter(this, void 0, void 0, function () {
         var arrow;
@@ -42,7 +43,7 @@ function arrow() {
             switch (_a.label) {
                 case 0:
                     if (!!$('div.bk-tooltip-arrow')) return [3 /*break*/, 2];
-                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 500); })];
+                    return [4 /*yield*/, new Promise(function (r) { return setTimeout(r, 250); })];
                 case 1:
                     _a.sent();
                     return [3 /*break*/, 0];

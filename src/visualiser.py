@@ -1,4 +1,5 @@
 import math
+import os
 import sys
 from collections import defaultdict, OrderedDict
 from typing import List, Tuple, Dict
@@ -7,7 +8,7 @@ import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -106,6 +107,10 @@ def map_color(value: float) -> str:
     return PALETTE[threshold]
 
 
+def typescript(name: str) -> CustomJS:
+    return CustomJS(code="%s();" % name)
+
+
 def main():
     # Create a plot
     plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800,
@@ -121,7 +126,10 @@ def main():
         ("controls", "@possible_controls")
     ]
 
-    plot.add_tools(hover, TapTool(), BoxSelectTool())
+    tap = TapTool()
+    tap.callback = typescript("on_tap")
+
+    plot.add_tools(hover, tap, BoxSelectTool())
 
     # Import a model and a graph
     model = Sample()
