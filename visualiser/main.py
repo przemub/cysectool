@@ -14,7 +14,7 @@ from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
 
 from controls import Sample
-from data import Edge
+from data import Edge, Control
 
 
 def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
@@ -43,54 +43,52 @@ def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[
     return result, depth
 
 
-def tree_layout(graph_data, root, width=1.5, vert_gap=0.5, vert_loc=0, xcenter=0):
-    """g: the graph
+def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width: float = 1.5, vert_gap: float = 0.5,
+                vert_loc: float = 0, x_center: float = 0):
+    """graph_data: the networkx graph
        root: the root node of current branch
+       depth: tree layers
        width: horizontal space allocated for this branch - avoids overlap with other branches
        vert_gap: gap between levels of hierarchy
        vert_loc: vertical location of root
-       xcenter: horizontal location of root
+       x_center: horizontal location of root
     """
 
-    _, depth = bfs(graph_data, root)
-
-    def h_recur(local_root, local_width, local_vert_loc, local_xcenter,
+    def h_recur(local_root, local_width, local_vert_loc, local_x_center,
                 pos=None, parsed=None, level=0):
         if parsed is None:
             parsed = []
         if local_root not in parsed:
             parsed.append(local_root)
             if pos is None:
-                pos = {local_root: (local_xcenter, local_vert_loc)}
+                pos = {local_root: (local_x_center, local_vert_loc)}
             else:
-                pos[local_root] = (local_xcenter, local_vert_loc)
+                pos[local_root] = (local_x_center, local_vert_loc)
 
             neighbors = graph_data.neighbors(local_root)
             neighbors = list(filter(lambda x: depth[x] == level + 1, neighbors))
 
             if len(neighbors) != 0:
                 dx = local_width / len(neighbors)
-                nextx = local_xcenter - local_width / 2 - dx / 2
+                next_x = local_x_center - local_width / 2 - dx / 2
                 for neighbor in neighbors:
-                    nextx += dx
-                    # noinspection PyTypeChecker
-                    pos = h_recur(neighbor, local_width=dx,
-                                  local_vert_loc=local_vert_loc - vert_gap, local_xcenter=nextx, pos=pos,
-                                  parsed=parsed, level=level + 1)
+                    next_x += dx
+                    pos = h_recur(neighbor, local_width=dx, local_vert_loc=local_vert_loc - vert_gap,
+                                  local_x_center=next_x, pos=pos, parsed=parsed, level=level + 1)
         return pos
 
-    return h_recur(root, local_width=width, local_vert_loc=vert_loc, local_xcenter=xcenter)
+    return h_recur(root, local_width=width, local_vert_loc=vert_loc, local_x_center=x_center)
 
 
 CIRCLE_SIZE = 15
 ARROW_PADDING = CIRCLE_SIZE / 670
 BEZIER_CONTROL = 0.1
 BEZIER_STEPS = 20
-PALETTE = colorcet.b_diverging_gkr_60_10_c40
+PALETTE: List[str] = colorcet.b_diverging_gkr_60_10_c40
 BAR_MAX, BAR_MIN = 0, -3  # 10**value
 
 
-def map_color(value):
+def map_color(value: float) -> str:
     """
     Bug in Bokeh makes log mapper work as a linear mapper when used as a data column.
     In the meantime, log mapper is implemented here for this use.
@@ -103,8 +101,7 @@ def map_color(value):
         log = BAR_MIN
 
     log -= BAR_MIN
-    threshold = int((log / int(BAR_MAX-BAR_MIN)) * 255)
-    print(value, log, threshold)
+    threshold = int((log / int(BAR_MAX - BAR_MIN)) * 255)
 
     return PALETTE[threshold]
 
@@ -120,7 +117,8 @@ def main():
         ("to", "@to_state"),
         ("flow", "@flow{0.0[0000]}"),
         ("flow reduction", "@edge_flow{0.0[0000]}"),
-        ("vulnerability", "@vuln_name")
+        ("vulnerability", "@vuln_name"),
+        ("controls", "@possible_controls")
     ]
 
     plot.add_tools(hover, TapTool(), BoxSelectTool())
@@ -132,7 +130,7 @@ def main():
     levels, depth = bfs(graph_data, 0)
 
     # Create a bokeh graph
-    layout = tree_layout(graph_data, 0)
+    layout = tree_layout(graph_data, 0, depth)
     graph = from_networkx(graph_data, layout)
 
     # Add colours and glyphs
@@ -141,7 +139,7 @@ def main():
     graph.node_renderer.selection_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[5])
     graph.node_renderer.hover_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[4])
 
-    mapper = LogColorMapper(palette=PALETTE, low=10**BAR_MIN, high=10**BAR_MAX)
+    mapper = LogColorMapper(palette=PALETTE, low=10 ** BAR_MIN, high=10 ** BAR_MAX)
     graph.edge_renderer.glyph = MultiLine(line_color='color',
                                           line_alpha=0.8, line_width=3)
     graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral8[4], line_width=3)
@@ -162,11 +160,11 @@ def main():
     bokeh_edges = graph.edge_renderer.data_source.data
     bokeh_edges = list(OrderedDict.fromkeys(zip(bokeh_edges['start'], bokeh_edges['end'])))
 
-    def quadratic_bezier(t: float, p0: Tuple[float, float], p1: Tuple[float, float],
+    def quadratic_bezier(step: float, p0: Tuple[float, float], p1: Tuple[float, float],
                          p2: Tuple[float, float]) -> Tuple[float, float]:
         # https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves
-        tx = (1 - t) * ((1 - t) * p0[0] + t * p1[0]) + t * ((1 - t) * p1[0] + t * p2[0])
-        ty = (1 - t) * ((1 - t) * p0[1] + t * p1[1]) + t * ((1 - t) * p1[1] + t * p2[1])
+        tx = (1 - step) * ((1 - step) * p0[0] + step * p1[0]) + step * ((1 - step) * p1[0] + step * p2[0])
+        ty = (1 - step) * ((1 - step) * p0[1] + step * p1[1]) + step * ((1 - step) * p1[1] + step * p2[1])
         return tx, ty
 
     for x, y in bokeh_edges:
@@ -239,17 +237,10 @@ def main():
                                                     (end_x, end_y))
                 else:
                     mid_x, mid_y = start_x, start_y
-                """sin = math.cos(graph_data[x][y][z]['edge_curve_angle'])
-                cos = math.cos(graph_data[x][y][z]['edge_curve_angle'])
-
-                end_x = (end_x - end_x_orig) * cos - (end_y - end_y_orig) * sin + end_x_orig
-                end_y = (end_x - end_x_orig) * sin + (end_y - end_y_orig) * cos + end_y_orig"""
-
-                # start_x = (start_x - end_x) * cos - (start_y - end_y) * sin + end_x
-                # start_y = (start_x - end_x) * sin + (start_y - end_y) * cos + end_y
 
                 plot.add_layout(Arrow(end=VeeHead(fill_color="orange", size=10),
                                       x_start=mid_x, y_start=mid_y, x_end=end_x, y_end=end_y, line_alpha=0))
+
     # Add the graph to the plot and the plot to the doc
     plot.renderers.append(graph)
 
@@ -260,10 +251,10 @@ def main():
         flow = []
         edge_flow = []
         color = []
-        for x, y in bokeh_edges:
-            for z in range(multiplicity[x][y]):
-                flow.append(model.tree_flow[Edge(x, y, z)])
-                edge_flow.append(model.edge_flow[Edge(x, y, z)])
+        for _x, _y in bokeh_edges:
+            for _z in range(multiplicity[_x][_y]):
+                flow.append(model.tree_flow[Edge(_x, _y, _z)])
+                edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
                 color.append(map_color(flow[-1]))
 
         graph.edge_renderer.data_source.data['flow'] = flow
@@ -279,7 +270,7 @@ def main():
         else:
             control = model.control_subcategories_inverted[new]
             control_levels[control[0]] = control[1]
-        model.reflow([item for item in control_levels.items() if item[1] > 0])
+        model.reflow([Control(*item) for item in control_levels.items() if item[1] > 0])
         flow_to_bokeh()
 
     selects = []
@@ -291,9 +282,9 @@ def main():
         selects.append(select)
     box = widgetbox(selects, width=380)
 
-    cbar = ColorBar(color_mapper=mapper, orientation='vertical',
-                    location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
-    plot.add_layout(cbar, 'right')
+    color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
+                         location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
+    plot.add_layout(color_bar, 'right')
 
     # Layout
     main_row = row([plot, box])

@@ -98,7 +98,7 @@ class Model(metaclass=abc.ABCMeta):
         for vertex in topological_sort[1:]:
             flow = 0
             for edge in self.graph.in_edges(vertex, data="multiplicity"):
-                flow = max(flow, edge_flow[edge]*vertex_flow[edge[0]])
+                flow = max(flow, edge_flow[edge] * vertex_flow[edge[0]])
             vertex_flow[vertex] = flow
         self.vertex_flow = vertex_flow
 
@@ -113,9 +113,12 @@ class Model(metaclass=abc.ABCMeta):
         g = networkx.MultiDiGraph()
 
         for edge in self.edges:
+            possible_controls = ", ".join(set(control.id for control in self.vulnerabilities[edge].controls))
+
             g.add_edge(edge.source, edge.target,
                        multiplicity=edge.multiplicity, vuln_name=self.vulnerabilities[edge].name,
-                       from_state=self.vertices[edge.source], to_state=self.vertices[edge.target])
+                       from_state=self.vertices[edge.source], to_state=self.vertices[edge.target],
+                       possible_controls=possible_controls)
 
         return g
 
