@@ -24,12 +24,12 @@ class Sample(Model):
     controls = [Control(*control) for control in
                 [('Sc', 1), ('Sc', 2), ('Sc', 3), ('N1', 1), ('N1', 2), ('N1', 3), ('N2', 1), ('N2', 2), ('N2', 3),
                  ('Ed', 1), ('Ed', 2), ('Ed', 3),
-                 ('Pr', 1), ('Pr', 2), ('A1', 1), ('A1', 2), ('A2', 1), ('Am', 1), ('Ac', 1), ('enc', 1)]]
+                 ('Pr', 1), ('Pr', 2), ('A1', 1), ('A1', 2), ('A2', 1), ('Am', 1), ('Ac', 1), ('En', 1)]]
 
     control_categories = [('Sc', 'Secure configuration', 3), ('N1', 'Network security (external)', 3),
                           ('N2', 'Network security (internal)', 3), ('Ed', 'User education', 3),
                           ('Pr', 'Processes', 2), ('A1', 'Authentication', 2), ('A2', '2FA', 1),
-                          ('En', 'Encryption', 1), ('Am', 'Anti-malware', 1), ('enc', 'enc', 1)]
+                          ('En', 'Encryption', 1), ('Am', 'Anti-malware', 1)]
 
     control_subcategories = {
         Control('Sc', 1): "up-to-date software",
@@ -52,7 +52,6 @@ class Sample(Model):
         Control('En', 1): "implement encryption",
         Control('Am', 1): "use anti-malware",
         Control('Ac', 1): "access control",
-        Control('enc', 1): "enc"
     }
 
 
@@ -104,7 +103,7 @@ class Sample(Model):
                                      {Control('N2', 1), Control('N2', 2), Control('N2', 3),
                                       Control('A1', 1), Control('A1', 2)}),
         Edge(2, 3, 1): Vulnerability("sniff traffic",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3), Control('enc', 1)}),
+                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3), Control('En', 1)}),
         Edge(2, 5, 0): Vulnerability("admin exploit",
                                      {Control('N2', 1), Control('N2', 2), Control('N2', 3),
                                       Control('Pr', 1), Control('Pr', 2)}),
