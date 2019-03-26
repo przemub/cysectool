@@ -318,8 +318,8 @@ def main():
     plot.add_layout(color_bar, 'right')
 
     # Add labels
-    plot.text(x=[v[0] for v in graph.layout_provider.graph_layout.values()],
-              y=[v[1] for v in graph.layout_provider.graph_layout.values()],
+    plot.text(x=[graph.layout_provider.graph_layout[v][0] for v in range(n)],
+              y=[graph.layout_provider.graph_layout[v][1] for v in range(n)],
               text=model.vertices,
               text_baseline="middle", text_align="center",
               text_font_size="0.7em")
