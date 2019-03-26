@@ -2,13 +2,13 @@ import math
 import os
 import sys
 from collections import defaultdict, OrderedDict
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Callable
 
 import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Quad, Rect
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -87,6 +87,8 @@ BEZIER_CONTROL = 0.1
 BEZIER_STEPS = 20
 PALETTE: List[str] = colorcet.b_diverging_gkr_60_10_c40
 BAR_MAX, BAR_MIN = 0, -3  # 10**value
+GLYPH_WIDTH: float = 0.25  # in pixels
+GLYPH_HEIGHT: float = 0.05  # in axis units
 
 
 def map_color(value: float) -> str:
@@ -143,9 +145,12 @@ def main():
 
     # Add colours and glyphs
     graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
-    graph.node_renderer.glyph = Circle(size=CIRCLE_SIZE, fill_color='color')
+    """graph.node_renderer.glyph = Circle(size=CIRCLE_SIZE, fill_color='color')
     graph.node_renderer.selection_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[5])
-    graph.node_renderer.hover_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[4])
+    graph.node_renderer.hover_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[4])"""
+    graph.node_renderer.glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color='color')
+    graph.node_renderer.selection_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[5])
+    graph.node_renderer.hover_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[4])
 
     mapper = LogColorMapper(palette=PALETTE, low=10 ** BAR_MIN, high=10 ** BAR_MAX)
     graph.edge_renderer.glyph = MultiLine(line_color='color',
@@ -176,12 +181,27 @@ def main():
         return tx, ty
 
     for x, y in bokeh_edges:
-        start_x, start_y = graph.layout_provider.graph_layout[x]
-        end_x, end_y = graph.layout_provider.graph_layout[y]
         if multiplicity[x][y] == 1 and \
                 (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) != 1):
             cur_xs = []
             cur_ys = []
+
+            start_x, start_y = graph.layout_provider.graph_layout[x]
+            end_x, end_y = graph.layout_provider.graph_layout[y]
+
+            # Account for the glyph
+            if start_y > end_y:
+                start_y -= GLYPH_HEIGHT/2
+                end_y += GLYPH_HEIGHT/2
+            elif start_y < end_y:
+                start_y += GLYPH_HEIGHT/2
+                end_y -= GLYPH_HEIGHT/2
+            elif start_x < end_x:
+                start_x += GLYPH_WIDTH/2
+                end_x -= GLYPH_WIDTH/2
+            elif start_x > end_x:
+                start_x -= GLYPH_WIDTH/2
+                end_x += GLYPH_WIDTH/2
 
             # Generate multiple points along the line so HoverTool can display close to the mouse,
             # not next to an end-point
@@ -193,13 +213,25 @@ def main():
             xs.append(cur_xs)
             ys.append(cur_ys)
 
+            graph_data[x][y][0]['edge_ends'] = (start_x, end_x, start_y, end_y)
             graph_data[x][y][0]['edge_curve'] = -1
             continue
-
-        angle = math.atan2(start_x - end_x, start_y - end_y)
-        distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
         for z in range(multiplicity[x][y]):
-            graph_data[x][y][z]['edge_curve'] = z
+            start_x, start_y = graph.layout_provider.graph_layout[x]
+            end_x, end_y = graph.layout_provider.graph_layout[y]
+            angle = math.atan2(start_x - end_x, start_y - end_y)
+            distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
+
+            # Account for the glyph
+            if start_y > end_y:
+                start_y -= GLYPH_HEIGHT/2
+                end_y += GLYPH_HEIGHT/2
+            elif start_y < end_y:
+                start_y += GLYPH_HEIGHT/2
+                end_y -= GLYPH_HEIGHT/2
+            else:
+                start_y -= GLYPH_HEIGHT/2
+                end_y -= GLYPH_HEIGHT/2
 
             mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
                     (1 if z % 2 else -1) * (z // 2 + 1)
@@ -217,32 +249,29 @@ def main():
             xs.append(cur_xs)
             ys.append(cur_ys)
 
+            graph_data[x][y][z]['edge_ends'] = (start_x, end_x, start_y, end_y)
+            graph_data[x][y][z]['edge_curve'] = z
+
     graph.edge_renderer.data_source.data['xs'] = xs
     graph.edge_renderer.data_source.data['ys'] = ys
 
     # Draw arrows
     # Bokeh does not support drawing directed graphs, hence we add arrows manually.
+
     for x in graph_data:
         for y in graph_data[x]:
             for z in graph_data[x][y]:
-                start_x, start_y = graph.layout_provider.graph_layout[x]
-                end_x_orig, end_y_orig = graph.layout_provider.graph_layout[y]
-                angle = math.atan2(start_x - end_x_orig, start_y - end_y_orig)
-                distance = math.hypot(start_x - end_x_orig, start_y - end_y_orig) // 0.4
+                start_x, end_x, start_y, end_y = graph_data[x][y][z]['edge_ends']
 
-                # Account for the vertex glyph…
-                end_x = end_x_orig + ARROW_PADDING * math.sin(angle)
-                end_y = end_y_orig + ARROW_PADDING * math.cos(angle)
+                angle = math.atan2(start_x - end_x, start_y - end_y)
+                distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
 
-                # …and for curved edges
-                if graph_data[x][y][z]['edge_curve'] != -1:
+                # Account for the curves
+                if graph_data[x][y][z]['edge_curve'] > -1:
                     mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
                             (1 if z % 2 else -1) * (z // 2 + 1)
                     mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
                             (1 if z % 2 else -1) * (z // 2 + 1)
-
-                    end_x, end_y = quadratic_bezier(0.995 + 0.001 * distance, (start_x, start_y), (mid_x, mid_y),
-                                                    (end_x, end_y))
                 else:
                     mid_x, mid_y = start_x, start_y
 
