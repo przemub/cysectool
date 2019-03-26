@@ -1,18 +1,17 @@
 import math
-import os
 import sys
 from collections import defaultdict, OrderedDict
-from typing import List, Tuple, Dict, Callable
 
 import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
-from bokeh.models import Arrow, Circle, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Quad, Rect
+from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
+from typing import List, Tuple, Dict
 
 from src.controls import Sample
 from src.data import Edge, Control
@@ -120,8 +119,6 @@ def main():
 
     hover = HoverTool()
     hover.tooltips = [
-        ("from", "@from_state"),
-        ("to", "@to_state"),
         ("flow", "@flow{0.0[0000]}"),
         ("flow reduction", "@edge_flow{0.0[0000]}"),
         ("vulnerability", "@vuln_name"),
@@ -145,9 +142,6 @@ def main():
 
     # Add colours and glyphs
     graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
-    """graph.node_renderer.glyph = Circle(size=CIRCLE_SIZE, fill_color='color')
-    graph.node_renderer.selection_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[5])
-    graph.node_renderer.hover_glyph = Circle(size=CIRCLE_SIZE, fill_color=Spectral8[4])"""
     graph.node_renderer.glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color='color')
     graph.node_renderer.selection_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[5])
     graph.node_renderer.hover_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[4])
@@ -322,6 +316,13 @@ def main():
     color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
                          location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
     plot.add_layout(color_bar, 'right')
+
+    # Add labels
+    plot.text(x=[v[0] for v in graph.layout_provider.graph_layout.values()],
+              y=[v[1] for v in graph.layout_provider.graph_layout.values()],
+              text=model.vertices,
+              text_baseline="middle", text_align="center",
+              text_font_size="0.7em")
 
     # Layout
     main_row = row([plot, box])

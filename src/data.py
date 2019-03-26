@@ -117,7 +117,6 @@ class Model(metaclass=abc.ABCMeta):
 
             g.add_edge(edge.source, edge.target,
                        multiplicity=edge.multiplicity, vuln_name=self.vulnerabilities[edge].name,
-                       from_state=self.vertices[edge.source], to_state=self.vertices[edge.target],
                        possible_controls=possible_controls)
 
         return g
