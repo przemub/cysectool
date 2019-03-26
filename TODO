@@ -1,3 +1,9 @@
 * optimisations (keeping results of old calculations, bringing down complexity, etc.)
 * proper scaling of arrows
 * proper drawing of arrows at the ends of curved edges (no idea here so far)
+
+
+* conda one-command installation 3
+* adding vulnerability effectiveness to edges
+* editing tables by user
+* labels (state name) (optional)
