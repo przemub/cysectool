@@ -294,22 +294,25 @@ def main():
 
     flow_to_bokeh()
 
-    def change_security(_attr, old, new):
-        if new == "None":
-            control = model.control_subcategories_inverted[old]
-            control_levels[control[0]] = 0
-        else:
-            control = model.control_subcategories_inverted[new]
-            control_levels[control[0]] = control[1]
-        model.reflow([Control(*item) for item in control_levels.items() if item[1] > 0])
-        flow_to_bokeh()
+    def change_security(category: str):
+        def _change(_attr, _old, new):
+            if new == "None":
+                control_levels[category] = 0
+            else:
+                control_levels[category] = int(new[:new.find(")")])
+
+            print(control_levels)
+            model.reflow([Control(*item) for item in control_levels.items() if item[1] > 0])
+            flow_to_bokeh()
+
+        return _change
 
     selects = []
     for category in model.control_categories:
         select = Select(title=category[1], value="None", options=["None"] +
-                                                                 [model.control_subcategories[(category[0], x)]
+                                                                 ["%d) " % x + model.control_subcategories[category[0], x]
                                                                   for x in range(1, category[2] + 1)])
-        select.on_change('value', change_security)
+        select.on_change('value', change_security(category[0]))
         selects.append(select)
     box = widgetbox(selects, width=380)
 

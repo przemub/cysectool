@@ -122,6 +122,5 @@ class Model(metaclass=abc.ABCMeta):
         return g
 
     def __init__(self):
-        self.control_subcategories_inverted: Dict[str, Control] = {v: k for k, v in self.control_subcategories.items()}
         self.graph: networkx.MultiDiGraph = self.to_networkx()
         self.reflow([])
