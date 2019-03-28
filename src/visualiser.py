@@ -6,7 +6,7 @@ import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Paragraph, Div
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -293,27 +293,37 @@ def main():
 
     flow_to_bokeh()
 
+    total_cost_p = Div(text="Total costs: <strong>0</strong>")
+    total_ind_cost_p = Div(text="Total indirect costs: <strong>0</strong>")
+
     def change_security(category: str):
         def _change(_attr, _old, new):
             if new == "None":
                 control_levels[category] = 0
             else:
                 control_levels[category] = int(new[:new.find(")")])
-
             print(control_levels)
-            model.reflow([model.control_subcategories[item[0]][item[1]-1] for item in control_levels.items() if item[1] > 0])
+
+            controls = [model.control_subcategories[item[0]][item[1]-1]
+                        for item in control_levels.items() if item[1] > 0]
+            total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
+            total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
+                                    sum(control.ind_cost for control in controls)
+            model.reflow(controls)
             flow_to_bokeh()
 
         return _change
 
-    selects = []
+    widgets = []
     for category_id, category in model.control_categories.items():
         select = Select(title=category[0], value="None", options=["None"] +
                                                                  ["%d) " % level.level + level.level_name
                                                                   for level in model.control_subcategories[category_id]])
         select.on_change('value', change_security(category_id))
-        selects.append(select)
-    box = widgetbox(selects, width=380)
+        widgets.append(select)
+
+    widgets.extend([total_cost_p, total_ind_cost_p])
+    box = widgetbox(widgets, width=380)
 
     color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
                          location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))
