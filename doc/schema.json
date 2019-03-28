@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "$id": "http://przemub.pl/schemas/visualiser.json",
+  "title": "Model",
+  "description": "A model",
+  "type": "object",
+  "required": ["name", "controls", "vertices", "edges"],
+  "properties": {
+    "name": {
+      "description": "Name of the schema",
+      "type": "string"
+    },
+    "controls": {
+      "description": "Define available controls",
+      "patternProperties": {
+        "[A-z0-9]+": {
+          "description": "A description of a control",
+          "properties": {
+            "name": {
+              "description": "Name of the control",
+              "type": "string"
+            },
+            "sub": {
+              "description": "Names of the levels of the control",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cost": {
+              "description": "Costs of the levels of the control",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "ind_cost": {
+              "description": "Individual costs of the levels of the control",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "flow": {
+              "description": "Flows of the levels of the control",
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "required": ["name", "sub", "cost", "ind_cost", "flow"]
+        }
+      }
+    },
+    "vertices": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Name of the state"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "multiplicity",
+          "vulnerability"],
+        "properties": {
+          "from": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "multiplicity": {
+            "type": "integer"
+          },
+          "default_flow": {
+            "type": "number"
+          },
+          "vulnerability": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "controls": {
+                "type": "object",
+                "patternProperties": {
+                  "[A-z0-9]+": {
+                    "type": "object",
+                    "properties": {
+                      "flow": {
+                        "type": "number"
+                      },
+                      "max_flow": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

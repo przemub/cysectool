@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="Visualiser schema">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="Visualiser schema" />
+              <option name="relativePathToSchema" value="doc/schema.json" />
+              <option name="schemaVersion" value="JSON schema version 7" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="doc/format.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>
