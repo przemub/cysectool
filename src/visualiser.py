@@ -301,6 +301,7 @@ def main():
             else:
                 control_levels[category] = int(new[:new.find(")")])
 
+            print(control_levels)
             model.reflow([model.control_subcategories[item[0]][item[1]-1] for item in control_levels.items() if item[1] > 0])
             flow_to_bokeh()
 

@@ -1,5 +1,5 @@
-'''multi-controls, multi-levels, multiplicative, controls as sets of edges.
-Controls' effectiveness varies depending on edge, thinning and multiple sinks'''
+"""multi-controls, multi-levels, multiplicative, controls as sets of edges.
+Controls' effectiveness varies depending on edge, thinning and multiple sinks"""
 # the extended attack graph2:
 from src.data import Model, Control, Edge, Vulnerability
 
@@ -45,74 +45,52 @@ class Sample(Model):
         'Ac': [Control('Ac', 1, "access control", 3, 2, 0.01)]
     }
 
-    def flow(self, c: Control, e: Edge):
-        if e == (0, 1, 0) and c[0] == 'Sc':
-            return min(2 * c.flow, 1)  # twice the flow than default case as many CVEs available on this edge
-        if e == (0, 1, 0) and c[0] == 'N1':
-            return 0.8 * c.flow  # 0.8 of flow than default as it can hide
-        if e == (0, 5, 1) or e == (0, 4, 0) or e == (
-                0, 3, 1):  # whaling or watering hole or compromised external systems
-            if c[0] == 'N1':
-                return min(4 * c.flow, 0.999)  # N1 very little effective against social engineering
-        return c.flow  # return flow survival default for the control
-
-    edges = [Edge(*edge) for edge in [(0, 1, 0), (0, 5, 0), (0, 5, 1), (0, 3, 0), (0, 3, 1), (0, 4, 0), (1, 2, 0),
-                                      (1, 5, 0), (2, 3, 0), (2, 3, 1), (3, 5, 0), (4, 5, 0), (5, 6, 0)]]
+    edges = [Edge(*edge) for edge in [(0, 1, 0), (0, 5, 0, 0.33333), (0, 5, 1, 0.33333), (0, 3, 0), (0, 3, 1),
+                                      (0, 4, 0), (1, 2, 0), (1, 5, 0), (2, 3, 0), (2, 3, 1), (3, 5, 0),
+                                      (4, 5, 0), (5, 6, 0)]]
     vulnerabilities = {
         Edge(0, 1, 0): Vulnerability("CVE exploit webserver",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Sc', 1), Control('Sc', 2), Control('Sc', 3)}),
+                                     {*Model.adjust_flows_by_factor(control_subcategories['Sc'], 2, 1),
+                                      *Model.adjust_flows_by_factor(control_subcategories['N1'], 0.8, 1)}),
         Edge(0, 5, 0): Vulnerability("CVE exploit direct",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Sc', 1), Control('Sc', 2), Control('Sc', 3)}),
+                                     {*control_subcategories['N1'],
+                                      *control_subcategories['Sc']}),
         Edge(0, 5, 1): Vulnerability("whaling",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
+                                     {*Model.adjust_flows_by_factor(control_subcategories['N1'], 4, 0.999),
+                                      *control_subcategories['Ed']}),
         Edge(0, 3, 0): Vulnerability("phishing",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
+                                     {*control_subcategories['N1'],
+                                      *control_subcategories['Ed']}),
         Edge(0, 3, 1): Vulnerability("compromised external systems",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Ed', 1), Control('Ed', 2), Control('Ed', 3),
-                                      Control('Pr', 1), Control('Pr', 2)}),
+                                     {*Model.adjust_flows_by_factor(control_subcategories['N1'], 4, 0.999),
+                                      *control_subcategories['Ed'],
+                                      *control_subcategories['Pr']}),
         Edge(0, 4, 0): Vulnerability("watering hole",
-                                     {Control('N1', 1), Control('N1', 2), Control('N1', 3),
-                                      Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
+                                     {*Model.adjust_flows_by_factor(control_subcategories['N1'], 4, 0.999),
+                                      *control_subcategories['Ed']}),
         Edge(1, 5, 0): Vulnerability("CVE exploit",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3),
-                                      Control('Sc', 1), Control('Sc', 2), Control('Sc', 3)}),
+                                     {*control_subcategories['N2'],
+                                      *control_subcategories['Sc']}),
         Edge(1, 2, 0): Vulnerability("empty step", set()),  # empty step
         Edge(2, 3, 0): Vulnerability("brute force",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3),
-                                      Control('A1', 1), Control('A1', 2)}),
+                                     {*control_subcategories['N2'],
+                                      *control_subcategories['A1']}),
         Edge(2, 3, 1): Vulnerability("sniff traffic",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3), Control('En', 1)}),
+                                     {*control_subcategories['N2'],
+                                      *control_subcategories['En']}),
         Edge(2, 5, 0): Vulnerability("admin exploit",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3),
-                                      Control('Pr', 1), Control('Pr', 2)}),
-        Edge(3, 5, 0): Vulnerability("log in", {Control('A2', 1)}),  # log in
-        Edge(4, 3, 0): Vulnerability("steal credentials", {Control('Ed', 1), Control('Ed', 2), Control('Ed', 3)}),
+                                     {*control_subcategories['N2'],
+                                      *control_subcategories['Pr']}),
+        Edge(3, 5, 0): Vulnerability("log in", {*control_subcategories['A2']}),  # log in
+        Edge(4, 3, 0): Vulnerability("steal credentials", {*control_subcategories['Ed']}),
         Edge(4, 5, 0): Vulnerability("install malware",
-                                     {Control('N2', 1), Control('N2', 2), Control('N2', 3),
-                                      Control('Sc', 1), Control('Sc', 2), Control('Sc', 3), Control('Am', 1)}),
+                                     {*control_subcategories['N2'],
+                                      *control_subcategories['Sc']}),
         Edge(5, 6, 0): Vulnerability("escalate privileges",
-                                     {Control('Sc', 1), Control('Sc', 2), Control('Sc', 3),
-                                      Control('Ac', 1), Control('A1', 1), Control('A1', 2)})
+                                     {*control_subcategories['A1'],
+                                      *control_subcategories['Sc']}),
     }
 
     n = 6
 
     vertices = ["start", "webserver", "in LAN", "credentials", "website", "control", "root"]
-
-    pi0 = {key: value for key, value in zip(edges, [1 for _ in range(len(edges))])}  # default thinning flow coefficient
-
-    def default_flow(self, edge: Edge):  # define non-default thinning flow coefficients for specific edges
-        if edge == (0, 5, 1) or edge == (0, 5, 0):  # these attack steps are unlikely so thin flow to 1/3
-            return self.pi0[edge] * 0.33333
-        return self.pi0[edge]
-
-    # controls data:
-    B = 40  # total budget
-    BI = 40  # indirect costs
-
-    eps = 0.00001

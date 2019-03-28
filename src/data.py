@@ -52,15 +52,30 @@ class Vulnerability(NamedTuple):
 class Edge(NamedTuple):
     """
     Represents an edge in a graph.
+    Attributes:
+        source, target: vertices connected by the edge
+        multiplicity: id of the edge among multiple edges
+        default_flow: flow when this edge has no applied controls
     """
     source: int
     target: int
     multiplicity: int
+    default_flow: float = 1.0
+
+    def __hash__(self):
+        val = hash(pow(self.source+1, 1.3)*pow(self.target+1, 1.8)*pow(self.multiplicity+1, 2.57))
+        return val
+
+    def __eq__(self, other):
+        return self.source, self.target, self.multiplicity == other.source, other.target, other.multiplicity
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class Model(metaclass=abc.ABCMeta):
     """
-    Superclass documenting properties and methods required to define a model.
+    Superclass documenting properties required to define a model.
 
     Attributes (controls):
         control_categories: Mapping[str, Tuple[str, int] - specification of categories (mapping of category ids
@@ -85,19 +100,18 @@ class Model(metaclass=abc.ABCMeta):
     vertex_flow: Mapping[int, float]
     tree_flow: Mapping[Edge, float]
 
-    @abc.abstractmethod
-    def flow(self, control: Control, edge: Edge) -> float:
+    @staticmethod
+    def adjust_flows_by_factor(c: Sequence[Control], factor: float, max_value: float = 1):
         """
-        Returns surviving flow (0.0-1.0) after applying a control to the edge.
+        Helper method that adjust flows in a list of controls to min(control.flow*factor, max_value).
         """
-        return 1.0
-
-    @abc.abstractmethod
-    def default_flow(self, edge: Edge) -> float:
-        """
-        Returns default (with no controls applied) flow (0.0-1.0) on the edge.
-        """
-        return 1.0
+        result = []
+        for control in c:
+            obj = [*control]
+            obj[5] = min(control.flow*factor, max_value)
+            new = Control(*obj)
+            result.append(new)
+        return result
 
     def reflow(self, controls: Sequence[Control]) -> Mapping[Edge, float]:
         """
@@ -106,12 +120,11 @@ class Model(metaclass=abc.ABCMeta):
         """
         edge_flow = {}
         for edge in self.edges:
-            flow = self.default_flow(edge)
-            for control in controls:
-                if control not in self.vulnerabilities[edge].controls:
+            flow = edge.default_flow
+            for control in self.vulnerabilities[edge].controls:
+                if control not in controls:
                     continue
-                print(control, self.vulnerabilities[edge].controls)
-                flow *= self.flow(control, edge)
+                flow *= control.flow
             edge_flow[edge] = flow
         self.edge_flow = edge_flow
 
@@ -120,7 +133,7 @@ class Model(metaclass=abc.ABCMeta):
         for vertex in topological_sort[1:]:
             flow = 0
             for edge in self.graph.in_edges(vertex, data="multiplicity"):
-                flow = max(flow, edge_flow[edge] * vertex_flow[edge[0]])
+                flow = max(flow, edge_flow[Edge(*edge)] * vertex_flow[edge[0]])
             vertex_flow[vertex] = flow
         self.vertex_flow = vertex_flow
 
