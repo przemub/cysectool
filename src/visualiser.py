@@ -139,6 +139,10 @@ def main():
     layout = tree_layout(graph_data, 0, depth)
     graph = from_networkx(graph_data, layout)
 
+    # Sort levels (y) by x
+    for level in levels:
+        level.sort(key=lambda v: graph.layout_provider.graph_layout[v][0])
+
     # Add colours and glyphs
     graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
     graph.node_renderer.glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color='color')
@@ -175,7 +179,7 @@ def main():
 
     for x, y in bokeh_edges:
         if multiplicity[x][y] == 1 and \
-                (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) != 1):
+                (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) == 1):
             cur_xs = []
             cur_ys = []
 
@@ -183,6 +187,7 @@ def main():
             end_x, end_y = graph.layout_provider.graph_layout[y]
 
             # Account for the glyph
+            print(start_x, start_y, end_x, end_y)
             if start_y > end_y:
                 start_y -= GLYPH_HEIGHT/2
                 end_y += GLYPH_HEIGHT/2
