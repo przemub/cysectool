@@ -1,5 +1,5 @@
 import math
-import sys
+import uuid
 from collections import defaultdict, OrderedDict
 from typing import List, Tuple, Dict
 
@@ -11,9 +11,17 @@ from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinke
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
-from bokeh.plotting import figure, curdoc
+from bokeh.plotting import figure
+from jinja2 import FileSystemLoader, Environment
 
+from src.api import Memory
 from src.data import Edge, JSONModel
+
+env = Environment(loader=FileSystemLoader('templates'))
+
+
+class GraphError(Exception):
+    pass
 
 
 def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
@@ -32,8 +40,7 @@ def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[
             queue.append((y, cur_depth + 1))
 
     if -1 in depth:
-        print("The graph is not connected!")
-        sys.exit(-1)
+        raise GraphError("The graph is not connected!")
 
     result = tuple(list() for _ in range(max(depth) + 1))
     for x, x_depth in enumerate(depth):
@@ -114,6 +121,8 @@ def typescript(name: str, args=None) -> CustomJS:
 
 
 def main(document):
+    document.template = env.get_template('index.html')
+
     # Create a plot
     plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800,
                   x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
@@ -132,10 +141,22 @@ def main(document):
     plot.add_tools(hover, tap, BoxSelectTool())
 
     # Import a model and a graph
-    model = JSONModel.create("doc/format.json")()
+    uid = document.session_context.request.arguments.get('id', None)
+
+    if uid:
+        uid = uuid.UUID(uid[0].decode('ascii'))
+        model = Memory.get_instance().documents[uid]
+    else:
+        with open("doc/default.json", "r") as f:
+            model = JSONModel.create(f)()
     graph_data = model.graph
     n = max(graph_data.nodes) + 1
-    levels, depth = bfs(graph_data, 0)
+
+    try:
+        levels, depth = bfs(graph_data, 0)
+    except GraphError as ge:
+        document.add_root(Div(text=str(ge)))
+        return
 
     # Create a bokeh graph
     layout = tree_layout(graph_data, 0, depth)
@@ -308,7 +329,6 @@ def main(document):
                 control_levels[category] = 0
             else:
                 control_levels[category] = int(new[:new.find(")")])
-            print(control_levels)
 
             controls = [model.control_subcategories[item[0]][item[1]-1]
                         for item in control_levels.items() if item[1] > 0]
@@ -329,7 +349,7 @@ def main(document):
         widgets.append(select)
 
     widgets.extend([total_cost_p, total_ind_cost_p])
-    box = widgetbox(widgets, width=380)
+    box = widgetbox(widgets, width=400)
 
     color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
                          location=(0, 0), ticker=FixedTicker(ticks=[1, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01]))

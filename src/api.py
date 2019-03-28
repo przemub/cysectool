@@ -12,7 +12,7 @@ class Memory:
     __instance = None
 
     @staticmethod
-    def get_instance():
+    def get_instance() -> 'Memory':
         """ Static access method. """
         if Memory.__instance is None:
             Memory()
@@ -30,14 +30,13 @@ class Memory:
     def add_document(self, text) -> uuid.UUID:
         model = JSONModel.create(text)
         uid = uuid.uuid4()
-        self.documents[uid] = model
+        self.documents[uid] = model()
         return uid
 
 
 # noinspection PyAbstractClass
 class ApiHandler(tornado.web.RequestHandler):
     def post(self):
-        print(self.request.body)
         try:
             request = json.loads(self.request.body)
         except json.decoder.JSONDecodeError:
@@ -53,4 +52,4 @@ class ApiHandler(tornado.web.RequestHandler):
             file = request['file']
             mem = Memory.get_instance()
             uid = mem.add_document(file)
-            self.finish(json.dumps({'uid': uid}))
+            self.finish(json.dumps({'uid': str(uid)}))

@@ -166,8 +166,7 @@ class JSONModel(Model, ABC):
     @classmethod
     def create(cls, file):
         if isinstance(file, IOBase):
-            with open(file) as f:
-                d = json.load(f)
+            d = json.load(file)
         else:
             d = json.loads(file)
 

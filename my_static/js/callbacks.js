@@ -16,7 +16,6 @@ function on_tap() {
         our_tooltip.parentNode.removeChild(our_tooltip);
     our_tooltip = tooltip.parentNode.appendChild(clone);
 }
-// noinspection JSUnusedGlobalSymbols
 function load_model() {
     var file_list = $("input#load").files;
     if (!file_list)
@@ -26,7 +25,14 @@ function load_model() {
     reader.readAsText(file, "UTF-8");
     reader.onload = function () {
         var content = reader.result;
-        console.log(content);
+        var http = new XMLHttpRequest();
+        http.open('POST', "/api", true);
+        http.setRequestHeader('Content-Type', 'application/json');
+        http.onload = function () {
+            var response = JSON.parse(this.responseText);
+            window.location.href = "/visualiser?id=" + response['uid'];
+        };
+        http.send(JSON.stringify({ 'cmd': 'load', 'file': content }));
     };
     reader.onerror = function () {
         alert("Failed to load the model!");
