@@ -276,7 +276,7 @@ def main():
     plot.renderers.append(graph)
 
     # Controls
-    control_levels: Dict[str, int] = {category[0]: 0 for category in model.control_categories}
+    control_levels: Dict[str, int] = {category: 0 for category in model.control_categories.keys()}
 
     def flow_to_bokeh():
         flow = []
@@ -301,18 +301,17 @@ def main():
             else:
                 control_levels[category] = int(new[:new.find(")")])
 
-            print(control_levels)
-            model.reflow([Control(*item) for item in control_levels.items() if item[1] > 0])
+            model.reflow([model.control_subcategories[item[0]][item[1]-1] for item in control_levels.items() if item[1] > 0])
             flow_to_bokeh()
 
         return _change
 
     selects = []
-    for category in model.control_categories:
-        select = Select(title=category[1], value="None", options=["None"] +
-                                                                 ["%d) " % x + model.control_subcategories[category[0], x]
-                                                                  for x in range(1, category[2] + 1)])
-        select.on_change('value', change_security(category[0]))
+    for category_id, category in model.control_categories.items():
+        select = Select(title=category[0], value="None", options=["None"] +
+                                                                 ["%d) " % level.level + level.level_name
+                                                                  for level in model.control_subcategories[category_id]])
+        select.on_change('value', change_security(category_id))
         selects.append(select)
     box = widgetbox(selects, width=380)
 

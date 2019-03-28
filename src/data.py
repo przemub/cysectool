@@ -1,6 +1,6 @@
 import abc
 import json
-from abc import ABCMeta
+from abc import ABCMeta, ABC
 from typing import Tuple, Dict, NamedTuple, Sequence, Set, Mapping
 
 import networkx
@@ -19,9 +19,23 @@ class Control(NamedTuple):
     """
     id: str
     level: int
-    cost: float
-    ind_cost: float
-    flow: float
+    level_name: str = ""
+    cost: float = 0
+    ind_cost: float = 0
+    flow: float = 1
+
+    def __hash__(self):
+        val: int = pow(self.level, 1.7)
+        for i, letter in enumerate(self.id):
+            val *= pow(ord(letter), 2.1 + 0.47 * i)
+            val = hash(val)
+        return val
+
+    def __eq__(self, other):
+        return self.id == other.id and self.level == other.level
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class Vulnerability(NamedTuple):
@@ -30,12 +44,9 @@ class Vulnerability(NamedTuple):
     Attributes:
         name - human-readable name of the attack
         controls - set of controls that change the probability of exploiting the vulnerability
-        flow - coefficient of effectiveness in flow re
     """
     name: str
     controls: Set[Control]
-    flow: int = 1
-    max_flow: int = 1
 
 
 class Edge(NamedTuple):
@@ -45,7 +56,6 @@ class Edge(NamedTuple):
     source: int
     target: int
     multiplicity: int
-    vulnerabilities: Mapping[str, Vulnerability]
 
 
 class Model(metaclass=abc.ABCMeta):
@@ -53,16 +63,16 @@ class Model(metaclass=abc.ABCMeta):
     Superclass documenting properties and methods required to define a model.
 
     Attributes (controls):
-        control_categories: List[Tuple[str, str, int]] - specification of categories (tuples of category id,
-                                                         category name and number of levels)
-        control_subcategories: Mapping[Control, str] - mapping of controls to their descriptions
+        control_categories: Mapping[str, Tuple[str, int] - specification of categories (mapping of category ids
+                                                           on category full name and number of levels)
+        control_subcategories: Mapping[str, Sequence[Control] - mapping of control ids to a sequence of their levels
         edges: Sequence[Edge] - all edges in the graph
         vulnerabilities: Mapping[Edge, Vulnerability - mapping of vulnerabilities to the edges
     """
 
     # Defining controls
-    control_categories: Sequence[Tuple[str, str, int]]
-    control_subcategories: Mapping[Control, str]
+    control_categories: Mapping[str, Tuple[str, int]]
+    control_subcategories: Mapping[str, Sequence[Control]]
 
     # Defining a graph
     n: int
@@ -100,6 +110,7 @@ class Model(metaclass=abc.ABCMeta):
             for control in controls:
                 if control not in self.vulnerabilities[edge].controls:
                     continue
+                print(control, self.vulnerabilities[edge].controls)
                 flow *= self.flow(control, edge)
             edge_flow[edge] = flow
         self.edge_flow = edge_flow
@@ -137,15 +148,28 @@ class Model(metaclass=abc.ABCMeta):
         self.reflow([])
 
 
-class JSONModel(Model, metaclass=ABCMeta):
+class JSONModel(Model, ABC):
     @classmethod
     def create(cls, file):
         with open(file) as f:
             d = json.load(f)
 
-        control_subcategories = []
+        control_subcategories = {}
+        obj = {'control_categories': {control[0]: (control[1]['name'], len(control[1]['sub']))
+                                      for control in d['controls'].items()},
+               'control_subcategories': control_subcategories,
+               'n': len(d['vertices']),
+               'edges': [(edge['from'], edge['to'], edge['multiplicity']) for edge in d['edges']],
+               'vertices': d['vertices'],
+               'vulnerabilities': {
+                   (edge['from'], edge['to'], edge['multiplicity']): []
+                   for edge in d['edges']
+               }}
 
-        obj = {
-            'control_categories': [(control[0], control[1]['name'], len(control[1]['sub']))
-                                   for control in d['controls']],
-        }
+        for edge in d['edges']:
+            edge_obj = Edge(edge['from'], edge['to'], edge['multiplicity'])
+            for control in edge['vulnerability']['controls'].items():
+                for level in range(obj['control_categories'][control[0]][1]):
+                    pass
+
+        print(obj)

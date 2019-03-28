@@ -20,52 +20,41 @@ Ac= access control
 
 
 class Sample(Model):
-    control_categories = [('Sc', 'Secure configuration', 3), ('N1', 'Network security (external)', 3),
-                          ('N2', 'Network security (internal)', 3), ('Ed', 'User education', 3),
-                          ('Pr', 'Processes', 2), ('A1', 'Authentication', 2), ('A2', '2FA', 1),
-                          ('En', 'Encryption', 1), ('Am', 'Anti-malware', 1)]
+    control_categories = {'Sc': ('Secure configuration', 3), 'N1': ('(Network security (external)', 3),
+                          'N2': ('Network security (internal)', 3), 'Ed': ('User education', 3),
+                          'Pr': ('Processes', 2), 'A1': ('Authentication', 2), 'A2': ('2FA', 1),
+                          'En': ('Encryption', 1), 'Am': ('Anti-malware', 1)}
 
     control_subcategories = {
-        Control('Sc', 1): "up-to-date software",
-        Control('Sc', 2): "patching",
-        Control('Sc', 3): "whitelisting",
-        Control('N1', 1): "firewall",
-        Control('N1', 2): "traffic monitoring",
-        Control('N1', 3): "in-depth packet inspection",
-        Control('N2', 1): "firewall\u200b",
-        Control('N2', 2): "traffic monitoring\u200b",
-        Control('N2', 3): "in-depth packet inspection\u200b",
-        Control('Ed', 1): "basic training",
-        Control('Ed', 2): "active simulated social engineering attacks",
-        Control('Ed', 3): "strongly monitored policies",
-        Control('Pr', 1): "inventories",
-        Control('Pr', 2): "prompt disabling when users leave",
-        Control('A1', 1): "strong password policy",
-        Control('A1', 2): "regularly change password",
-        Control('A2', 1): "2-factor authentication",
-        Control('En', 1): "implement encryption",
-        Control('Am', 1): "use anti-malware",
-        Control('Ac', 1): "access control",
+        'Sc': [Control('Sc', 1, "up-to-date software", 1, 1, .4), Control('Sc', 2, "patching", 3, 1, .12),
+               Control('Sc', 3, "whitelisting", 4, 6, .1)],
+        'N1': [Control('N1', 1, "firewall", 1, 4, .3), Control('N1', 2, "traffic monitoring", 4, 5, .2),
+               Control('N1', 3, "in-depth packet inspection", 7, 6, .1)],
+        'N2': [Control('N2', 1, "firewall", 2, 3, .3), Control('N2', 2, "traffic monitoring", 5, 4, .2),
+               Control('N2', 3, "in-depth packet inspection", 8, 5, .1)],
+        'Ed': [Control('Ed', 1, "basic training", 3, 2, .5),
+               Control('Ed', 2, "active simulated social engineering attacks", 5, 5, .3),
+               Control('Ed', 3, "strongly monitored policies", 6, 10, .25)],
+        'Pr': [Control('Pr', 1, "inventories", 2, 2, .4),
+               Control('Pr', 2, "prompt disabling when users leave", 3, 4, .25)],
+        'A1': [Control('A1', 1, "strong password policy", 1, 3, .3),
+               Control('A1', 2, "regularly change password", 4, 7, .25)],
+        'A2': [Control('A2', 1, "2-factor authentication", 7, 8, .05)],
+        'En': [Control('En', 1, "implement encryption", 2, 1, .2)],
+        'Am': [Control('Am', 1, "use anti-malware", 2, 1, .1)],
+        'Ac': [Control('Ac', 1, "access control", 3, 2, 0.01)]
     }
-
-
-    # controls' data (P below is the surviving flow per edge):
-    cost = {key: value for key, value in zip(controls, [1, 3, 4, 1, 4, 7, 2, 5, 8, 3, 5, 6, 2, 3, 1, 4, 7, 2, 2, 3])}
-    ind_costs = {key: value for key, value in
-                 zip(controls, [1, 1, 6, 4, 5, 6, 3, 4, 5, 2, 5, 10, 2, 4, 3, 7, 8, 1, 1, 2])}
-    P0 = {key: value for key, value in
-          zip(controls, [.4, .12, .1, .3, .2, .1, .3, .2, .1, .5, .3, .25, .4, .25, .3, .25, .05, .2, .1, .01])}
 
     def flow(self, c: Control, e: Edge):
         if e == (0, 1, 0) and c[0] == 'Sc':
-            return min(2 * self.P0[c], 1)  # twice the flow than default case as many CVEs available on this edge
+            return min(2 * c.flow, 1)  # twice the flow than default case as many CVEs available on this edge
         if e == (0, 1, 0) and c[0] == 'N1':
-            return 0.8 * self.P0[c]  # 0.8 of flow than default as it can hide
+            return 0.8 * c.flow  # 0.8 of flow than default as it can hide
         if e == (0, 5, 1) or e == (0, 4, 0) or e == (
                 0, 3, 1):  # whaling or watering hole or compromised external systems
             if c[0] == 'N1':
-                return min(4 * self.P0[c], 0.999)  # N1 very little effective against social engineering
-        return self.P0[c]  # return flow survival default for the control
+                return min(4 * c.flow, 0.999)  # N1 very little effective against social engineering
+        return c.flow  # return flow survival default for the control
 
     edges = [Edge(*edge) for edge in [(0, 1, 0), (0, 5, 0), (0, 5, 1), (0, 3, 0), (0, 3, 1), (0, 4, 0), (1, 2, 0),
                                       (1, 5, 0), (2, 3, 0), (2, 3, 1), (3, 5, 0), (4, 5, 0), (5, 6, 0)]]
