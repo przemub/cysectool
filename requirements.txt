@@ -1,5 +1,5 @@
 bokeh==1.0.4
-colorcet==1.0.0
+colorcet==1.0.1
 decorator==4.4.0
 Jinja2==2.10
 MarkupSafe==1.1.1

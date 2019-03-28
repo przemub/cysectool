@@ -20,12 +20,6 @@ Ac= access control
 
 
 class Sample(Model):
-
-    controls = [Control(*control) for control in
-                [('Sc', 1), ('Sc', 2), ('Sc', 3), ('N1', 1), ('N1', 2), ('N1', 3), ('N2', 1), ('N2', 2), ('N2', 3),
-                 ('Ed', 1), ('Ed', 2), ('Ed', 3),
-                 ('Pr', 1), ('Pr', 2), ('A1', 1), ('A1', 2), ('A2', 1), ('Am', 1), ('Ac', 1), ('En', 1)]]
-
     control_categories = [('Sc', 'Secure configuration', 3), ('N1', 'Network security (external)', 3),
                           ('N2', 'Network security (internal)', 3), ('Ed', 'User education', 3),
                           ('Pr', 'Processes', 2), ('A1', 'Authentication', 2), ('A2', '2FA', 1),
@@ -112,7 +106,7 @@ class Sample(Model):
         Edge(4, 5, 0): Vulnerability("install malware",
                                      {Control('N2', 1), Control('N2', 2), Control('N2', 3),
                                       Control('Sc', 1), Control('Sc', 2), Control('Sc', 3), Control('Am', 1)}),
-        Edge(5, 6, 0): Vulnerability("excalate privileges",
+        Edge(5, 6, 0): Vulnerability("escalate privileges",
                                      {Control('Sc', 1), Control('Sc', 2), Control('Sc', 3),
                                       Control('Ac', 1), Control('A1', 1), Control('A1', 2)})
     }

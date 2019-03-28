@@ -1,4 +1,6 @@
 import abc
+import json
+from abc import ABCMeta
 from typing import Tuple, Dict, NamedTuple, Sequence, Set, Mapping
 
 import networkx
@@ -10,9 +12,30 @@ class Control(NamedTuple):
     Attributes:
         id - category id (like Sc, A1, etc.)
         level - control level (from 0 upwards)
+        cost - cost in budget
+        ind_cost - individual cost
+        flow - default flow reduction coefficient.
+               can be overridden in an edge.
     """
     id: str
     level: int
+    cost: float
+    ind_cost: float
+    flow: float
+
+
+class Vulnerability(NamedTuple):
+    """
+    Represents a vulnerability resulting in changing state.
+    Attributes:
+        name - human-readable name of the attack
+        controls - set of controls that change the probability of exploiting the vulnerability
+        flow - coefficient of effectiveness in flow re
+    """
+    name: str
+    controls: Set[Control]
+    flow: int = 1
+    max_flow: int = 1
 
 
 class Edge(NamedTuple):
@@ -22,17 +45,7 @@ class Edge(NamedTuple):
     source: int
     target: int
     multiplicity: int
-
-
-class Vulnerability(NamedTuple):
-    """
-    Represents a vulnerability resulting in changing state.
-    Attributes:
-        name: str - human-readable name of the attack
-        controls: Set[control] - set of controls that change the probability of exploiting the vulnerability
-    """
-    name: str
-    controls: Set[Control]
+    vulnerabilities: Mapping[str, Vulnerability]
 
 
 class Model(metaclass=abc.ABCMeta):
@@ -40,7 +53,6 @@ class Model(metaclass=abc.ABCMeta):
     Superclass documenting properties and methods required to define a model.
 
     Attributes (controls):
-        controls: List[Control] - controls available as keys to control_subcategories
         control_categories: List[Tuple[str, str, int]] - specification of categories (tuples of category id,
                                                          category name and number of levels)
         control_subcategories: Mapping[Control, str] - mapping of controls to their descriptions
@@ -49,7 +61,6 @@ class Model(metaclass=abc.ABCMeta):
     """
 
     # Defining controls
-    controls: Sequence[Control]
     control_categories: Sequence[Tuple[str, str, int]]
     control_subcategories: Mapping[Control, str]
 
@@ -124,3 +135,17 @@ class Model(metaclass=abc.ABCMeta):
     def __init__(self):
         self.graph: networkx.MultiDiGraph = self.to_networkx()
         self.reflow([])
+
+
+class JSONModel(Model, metaclass=ABCMeta):
+    @classmethod
+    def create(cls, file):
+        with open(file) as f:
+            d = json.load(f)
+
+        control_subcategories = []
+
+        obj = {
+            'control_categories': [(control[0], control[1]['name'], len(control[1]['sub']))
+                                   for control in d['controls']],
+        }

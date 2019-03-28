@@ -4,6 +4,7 @@
       <w>bokeh</w>
       <w>networkx</w>
       <w>phishing</w>
+      <w>tablename</w>
     </words>
   </dictionary>
 </component>
