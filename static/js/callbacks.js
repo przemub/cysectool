@@ -1,5 +1,6 @@
 "use strict";
 var our_tooltip;
+// noinspection JSUnusedGlobalSymbols
 function on_tap() {
     // Find the tooltip
     var tooltip = $('div.bk-tooltip');
@@ -15,5 +16,20 @@ function on_tap() {
         our_tooltip.parentNode.removeChild(our_tooltip);
     our_tooltip = tooltip.parentNode.appendChild(clone);
 }
-on_tap();
+// noinspection JSUnusedGlobalSymbols
+function load_model() {
+    var file_list = $("input#load").files;
+    if (!file_list)
+        return;
+    var file = file_list[0];
+    var reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+    reader.onload = function () {
+        var content = reader.result;
+        console.log(content);
+    };
+    reader.onerror = function () {
+        alert("Failed to load the model!");
+    };
+}
 //# sourceMappingURL=callbacks.js.map

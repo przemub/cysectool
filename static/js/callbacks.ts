@@ -1,13 +1,14 @@
 let our_tooltip: HTMLElement;
 
+// noinspection JSUnusedGlobalSymbols
 function on_tap(): void {
     // Find the tooltip
-    let tooltip: HTMLElement = $('div.bk-tooltip');
+    const tooltip: HTMLElement = $('div.bk-tooltip');
     if (!tooltip)
         return;
 
     // Clone it
-    let clone = <HTMLElement>tooltip.cloneNode(true);
+    const clone = <HTMLElement>tooltip.cloneNode(true);
     clone.style['left'] = "50px";
     clone.style['top'] = null;
     clone.style['bottom'] = "50px";
@@ -18,4 +19,23 @@ function on_tap(): void {
     our_tooltip = tooltip.parentNode.appendChild(clone);
 }
 
-on_tap();
+function load_model(): void {
+    const file_list = (<HTMLInputElement> $("input#load")).files;
+
+    if (!file_list)
+        return;
+
+    const file = file_list[0];
+
+    const reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+
+    reader.onload = function() {
+        const content = reader.result;
+        console.log(content);
+    };
+
+    reader.onerror = function() {
+        alert("Failed to load the model!");
+    };
+}

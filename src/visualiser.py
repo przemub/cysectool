@@ -1,17 +1,17 @@
 import math
 import sys
 from collections import defaultdict, OrderedDict
+from typing import List, Tuple, Dict
 
 import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Paragraph, Div
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
-from typing import List, Tuple, Dict
 
 from src.data import Edge, JSONModel
 
@@ -107,11 +107,13 @@ def map_color(value: float) -> str:
     return PALETTE[threshold]
 
 
-def typescript(name: str) -> CustomJS:
-    return CustomJS(code="%s();" % name)
+def typescript(name: str, args=None) -> CustomJS:
+    if args is None:
+        args = {}
+    return CustomJS(code="%s();" % name, args=args)
 
 
-def main():
+def main(document):
     # Create a plot
     plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800,
                   x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
@@ -187,7 +189,6 @@ def main():
             end_x, end_y = graph.layout_provider.graph_layout[y]
 
             # Account for the glyph
-            print(start_x, start_y, end_x, end_y)
             if start_y > end_y:
                 start_y -= GLYPH_HEIGHT/2
                 end_y += GLYPH_HEIGHT/2
@@ -341,6 +342,12 @@ def main():
               text_baseline="middle", text_align="center",
               text_font_size="0.7em")
 
+    # Add load/save buttons
+    div = Div(text='<label for="load">Load Model</label>'
+                   '<input type="file" onchange="load_model();" id="load" accept=".json">')
+    button = Button(label="Save Model", callback=typescript("model_save"))
+    button_box = widgetbox([button, div])
+
     # Layout
-    main_row = row([plot, box])
-    curdoc().add_root(main_row)
+    main_row = row([plot, box, button_box])
+    document.add_root(main_row)

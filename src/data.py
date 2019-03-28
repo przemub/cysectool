@@ -1,5 +1,7 @@
 import abc
 import json
+from io import IOBase
+
 import networkx
 from abc import ABC
 from typing import Tuple, NamedTuple, Sequence, Set, Mapping
@@ -163,8 +165,11 @@ class Model(metaclass=abc.ABCMeta):
 class JSONModel(Model, ABC):
     @classmethod
     def create(cls, file):
-        with open(file) as f:
-            d = json.load(f)
+        if isinstance(file, IOBase):
+            with open(file) as f:
+                d = json.load(f)
+        else:
+            d = json.loads(file)
 
         control_categories = {control[0]: (control[1]['name'], len(control[1]['sub']))
                               for control in d['controls'].items()}
