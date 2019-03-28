@@ -91,6 +91,7 @@
       "from": 0,
       "to": 5,
       "multiplicity": 0,
+      "default_flow": 0.33333,
       "vulnerability": {
         "name": "CVE exploit direct",
         "flow": 0.33333,
@@ -104,6 +105,7 @@
       "from": 0,
       "to": 5,
       "multiplicity": 1,
+      "default_flow": 0.33333,
       "vulnerability": {
         "name": "whaling",
         "flow": 0.33333,

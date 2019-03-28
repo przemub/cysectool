@@ -1,8 +1,5 @@
 * optimisations (keeping results of old calculations, bringing down complexity, etc.)
 * proper scaling of arrows
 
-
-* conda one-command installation 3
-* adding vulnerability effectiveness to edges
 * editing tables by user
 * labels (state name) (optional)

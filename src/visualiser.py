@@ -13,8 +13,7 @@ from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, curdoc
 from typing import List, Tuple, Dict
 
-from src.controls import Sample
-from src.data import Edge, Control
+from src.data import Edge, JSONModel
 
 
 def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
@@ -131,7 +130,7 @@ def main():
     plot.add_tools(hover, tap, BoxSelectTool())
 
     # Import a model and a graph
-    model = Sample()
+    model = JSONModel.create("doc/format.json")()
     graph_data = model.graph
     n = max(graph_data.nodes) + 1
     levels, depth = bfs(graph_data, 0)

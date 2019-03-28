@@ -1,9 +1,8 @@
 import abc
 import json
-from abc import ABCMeta, ABC
-from typing import Tuple, Dict, NamedTuple, Sequence, Set, Mapping
-
 import networkx
+from abc import ABC
+from typing import Tuple, NamedTuple, Sequence, Set, Mapping
 
 
 class Control(NamedTuple):
@@ -63,7 +62,7 @@ class Edge(NamedTuple):
     default_flow: float = 1.0
 
     def __hash__(self):
-        val = hash(pow(self.source+1, 1.3)*pow(self.target+1, 1.8)*pow(self.multiplicity+1, 2.57))
+        val = hash(pow(self.source + 1, 1.3) * pow(self.target + 1, 1.8) * pow(self.multiplicity + 1, 2.57))
         return val
 
     def __eq__(self, other):
@@ -108,7 +107,7 @@ class Model(metaclass=abc.ABCMeta):
         result = []
         for control in c:
             obj = [*control]
-            obj[5] = min(control.flow*factor, max_value)
+            obj[5] = min(control.flow * factor, max_value)
             new = Control(*obj)
             result.append(new)
         return result
@@ -167,22 +166,40 @@ class JSONModel(Model, ABC):
         with open(file) as f:
             d = json.load(f)
 
+        control_categories = {control[0]: (control[1]['name'], len(control[1]['sub']))
+                              for control in d['controls'].items()}
         control_subcategories = {}
-        obj = {'control_categories': {control[0]: (control[1]['name'], len(control[1]['sub']))
-                                      for control in d['controls'].items()},
+        for category_id, category in control_categories.items():
+            control_subcategories[category_id] = []
+            for level in range(category[1]):
+                control = d['controls'][category_id]
+                control_subcategories[category_id].append(Control(category_id, level + 1,
+                                                                  control['sub'][level], control['cost'][level],
+                                                                  control['ind_cost'][level], control['flow'][level]))
+
+        obj = {'control_categories': control_categories,
                'control_subcategories': control_subcategories,
                'n': len(d['vertices']),
-               'edges': [(edge['from'], edge['to'], edge['multiplicity']) for edge in d['edges']],
+               'edges': [Edge(edge['from'], edge['to'], edge['multiplicity'],
+                              edge['default_flow'] if 'default_flow' in edge else 1)
+                         for edge in d['edges']],
                'vertices': d['vertices'],
                'vulnerabilities': {
-                   (edge['from'], edge['to'], edge['multiplicity']): []
+                   Edge(edge['from'], edge['to'], edge['multiplicity']): Vulnerability(edge['vulnerability']['name'],
+                                                                                       set())
                    for edge in d['edges']
                }}
 
         for edge in d['edges']:
             edge_obj = Edge(edge['from'], edge['to'], edge['multiplicity'])
-            for control in edge['vulnerability']['controls'].items():
-                for level in range(obj['control_categories'][control[0]][1]):
-                    pass
+            for control_id, control_settings in edge['vulnerability']['controls'].items():
+                for level in range(obj['control_categories'][control_id][1]):
+                    control = Model.adjust_flows_by_factor([obj['control_subcategories'][control_id][level]],
+                                                           control_settings['flow']
+                                                           if 'flow' in control_settings else 1,
+                                                           control_settings['max_flow']
+                                                           if 'max_flow' in control_settings else 1)[0]
+                    obj['vulnerabilities'][edge_obj].controls.add(control)
 
-        print(obj)
+        result = type(d['name'], (JSONModel,), obj)
+        return result
