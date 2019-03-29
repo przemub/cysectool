@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ### Run
 ```sh
 source venv/bin/activate
-python -m bokeh serve visualiser
+python main.py
 ```
 
 ## conda way
@@ -29,6 +29,6 @@ conda env create -f environment.yml
 ### Run
 ```sh
 conda activate visualiser
-python -m bokeh serve visualiser --show
+python main.py
 ```
 
