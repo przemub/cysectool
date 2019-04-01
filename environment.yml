@@ -14,8 +14,6 @@ dependencies:
   - idna=2.8
   - libedit=3.1.20170329
   - libffi=3.2.1
-  - libgcc-ng=8.2.0
-  - libstdcxx-ng=8.2.0
   - ncurses=6.1
   - openssl=1.1.1b
   - pip=18.1
