@@ -1,61 +1,40 @@
-name: visualiser
+name: base
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - asn1crypto=0.24.0=py37_1003
-  - bokeh=1.0.4=py37_1000
-  - ca-certificates=2019.3.9=hecc5488_0
-  - certifi=2019.3.9=py37_0
-  - cffi=1.12.2=py37hf0e25f4_1
-  - chardet=3.0.4=py37_1003
-  - colorcet=1.0.0=py_0
-  - cryptography=2.6.1=py37h72c5cf5_0
-  - decorator=4.4.0=py_0
-  - freetype=2.10.0=he983fc9_0
-  - idna=2.8=py37_1000
-  - jinja2=2.10=py_1
-  - jpeg=9c=h14c3975_1001
-  - libblas=3.8.0=4_openblas
-  - libcblas=3.8.0=4_openblas
-  - libedit=3.1.20181209=hc058e9b_0
-  - libffi=3.2.1=hd88cf55_4
-  - libgcc-ng=8.2.0=hdf63c60_1
-  - libgfortran=3.0.0=1
-  - liblapack=3.8.0=4_openblas
-  - libpng=1.6.36=h84994c4_1000
-  - libstdcxx-ng=8.2.0=hdf63c60_1
-  - libtiff=4.0.10=h648cc4a_1001
-  - markupsafe=1.1.1=py37h14c3975_0
-  - ncurses=6.1=he6710b0_1
-  - networkx=2.2=py_1
-  - numpy=1.16.2=py37h8b7e671_1
-  - olefile=0.46=py_0
-  - openblas=0.3.5=ha44fe06_0
-  - openssl=1.1.1b=h14c3975_1
-  - packaging=19.0=py_0
-  - param=1.8.2=py_0
-  - pillow=5.4.1=py37h00a061d_1000
-  - pip=19.0.3=py37_0
-  - pycparser=2.19=py37_1
-  - pyct=0.4.6=py_0
-  - pyct-core=0.4.6=py_0
-  - pyopenssl=19.0.0=py37_0
-  - pyparsing=2.3.1=py_0
-  - pysocks=1.6.8=py37_1002
-  - python=3.7.2=h0371630_0
-  - python-dateutil=2.8.0=py_0
-  - pyyaml=5.1=py37h14c3975_0
-  - readline=7.0=h7b6447c_5
-  - requests=2.21.0=py37_1000
-  - setuptools=40.8.0=py37_0
-  - six=1.12.0=py37_1000
-  - sqlite=3.27.2=h7b6447c_0
-  - tk=8.6.9=h84994c4_1000
-  - tornado=6.0.2=py37h516909a_0
-  - urllib3=1.24.1=py37_1000
-  - wheel=0.33.1=py37_0
-  - xz=5.2.4=h14c3975_4
-  - yaml=0.1.7=h14c3975_1001
-  - zlib=1.2.11=h7b6447c_3
+  - asn1crypto=0.24.0
+  - ca-certificates=2019.1.23
+  - certifi=2019.3.9
+  - cffi=1.11.5
+  - chardet=3.0.4
+  - conda=4.6.8
+  - conda-env=2.6.0
+  - cryptography=2.4.2
+  - idna=2.8
+  - libedit=3.1.20170329
+  - libffi=3.2.1
+  - libgcc-ng=8.2.0
+  - libstdcxx-ng=8.2.0
+  - ncurses=6.1
+  - openssl=1.1.1b
+  - pip=18.1
+  - pycosat=0.6.3
+  - pycparser=2.19
+  - pyopenssl=18.0.0
+  - pysocks=1.6.8
+  - python=3.7.1
+  - readline=7.0
+  - requests=2.21.0
+  - ruamel_yaml=0.15.46
+  - setuptools=40.6.3
+  - six=1.12.0
+  - sqlite=3.26.0
+  - tk=8.6.8
+  - urllib3=1.24.1
+  - wheel=0.32.3
+  - xz=5.2.4
+  - yaml=0.1.7
+  - zlib=1.2.11
+prefix: /opt/miniconda3
 
