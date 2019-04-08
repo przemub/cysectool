@@ -86,6 +86,8 @@ class Model(metaclass=abc.ABCMeta):
         vulnerabilities: Mapping[Edge, Vulnerability - mapping of vulnerabilities to the edges
     """
 
+    name: str
+
     # Defining controls
     control_categories: Mapping[str, Tuple[str, int]]
     control_subcategories: Mapping[str, Sequence[Control]]
@@ -170,7 +172,7 @@ class JSONModel(Model, ABC):
         else:
             d = json.loads(file)
 
-        control_categories = {control[0]: (control[1]['name'], len(control[1]['sub']))
+        control_categories = {control[0]: (control[1]['name'], len(control[1]['level_name']))
                               for control in d['controls'].items()}
         control_subcategories = {}
         for category_id, category in control_categories.items():
@@ -178,10 +180,11 @@ class JSONModel(Model, ABC):
             for level in range(category[1]):
                 control = d['controls'][category_id]
                 control_subcategories[category_id].append(Control(category_id, level + 1,
-                                                                  control['sub'][level], control['cost'][level],
+                                                                  control['level_name'][level], control['cost'][level],
                                                                   control['ind_cost'][level], control['flow'][level]))
 
-        obj = {'control_categories': control_categories,
+        obj = {'name': d['name'],
+               'control_categories': control_categories,
                'control_subcategories': control_subcategories,
                'n': len(d['vertices']),
                'edges': [Edge(edge['from'], edge['to'], edge['multiplicity'],

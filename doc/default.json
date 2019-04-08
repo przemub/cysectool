@@ -3,28 +3,28 @@
   "controls": {
     "Sc": {
       "name": "Secure configuration",
-      "sub": ["up-to-date software", "patching", "whitelisting"],
+      "level_name": ["up-to-date software", "patching", "whitelisting"],
       "cost": [1, 3, 4],
       "ind_cost": [1, 1, 6],
       "flow": [0.4, 0.12, 0.1]
     },
     "N1": {
       "name": "Network security (internal)",
-      "sub": ["firewall", "traffic monitoring", "in-depth packet inspection"],
+      "level_name": ["firewall", "traffic monitoring", "in-depth packet inspection"],
       "cost": [1, 4, 7],
       "ind_cost": [4, 5, 6],
       "flow": [0.3, 0.2, 0.1]
     },
     "N2": {
       "name": "Network security (external)",
-      "sub": ["firewall", "traffic monitoring", "in-depth packet inspection"],
+      "level_name": ["firewall", "traffic monitoring", "in-depth packet inspection"],
       "cost": [2, 5, 8],
       "ind_cost": [3, 4, 5],
       "flow": [0.3, 0.2, 0.1]
     },
     "Ed": {
       "name": "User education",
-      "sub": ["basic training", "active simulated social engineering attacks",
+      "level_name": ["basic training", "active simulated social engineering attacks",
               "strongly monitored policies"],
       "cost": [3, 5, 6],
       "ind_cost": [2, 5, 10],
@@ -32,42 +32,42 @@
     },
     "Pr": {
       "name": "Processes",
-      "sub": ["inventories", "prompt disabling when users leave"],
+      "level_name": ["inventories", "prompt disabling when users leave"],
       "cost": [2, 3],
       "ind_cost": [2, 4],
       "flow": [0.4, 0.25]
     },
     "A1": {
       "name": "Authentication",
-      "sub": ["strong password policy", "regularly change password"],
+      "level_name": ["strong password policy", "regularly change password"],
       "cost": [1, 4],
       "ind_cost": [3, 7],
       "flow": [0.3, 0.25]
     },
     "A2": {
       "name": "2-factor authentication",
-      "sub": ["2-factor authentication"],
+      "level_name": ["2-factor authentication"],
       "cost": [7],
       "ind_cost": [8],
       "flow": [0.05]
     },
     "En": {
       "name": "Encryption",
-      "sub": ["implement encryption"],
+      "level_name": ["implement encryption"],
       "cost": [2],
       "ind_cost": [1],
       "flow": [0.2]
     },
     "Am": {
       "name": "Anti-malware",
-      "sub": ["use anti-malware"],
+      "level_name": ["use anti-malware"],
       "cost": [2],
       "ind_cost": [1],
       "flow": [0.1]
     },
     "Ac": {
       "name": "Access control",
-      "sub": ["access control"],
+      "level_name": ["access control"],
       "cost": [3],
       "ind_cost": [2],
       "flow": [0.01]
@@ -94,7 +94,6 @@
       "default_flow": 0.33333,
       "vulnerability": {
         "name": "CVE exploit direct",
-        "flow": 0.33333,
         "controls": {
           "N1": {},
           "Sc": {}
@@ -108,7 +107,6 @@
       "default_flow": 0.33333,
       "vulnerability": {
         "name": "whaling",
-        "flow": 0.33333,
         "controls": {
           "N1": {"flow": 4, "max_flow": 0.999},
           "Ed": {}

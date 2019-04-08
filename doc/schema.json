@@ -20,7 +20,7 @@
               "description": "Name of the control",
               "type": "string"
             },
-            "sub": {
+            "level_name": {
               "description": "Names of the levels of the control",
               "type": "array",
               "items": {
@@ -51,7 +51,7 @@
               }
             }
           },
-          "required": ["name", "sub", "cost", "ind_cost", "flow"]
+          "required": ["name", "level_name", "cost", "ind_cost", "flow"]
         }
       }
     },
