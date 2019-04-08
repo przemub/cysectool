@@ -7,7 +7,7 @@ import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -211,17 +211,17 @@ def main(document):
 
             # Account for the glyph
             if start_y > end_y:
-                start_y -= GLYPH_HEIGHT/2
-                end_y += GLYPH_HEIGHT/2
+                start_y -= GLYPH_HEIGHT / 2
+                end_y += GLYPH_HEIGHT / 2
             elif start_y < end_y:
-                start_y += GLYPH_HEIGHT/2
-                end_y -= GLYPH_HEIGHT/2
+                start_y += GLYPH_HEIGHT / 2
+                end_y -= GLYPH_HEIGHT / 2
             elif start_x < end_x:
-                start_x += GLYPH_WIDTH/2
-                end_x -= GLYPH_WIDTH/2
+                start_x += GLYPH_WIDTH / 2
+                end_x -= GLYPH_WIDTH / 2
             elif start_x > end_x:
-                start_x -= GLYPH_WIDTH/2
-                end_x += GLYPH_WIDTH/2
+                start_x -= GLYPH_WIDTH / 2
+                end_x += GLYPH_WIDTH / 2
 
             # Generate multiple points along the line so HoverTool can display close to the mouse,
             # not next to an end-point
@@ -244,14 +244,14 @@ def main(document):
 
             # Account for the glyph
             if start_y > end_y:
-                start_y -= GLYPH_HEIGHT/2
-                end_y += GLYPH_HEIGHT/2
+                start_y -= GLYPH_HEIGHT / 2
+                end_y += GLYPH_HEIGHT / 2
             elif start_y < end_y:
-                start_y += GLYPH_HEIGHT/2
-                end_y -= GLYPH_HEIGHT/2
+                start_y += GLYPH_HEIGHT / 2
+                end_y -= GLYPH_HEIGHT / 2
             else:
-                start_y -= GLYPH_HEIGHT/2
-                end_y -= GLYPH_HEIGHT/2
+                start_y -= GLYPH_HEIGHT / 2
+                end_y -= GLYPH_HEIGHT / 2
 
             mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
                     (1 if z % 2 else -1) * (z // 2 + 1)
@@ -330,7 +330,7 @@ def main(document):
             else:
                 control_levels[category] = int(new[:new.find(")")])
 
-            controls = [model.control_subcategories[item[0]][item[1]-1]
+            controls = [model.control_subcategories[item[0]][item[1] - 1]
                         for item in control_levels.items() if item[1] > 0]
             total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
             total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
@@ -344,7 +344,8 @@ def main(document):
     for category_id, category in model.control_categories.items():
         select = Select(title=category[0], value="None", options=["None"] +
                                                                  ["%d) " % level.level + level.level_name
-                                                                  for level in model.control_subcategories[category_id]])
+                                                                  for level in
+                                                                  model.control_subcategories[category_id]])
         select.on_change('value', change_security(category_id))
         widgets.append(select)
 
@@ -362,6 +363,20 @@ def main(document):
               text_baseline="middle", text_align="center",
               text_font_size="0.7em")
 
+    # Add optimisation widgets
+    max_level_controls = [model.control_subcategories[item[0]][item[1] - 1]
+                          for item in control_levels.items()]
+    total_cost = sum(control.cost for control in max_level_controls)
+    total_ind_cost = sum(control.cost for control in max_level_controls)
+    total_cost = 1 if total_cost < 1 else total_cost
+    total_ind_cost = 1 if total_ind_cost < 1 else total_ind_cost
+
+    slider1 = Slider(start=0, end=total_cost, value=total_cost//2, step=1, title="Target cost")
+    slider2 = Slider(start=0, end=total_ind_cost, value=total_ind_cost//2, step=1, title="Target indirect cost")
+    optimise = Button(label="Optimise")
+
+    optimisation_box = widgetbox([slider1, slider2, optimise])
+
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
                    '<input type="file" onchange="load_model();" id="load" accept=".json">')
@@ -369,5 +384,5 @@ def main(document):
     button_box = widgetbox([button, div])
 
     # Layout
-    main_row = row([plot, box, button_box])
+    main_row = row([plot, box, optimisation_box, button_box])
     document.add_root(main_row)

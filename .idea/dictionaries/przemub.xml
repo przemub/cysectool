@@ -5,6 +5,7 @@
       <w>networkx</w>
       <w>phishing</w>
       <w>tablename</w>
+      <w>vuln</w>
     </words>
   </dictionary>
 </component>
