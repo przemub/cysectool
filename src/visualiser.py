@@ -407,7 +407,7 @@ def main(document):
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
                    '<input type="file" onchange="load_model();" id="load" accept=".json">')
-    button = Button(label="Save Model", callback=typescript("model_save"))
+    button = Button(label="Save Model", callback=typescript("save_model"))
     button_box = widgetbox([button, div])
 
     # Layout

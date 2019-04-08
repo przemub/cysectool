@@ -63,3 +63,12 @@ class ApiHandler(tornado.web.RequestHandler):
                 self.finish('Payload too long.')
             else:
                 self.finish(json.dumps({'uid': str(uid)}))
+        elif request['cmd'] == 'save':
+            if 'uid' in request:
+                mem = Memory.get_instance()
+                model = mem.documents[request['uid']]
+            else:
+                with open("doc/default.json", "r") as f:
+                    model = JSONModel.create(f)()
+            self.set_header("Content-Disposition", 'attachment; filename="%s.json"' % model.name)
+            self.finish(model.save())

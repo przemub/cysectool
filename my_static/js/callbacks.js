@@ -38,4 +38,28 @@ function load_model() {
         alert("Failed to load the model!");
     };
 }
+function save_model() {
+    var get = {};
+    location.search.substr(1).split("&").forEach(function (item) {
+        get[item.split("=")[0]] = item.split("=")[1];
+    });
+    var dict = { 'cmd': 'save' };
+    if ('uid' in get)
+        dict['uid'] = get['uid'];
+    var json = JSON.stringify(dict);
+    var http = new XMLHttpRequest();
+    http.open('POST', "/api", true);
+    http.setRequestHeader('Content-Type', 'application/json');
+    http.onload = function () {
+        var blob = new Blob([this.responseText]);
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "model.json";
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+        link.remove();
+    };
+    http.send(json);
+}
 //# sourceMappingURL=callbacks.js.map

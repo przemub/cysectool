@@ -49,3 +49,35 @@ function load_model(): void {
         alert("Failed to load the model!");
     };
 }
+
+type Dict = { [key: string]: string };
+
+
+function save_model() {
+    let get: Dict = {};
+    location.search.substr(1).split("&").forEach(function(item: string) {
+        get[item.split("=")[0]] = item.split("=")[1];
+    });
+
+    let dict: Dict = {'cmd': 'save'};
+    if ('uid' in get)
+        dict['uid'] = get['uid'];
+    let json = JSON.stringify(dict);
+
+    let http = new XMLHttpRequest();
+    http.open('POST', "/api", true);
+    http.setRequestHeader('Content-Type', 'application/json');
+
+    http.onload = function () {
+        let blob = new Blob([this.responseText]);
+        let link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "model.json";
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+        link.remove();
+    };
+
+    http.send(json);
+}
