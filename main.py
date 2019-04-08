@@ -4,10 +4,11 @@ from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.server.server import Server
 
-from src import visualiser, api
+from src import visualiser, api, edit
 
 server = Server({'/visualiser': Application(FunctionHandler(visualiser.main))},
                 extra_patterns=[('/api', api.ApiHandler),
+                                ('/edit', edit.EditHandler),
                                 (r'/my_static/(.*)', tornado.web.StaticFileHandler, {"path": "my_static/"})])
 server.start()
 
