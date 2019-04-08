@@ -143,12 +143,18 @@ def main(document):
     # Import a model and a graph
     uid = document.session_context.request.arguments.get('id', None)
 
+    model = None
     if uid:
         uid = uuid.UUID(uid[0].decode('ascii'))
-        model = Memory.get_instance().documents[uid]
-    else:
+        try:
+            model = Memory.get_instance().documents[uid]
+        except IndexError:
+            pass
+
+    if model is None:
         with open("doc/default.json", "r") as f:
             model = JSONModel.create(f)()
+
     graph_data = model.graph
     n = max(graph_data.nodes) + 1
 

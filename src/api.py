@@ -28,6 +28,11 @@ class Memory:
         self.documents: Dict[uuid.UUID, Model] = {}
 
     def add_document(self, text) -> uuid.UUID:
+        while len(self.documents) > 100:
+            self.documents.popitem()
+        if len(text) > 1024*1024:
+            raise MemoryError("Too large file.")
+
         model = JSONModel.create(text)
         uid = uuid.uuid4()
         self.documents[uid] = model()
@@ -51,5 +56,10 @@ class ApiHandler(tornado.web.RequestHandler):
         if request['cmd'] == 'load':
             file = request['file']
             mem = Memory.get_instance()
-            uid = mem.add_document(file)
-            self.finish(json.dumps({'uid': str(uid)}))
+            try:
+                uid = mem.add_document(file)
+            except MemoryError:
+                self.set_status(413)
+                self.finish('Payload too long.')
+            else:
+                self.finish(json.dumps({'uid': str(uid)}))
