@@ -5,7 +5,7 @@ from typing import List, Tuple, Dict
 
 import colorcet
 import networkx
-from bokeh.layouts import widgetbox, row
+from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
     Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider
 # noinspection PyProtectedMember
@@ -14,6 +14,7 @@ from bokeh.palettes import Spectral8
 from bokeh.plotting import figure
 from jinja2 import FileSystemLoader, Environment
 
+from src import optimisation
 from src.api import Memory
 from src.data import Edge, JSONModel
 
@@ -347,12 +348,14 @@ def main(document):
         return _change
 
     widgets = []
+    selects = {}
     for category_id, category in model.control_categories.items():
         select = Select(title=category[0], value="None", options=["None"] +
                                                                  ["%d) " % level.level + level.level_name
                                                                   for level in
                                                                   model.control_subcategories[category_id]])
         select.on_change('value', change_security(category_id))
+        selects[category_id] = select
         widgets.append(select)
 
     widgets.extend([total_cost_p, total_ind_cost_p])
@@ -379,7 +382,25 @@ def main(document):
 
     slider1 = Slider(start=0, end=total_cost, value=total_cost//2, step=1, title="Target cost")
     slider2 = Slider(start=0, end=total_ind_cost, value=total_ind_cost//2, step=1, title="Target indirect cost")
+
+    # TODO: non-blocking execution
+    def optimise_callback():
+        controls = optimisation.model_solve(model, slider1.value, slider2.value)
+
+        for key in control_levels.keys():
+            control_levels[key] = 0
+        for control in controls:
+            control_levels[control.id] = control.level
+            selects[control.id].value = selects[control.id].options[control.level]
+
+        total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
+        total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
+                                sum(control.ind_cost for control in controls)
+        model.reflow(controls)
+        flow_to_bokeh()
+
     optimise = Button(label="Optimise")
+    optimise.on_click(optimise_callback)
 
     optimisation_box = widgetbox([slider1, slider2, optimise])
 
@@ -390,5 +411,5 @@ def main(document):
     button_box = widgetbox([button, div])
 
     # Layout
-    main_row = row([plot, box, optimisation_box, button_box])
+    main_row = row([plot, box, column([optimisation_box, button_box])])
     document.add_root(main_row)
