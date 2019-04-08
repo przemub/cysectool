@@ -66,13 +66,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["from", "to", "multiplicity",
+        "required": ["source", "target", "multiplicity",
           "vulnerability"],
         "properties": {
-          "from": {
+          "source": {
             "type": "integer"
           },
-          "to": {
+          "target": {
             "type": "integer"
           },
           "multiplicity": {

@@ -49,6 +49,15 @@ class Vulnerability(NamedTuple):
     name: str
     controls: Set[Control]
 
+    class Adjustment(NamedTuple):
+        flow: float
+        max_flow: float
+
+    adjustment: Mapping[str, Adjustment]
+
+
+Adjustment = Vulnerability.Adjustment
+
 
 class Edge(NamedTuple):
     """
@@ -62,6 +71,7 @@ class Edge(NamedTuple):
     target: int
     multiplicity: int
     default_flow: float = 1.0
+    vulnerability: Vulnerability = None
 
     def __hash__(self):
         val = hash(pow(self.source + 1, 1.3) * pow(self.target + 1, 1.8) * pow(self.multiplicity + 1, 2.57))
@@ -83,7 +93,6 @@ class Model(metaclass=abc.ABCMeta):
                                                            on category full name and number of levels)
         control_subcategories: Mapping[str, Sequence[Control] - mapping of control ids to a sequence of their levels
         edges: Sequence[Edge] - all edges in the graph
-        vulnerabilities: Mapping[Edge, Vulnerability - mapping of vulnerabilities to the edges
     """
 
     name: str
@@ -96,25 +105,11 @@ class Model(metaclass=abc.ABCMeta):
     n: int
     edges: Sequence[Edge]
     vertices: Sequence[str]
-    vulnerabilities: Mapping[Edge, Vulnerability]
 
     # Simulation results
     edge_flow: Mapping[Edge, float]
     vertex_flow: Mapping[int, float]
     tree_flow: Mapping[Edge, float]
-
-    @staticmethod
-    def adjust_flows_by_factor(c: Sequence[Control], factor: float, max_value: float = 1):
-        """
-        Helper method that adjust flows in a list of controls to min(control.flow*factor, max_value).
-        """
-        result = []
-        for control in c:
-            obj = [*control]
-            obj[5] = min(control.flow * factor, max_value)
-            new = Control(*obj)
-            result.append(new)
-        return result
 
     def reflow(self, controls: Sequence[Control]) -> Mapping[Edge, float]:
         """
@@ -124,10 +119,14 @@ class Model(metaclass=abc.ABCMeta):
         edge_flow = {}
         for edge in self.edges:
             flow = edge.default_flow
-            for control in self.vulnerabilities[edge].controls:
+            for control in edge.vulnerability.controls:
                 if control not in controls:
                     continue
-                flow *= control.flow
+                if control.id in edge.vulnerability.adjustment:
+                    adj = edge.vulnerability.adjustment[control.id]
+                    flow *= max([control.flow * adj[0], adj[1]])
+                else:
+                    flow *= control.flow
             edge_flow[edge] = flow
         self.edge_flow = edge_flow
 
@@ -151,10 +150,10 @@ class Model(metaclass=abc.ABCMeta):
         g = networkx.MultiDiGraph()
 
         for edge in self.edges:
-            possible_controls = ", ".join(set(control.id for control in self.vulnerabilities[edge].controls))
+            possible_controls = ", ".join(set(control.id for control in edge.vulnerability.controls))
 
             g.add_edge(edge.source, edge.target,
-                       multiplicity=edge.multiplicity, vuln_name=self.vulnerabilities[edge].name,
+                       multiplicity=edge.multiplicity, vuln_name=edge.vulnerability.name,
                        possible_controls=possible_controls)
 
         return g
@@ -162,6 +161,46 @@ class Model(metaclass=abc.ABCMeta):
     def __init__(self):
         self.graph: networkx.MultiDiGraph = self.to_networkx()
         self.reflow([])
+
+    @classmethod
+    def save(cls) -> str:
+        def control_settings(edge, control):
+            if control.id not in edge.vulnerability.adjustment:
+                return {}
+            return {'flow': edge.vulnerability.adjustment[control.id].flow,
+                    'max_flow': edge.vulnerability.adjustment[control.id].max_flow}
+
+        obj = {
+            'name': cls.name,
+            'controls': {
+                category: {
+                    'name': spec[0],
+                    'level_name': [control.level_name for control in cls.control_subcategories[category]],
+                    'cost': [control.cost for control in cls.control_subcategories[category]],
+                    'ind_cost': [control.ind_cost for control in cls.control_subcategories[category]],
+                    'flow': [control.flow for control in cls.control_subcategories[category]]
+                }
+                for category, spec in cls.control_categories.items()
+            },
+            'vertices': cls.vertices,
+            'edges': [
+                {
+                    'source': edge.source,
+                    'target': edge.target,
+                    'multiplicity': edge.multiplicity,
+                    'vulnerability': {
+                        'name': edge.vulnerability.name,
+                        'controls': {
+                            control.id: control_settings(edge, control)
+                            for control in edge.vulnerability.controls
+                        }
+                    }
+                }
+                for edge in cls.edges
+            ]
+        }
+
+        return json.dumps(obj, indent=2)
 
 
 class JSONModel(Model, ABC):
@@ -183,30 +222,29 @@ class JSONModel(Model, ABC):
                                                                   control['level_name'][level], control['cost'][level],
                                                                   control['ind_cost'][level], control['flow'][level]))
 
+        edges = []
+        for edge in d['edges']:
+            edge_obj = Edge(edge['source'], edge['target'], edge['multiplicity'],
+                            edge['default_flow'] if 'default_flow' in edge else 1,
+                            Vulnerability(edge['vulnerability']['name'], set(), {}))
+            for control_id, control_settings in edge['vulnerability']['controls'].items():
+                if 'flow' in control_settings:
+                    edge_obj.vulnerability.adjustment[control_id] = Adjustment(control_settings['flow'],
+                                                                               control_settings['max_flow']
+                                                                               if 'max_flow' in control_settings
+                                                                               else 1)
+                for level in range(control_categories[control_id][1]):
+                    control = control_subcategories[control_id][level]
+                    edge_obj.vulnerability.controls.add(control)
+            edges.append(edge_obj)
+
         obj = {'name': d['name'],
                'control_categories': control_categories,
                'control_subcategories': control_subcategories,
                'n': len(d['vertices']),
-               'edges': [Edge(edge['from'], edge['to'], edge['multiplicity'],
-                              edge['default_flow'] if 'default_flow' in edge else 1)
-                         for edge in d['edges']],
                'vertices': d['vertices'],
-               'vulnerabilities': {
-                   Edge(edge['from'], edge['to'], edge['multiplicity']): Vulnerability(edge['vulnerability']['name'],
-                                                                                       set())
-                   for edge in d['edges']
-               }}
-
-        for edge in d['edges']:
-            edge_obj = Edge(edge['from'], edge['to'], edge['multiplicity'])
-            for control_id, control_settings in edge['vulnerability']['controls'].items():
-                for level in range(obj['control_categories'][control_id][1]):
-                    control = Model.adjust_flows_by_factor([obj['control_subcategories'][control_id][level]],
-                                                           control_settings['flow']
-                                                           if 'flow' in control_settings else 1,
-                                                           control_settings['max_flow']
-                                                           if 'max_flow' in control_settings else 1)[0]
-                    obj['vulnerabilities'][edge_obj].controls.add(control)
+               'edges': edges
+               }
 
         result = type(d['name'], (JSONModel,), obj)
         return result

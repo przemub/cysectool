@@ -69,7 +69,7 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     controls = []
     controls.extend(sum((level for level in model.control_subcategories.values()), []))
 
-    control_ind = {edge: vuln.controls for edge, vuln in model.vulnerabilities.items()}
+    control_ind = {edge: edge.vulnerability.controls for edge in model.edges}
     pi = lambda edge: edge.default_flow
     p = lambda control, edge: control.flow
     cost = lambda control: control.cost
