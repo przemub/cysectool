@@ -29,8 +29,11 @@
 
     <h3>Edges</h3>
     <div id="edgesGrid"></div>
-    <p>Controls specification: comma-separated list of restricting controls. Adjusted flow can be given using syntax
+    <p>Controls specification: semicolon-separated list of restricting controls. Adjusted flow can be given using syntax
         <tt>Control(flow,max_flow)</tt>, ie. <tt>Sc(2,1)</tt> for flow increased up to 1.</p>
+
+    <button onclick="save_edit();">Save</button>
+    <button onclick="clear_edit();">Clear</button>
 
     <script type="text/javascript" src="/my_static/js/edit.js"></script>
 </body>

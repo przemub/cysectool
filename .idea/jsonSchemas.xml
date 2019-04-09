@@ -17,6 +17,9 @@
                   <Item>
                     <option name="path" value="doc/default.json" />
                   </Item>
+                  <Item>
+                    <option name="path" value="file://$USER_HOME$/Pobrane/model.json" />
+                  </Item>
                 </list>
               </option>
             </SchemaInfo>

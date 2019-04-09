@@ -72,6 +72,83 @@ function setVertexId(grid, item) {
 
 }(jsGrid, jQuery));
 
+function clear_edit() {
+    verticesGrid.jsGrid("option", "data", []);
+    levelsGrid.jsGrid("option", "data", []);
+    edgesGrid.jsGrid("option", "data", []);
+    groupsGrid.jsGrid("option", "data", []);
+}
+
+function save_edit() {
+    const groupsData = groupsGrid.jsGrid("option", "data");
+    const levelsData = levelsGrid.jsGrid("option", "data");
+    const verticesData = verticesGrid.jsGrid("option", "data");
+    const edgesData = edgesGrid.jsGrid("option", "data");
+
+    controls = {}
+    // TODO: Again, efficiency…
+    for (const group of groupsData) {
+        let group_obj = {'name': group.name, 'level_name': [], 'cost': [], 'ind_cost': [], 'flow': []};
+        for (const level of levelsData) {
+            if (level.gid === group.id) {
+                group_obj.level_name.push(level.name);
+                group_obj.cost.push(level.cost);
+                group_obj.ind_cost.push(level.ind_cost);
+                group_obj.flow.push(level.flow);
+            }
+        }
+        controls[group.id] = group_obj;
+    }
+
+    vertices_obj = []
+    for (const vertex of verticesData)
+        vertices_obj.push(vertex.name);
+
+    function controlsReprToObj(control) {
+        const controls = control.split(";");
+
+        let obj = {};
+        const re = /^([a-zA-Z0-9]+)\(([0-9]+\.?[0-9]*),([0-9]+\.?[0-9]*)\)$/;
+        for (const control of controls) {
+            if (!control)
+                continue;
+
+            const match = re.exec(control);
+            if (match === null)
+                obj[control] = {};
+            else
+                obj[match[1]] = {'flow': match[2], 'max_flow': match[3]};
+        }
+        return obj;
+    }
+
+    edges_obj = [];
+    for (const edge of edgesData)
+        edges_obj.push({'source': edge.source, 'target': edge.target,
+            'vulnerability': {
+                'name': edge.name,
+                'controls': controlsReprToObj(edge.controls)
+            }})
+
+    obj = {
+        'name': "edit",
+        'controls': controls,
+        'vertices': vertices_obj,
+        'edges': edges_obj
+    }
+
+    const json = JSON.stringify(obj, null, 2);
+
+    let blob = new Blob([json]);
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "model.json";
+    document.body.appendChild(link);
+    link.click();
+    window.URL.revokeObjectURL(link.href);
+    link.remove();
+}
+
 function main() {
     verticesGrid.jsGrid({
         width: "100%",
@@ -160,6 +237,7 @@ function main() {
             {type: "control"}
         ]
     });
+
 
     setVertexId();
 }
