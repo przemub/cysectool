@@ -1,5 +1,6 @@
 import abc
 import json
+from collections import defaultdict
 from io import IOBase
 
 import networkx
@@ -232,10 +233,12 @@ class JSONModel(Model, ABC):
                                                                   control['ind_cost'][level], control['flow'][level]))
 
         edges = []
+        multiplicity = defaultdict(lambda: 0)
         for edge in d['edges']:
-            edge_obj = Edge(edge['source'], edge['target'], edge['multiplicity'],
+            edge_obj = Edge(edge['source'], edge['target'], multiplicity[edge['source'], edge['target']],
                             edge['default_flow'] if 'default_flow' in edge else 1,
                             Vulnerability(edge['vulnerability']['name'], set(), {}))
+            multiplicity[edge['source'], edge['target']] += 1
             for control_id, control_settings in edge['vulnerability']['controls'].items():
                 if 'flow' in control_settings:
                     edge_obj.vulnerability.adjustment[control_id] = Adjustment(control_settings['flow'],

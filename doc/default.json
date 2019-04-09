@@ -78,7 +78,6 @@
     {
       "source": 0,
       "target": 1,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "CVE exploit webserver",
         "controls": {
@@ -90,7 +89,6 @@
     {
       "source": 0,
       "target": 5,
-      "multiplicity": 0,
       "default_flow": 0.33333,
       "vulnerability": {
         "name": "CVE exploit direct",
@@ -103,7 +101,6 @@
     {
       "source": 0,
       "target": 5,
-      "multiplicity": 1,
       "default_flow": 0.33333,
       "vulnerability": {
         "name": "whaling",
@@ -116,7 +113,6 @@
     {
       "source": 0,
       "target": 3,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "phishing",
         "controls": {
@@ -128,7 +124,6 @@
     {
       "source": 0,
       "target": 3,
-      "multiplicity": 1,
       "vulnerability": {
         "name": "compromised external systems",
         "controls": {
@@ -141,7 +136,6 @@
     {
       "source": 0,
       "target": 4,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "watering hole",
         "controls": {
@@ -153,7 +147,6 @@
     {
       "source": 1,
       "target": 5,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "CVE exploit",
         "controls": {
@@ -165,7 +158,6 @@
     {
       "source": 1,
       "target": 2,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "empty step",
         "controls": {}
@@ -174,7 +166,6 @@
     {
       "source": 2,
       "target": 3,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "brute force",
         "controls": {
@@ -186,7 +177,6 @@
     {
       "source": 2,
       "target": 3,
-      "multiplicity": 1,
       "vulnerability": {
         "name": "sniff traffic",
         "controls": {
@@ -198,7 +188,6 @@
     {
       "source": 2,
       "target": 5,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "admin exploit",
         "controls": {
@@ -210,7 +199,6 @@
     {
       "source": 3,
       "target": 5,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "log in",
         "controls": {
@@ -221,7 +209,6 @@
     {
       "source": 4,
       "target": 3,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "steal credentials",
         "controls": {
@@ -232,7 +219,6 @@
     {
       "source": 4,
       "target": 5,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "install malware",
         "controls": {
@@ -245,7 +231,6 @@
     {
       "source": 5,
       "target": 6,
-      "multiplicity": 0,
       "vulnerability": {
         "name": "escalate privileges",
         "controls": {

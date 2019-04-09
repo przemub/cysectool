@@ -66,16 +66,12 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["source", "target", "multiplicity",
-          "vulnerability"],
+        "required": ["source", "target", "vulnerability"],
         "properties": {
           "source": {
             "type": "integer"
           },
           "target": {
-            "type": "integer"
-          },
-          "multiplicity": {
             "type": "integer"
           },
           "default_flow": {
