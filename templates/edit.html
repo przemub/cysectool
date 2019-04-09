@@ -9,9 +9,28 @@
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+
+    <script type="text/javascript">
+        let vertices = {{ vertices }};
+        let groups = {{ groups }};
+        let levels = {{ levels }};
+        let edges = {{ edges }};
+    </script>
 </head>
 <body>
-    <div id="jsGrid"></div>
+    <h3>Vertices</h3>
+    <div id="verticesGrid"></div>
+
+    <h3>Control groups</h3>
+    <div id="groupsGrid"></div>
+
+    <h3>Control levels</h3>
+    <div id="levelsGrid"></div>
+
+    <h3>Edges</h3>
+    <div id="edgesGrid"></div>
+    <p>Controls specification: comma-separated list of restricting controls. Adjusted flow can be given using syntax
+        <tt>Control(flow,max_flow)</tt>, ie. <tt>Sc(2,1)</tt> for flow increased up to 1.</p>
 
     <script type="text/javascript" src="/my_static/js/edit.js"></script>
 </body>
