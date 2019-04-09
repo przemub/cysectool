@@ -11,10 +11,10 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
 
     <script type="text/javascript">
-        let vertices = {{ vertices }};
-        let groups = {{ groups }};
-        let levels = {{ levels }};
-        let edges = {{ edges }};
+        let vertices = JSON.parse('{{ vertices }}');
+        let groups = JSON.parse('{{ groups }}');
+        let levels = JSON.parse('{{ levels }}');
+        let edges = JSON.parse('{{ edges }}');
     </script>
 </head>
 <body>

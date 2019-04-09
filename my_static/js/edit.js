@@ -5,11 +5,9 @@ const edgesGrid = $("#edgesGrid");
 
 function updateGrid(grid, item) {
     const groups = groupsGrid.jsGrid("option", "data");
-    console.log(groups);
 
     let new_levels = [];
     for (const group of groups) {
-        console.log(group);
         for (let i = 1; i <= group.levels; i++)
             new_levels.push({
                 'gid': group.id,
@@ -28,92 +26,142 @@ function updateGrid(grid, item) {
             if (new_levels[i]['gid'] === level['gid'] && new_levels[i]['level'] === level['level'])
                 new_levels[i] = level;
     }
+    console.log(new_levels);
+    console.log(levels);
 
     levelsGrid.jsGrid("option", "data", new_levels);
-    console.log(new_levels);
 }
 
-verticesGrid.jsGrid({
-    width: "100%",
-    height: "400px",
+function setVertexId(grid, item) {
+    const vertices = verticesGrid.jsGrid("option", "data");
+    for (const i in vertices)
+        vertices[i].id = i;
+    verticesGrid.jsGrid("option", "data", vertices);
+}
 
-    inserting: true,
-    editing: true,
-    sorting: true,
-    paging: false,
+(function(jsGrid, $) {
+    var NumberField = jsGrid.NumberField;
 
-    data: vertices,
+    function DecimalField(config) {
+        NumberField.call(this, config);
+    }
 
-    fields: [
-        { name: "id", title: "ID", type: "number", width: 50, validate: "required" },
-        { name: "name", title: "Name", type: "text", width: 150, validate: "required" },
-        { type: "control" }
-    ]
-});
+    DecimalField.prototype = new NumberField({
 
+        step: 0.01,
 
-groupsGrid.jsGrid({
-    width: "100%",
-    height: "400px",
+        filterValue: function() {
+            return this.filterControl.val() ? parseFloat(this.filterControl.val()) : undefined;
+        },
 
-    inserting: true,
-    editing: true,
-    sorting: true,
-    paging: false,
+        insertValue: function() {
+            return this.insertControl.val() ? parseFloat(this.insertControl.val()) : undefined;
+        },
 
-    data: groups,
+        editValue: function() {
+            return this.editControl.val() ? parseFloat(this.editControl.val()) : undefined;
+        },
 
-    onItemInserted: updateGrid,
-    onItemUpdated: updateGrid,
+        _createTextBox: function() {
+            return NumberField.prototype._createTextBox.call(this)
+                .attr("step", this.step);
+        }
+    });
 
-    fields: [
-        { name: "id", title: "ID", type: "text", width: 50, validate: "required" },
-        { name: "name", title: "Name", type: "text", width: 150, validate: "required" },
-        { name: "levels", title: "Number of levels", type: "number", width: 50, validate: "required" },
-        { type: "control" }
-    ]
-});
+    jsGrid.fields.decimal = jsGrid.DecimalField = DecimalField;
 
+}(jsGrid, jQuery));
 
-levelsGrid.jsGrid({
-    width: "100%",
-    height: "400px",
+function main() {
+    verticesGrid.jsGrid({
+        width: "100%",
+        height: "400px",
 
-    inserting: false,
-    editing: true,
-    sorting: true,
-    paging: false,
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: false,
 
-    data: levels;
+        data: vertices,
 
-    fields: [
-        { name: "gid", title: "Group ID", type: "text", width: 50, readOnly: true },
-        { name: "level", title: "Level", type: "text", width: 50, readOnly: true },
-        { name: "name", title: "Name", type: "text", width: 150, validate: "required" },
-        { name: "cost", title: "Cost", type: "number", width: 50, validate: "required" },
-        { name: "ind_cost", title: "Indirect cost", type: "number", width: 50, validate: "required" },
-        { name: "flow", title: "Flow", type: "number", width: 50, validate: "required" },
-        { type: "control", deleteButton: false }
-    ]
-});
+        onItemInserted: setVertexId,
+        onItemDeleted: setVertexId,
+
+        fields: [
+            {name: "id", title: "ID", type: "text", width: 50, readOnly: true},
+            {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
+            {type: "control"}
+        ]
+    });
 
 
-edgesGrid.jsGrid({
-    width: "100%",
-    height: "400px",
+    groupsGrid.jsGrid({
+        width: "100%",
+        height: "400px",
 
-    inserting: true,
-    editing: true,
-    sorting: true,
-    paging: false,
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: false,
 
-    data: edges,
+        data: groups,
 
-    fields: [
-        {name: "source", title: "Source", type: "number", width: 50, validate: "required"},
-        {name: "target", title: "Target", type: "number", width: 50, validate: "required"},
-        {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
-        {name: "controls", title: "Valid controls", type: "text", width: 100, validate: "required"},
-        {type: "control"}
-    ]
-});
+        onItemInserted: updateGrid,
+        onItemUpdated: updateGrid,
+
+        fields: [
+            {name: "id", title: "ID", type: "text", width: 50, validate: "required"},
+            {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
+            {name: "levels", title: "Number of levels", type: "number", width: 50, validate: "required"},
+            {type: "control"}
+        ]
+    });
+
+
+    levelsGrid.jsGrid({
+        width: "100%",
+        height: "400px",
+
+        inserting: false,
+        editing: true,
+        sorting: true,
+        paging: false,
+
+        data: levels,
+
+        fields: [
+            {name: "gid", title: "Group ID", type: "text", width: 50, readOnly: true},
+            {name: "level", title: "Level", type: "text", width: 50, readOnly: true},
+            {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
+            {name: "cost", title: "Cost", type: "number", width: 50, validate: "required"},
+            {name: "ind_cost", title: "Indirect cost", type: "number", width: 50, validate: "required"},
+            {name: "flow", title: "Flow", type: "decimal", width: 50},
+            {type: "control", deleteButton: false}
+        ]
+    });
+
+
+    edgesGrid.jsGrid({
+        width: "100%",
+        height: "400px",
+
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: false,
+
+        data: edges,
+
+        fields: [
+            {name: "source", title: "Source", type: "number", width: 50, validate: "required"},
+            {name: "target", title: "Target", type: "number", width: 50, validate: "required"},
+            {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
+            {name: "controls", title: "Valid controls", type: "text", width: 100, validate: "required"},
+            {type: "control"}
+        ]
+    });
+
+    setVertexId();
+}
+
+main();

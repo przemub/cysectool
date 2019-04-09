@@ -1,5 +1,11 @@
+import json
+from uuid import UUID
+
 import tornado.web
 from jinja2 import Environment, FileSystemLoader
+
+from src.api import Memory
+from src.data import JSONModel
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -7,6 +13,30 @@ env = Environment(loader=FileSystemLoader('templates'))
 # noinspection PyAbstractClass
 class EditHandler(tornado.web.RequestHandler):
     def get(self):
+        uid = self.get_argument('uid', None)
+        if uid:
+            mem = Memory.get_instance()
+            model = mem.documents[UUID(uid)]
+        else:
+            with open("doc/default.json", "r") as f:
+                model = JSONModel.create(f)()
+
+        vertices = [{'name': vertex} for vertex in model.vertices]
+        groups = [{'id': category_id, 'name': category[0], 'levels': category[1]}
+                  for category_id, category in model.control_categories.items()]
+        levels = [{'gid': level.id, 'level': str(level.level), 'name': level.level_name, 'cost': level.cost,
+                   'ind_cost': level.ind_cost, 'flow': level.flow}
+                  for category in model.control_subcategories.values() for level in category]
+        edges = [{'source': edge.source, 'target': edge.target,
+                  'name': edge.vulnerability.name, 'controls': edge.vulnerability.controls_repr()}
+                 for edge in model.edges]
+        dictionary = {
+            'vertices': json.dumps(vertices),
+            'groups': json.dumps(groups),
+            'levels': json.dumps(levels),
+            'edges': json.dumps(edges)
+        }
+
         template = env.get_template("edit.html")
-        result = template.render()
+        result = template.render(**dictionary)
         self.finish(result)
