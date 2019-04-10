@@ -9,14 +9,14 @@
       "flow": [0.4, 0.12, 0.1]
     },
     "N1": {
-      "name": "Network security (internal)",
+      "name": "Network security (external)",
       "level_name": ["firewall", "traffic monitoring", "in-depth packet inspection"],
       "cost": [1, 4, 7],
       "ind_cost": [4, 5, 6],
       "flow": [0.3, 0.2, 0.1]
     },
     "N2": {
-      "name": "Network security (external)",
+      "name": "Network security (internal)",
       "level_name": ["firewall", "traffic monitoring", "in-depth packet inspection"],
       "cost": [2, 5, 8],
       "ind_cost": [3, 4, 5],
