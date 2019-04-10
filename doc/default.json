@@ -81,8 +81,8 @@
       "vulnerability": {
         "name": "CVE exploit webserver",
         "controls": {
-          "N1": {"flow": 2},
-          "Sc": {"flow": 0.8}
+          "N1": {"flow": 0.8},
+          "Sc": {"flow": 2}
         }
       }
     },
@@ -127,7 +127,7 @@
       "vulnerability": {
         "name": "compromised external systems",
         "controls": {
-          "N1": {},
+          "N1": {"flow": 4, "max_flow": 0.999},
           "Ed": {},
           "Pr": {}
         }
@@ -139,7 +139,7 @@
       "vulnerability": {
         "name": "watering hole",
         "controls": {
-          "N1": {},
+          "N1": {"flow": 4, "max_flow": 0.999},
           "Ed": {}
         }
       }

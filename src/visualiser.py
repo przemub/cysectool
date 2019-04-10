@@ -376,7 +376,7 @@ def main(document):
     max_level_controls = [model.control_subcategories[item[0]][item[1] - 1]
                           for item in control_levels.items()]
     total_cost = sum(control.cost for control in max_level_controls)
-    total_ind_cost = sum(control.cost for control in max_level_controls)
+    total_ind_cost = sum(control.ind_cost for control in max_level_controls)
     total_cost = 1 if total_cost < 1 else total_cost
     total_ind_cost = 1 if total_ind_cost < 1 else total_ind_cost
 
@@ -389,6 +389,7 @@ def main(document):
 
         for key in control_levels.keys():
             control_levels[key] = 0
+            selects[control.id].value = "None"
         for control in controls:
             control_levels[control.id] = control.level
             selects[control.id].value = selects[control.id].options[control.level]

@@ -76,5 +76,6 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     ind_cost = lambda control: control.ind_cost
 
     result = _optimal_solve(model.edges, nodes, sink_nodes, controls, control_ind, budget,
-                            indirect_budget, pi, p, cost, ind_cost, 0.01)
+                            indirect_budget, pi, p, cost, ind_cost, 0.00001)
+    print(result)
     return result[2]
