@@ -74,7 +74,7 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     def p(control, edge):
         if control.id in edge.vulnerability.adjustment:
             adj = edge.vulnerability.adjustment[control.id]
-            return max([control.flow * adj[0], adj[1]])
+            return min([control.flow * adj[0], adj[1]])
         else:
             return control.flow
     cost = lambda control: control.cost

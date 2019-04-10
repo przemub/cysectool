@@ -51,23 +51,23 @@
       "ind_cost": [8],
       "flow": [0.05]
     },
-    "En": {
-      "name": "Encryption",
-      "level_name": ["implement encryption"],
-      "cost": [2],
-      "ind_cost": [1],
-      "flow": [0.2]
-    },
     "Am": {
       "name": "Anti-malware",
       "level_name": ["use anti-malware"],
       "cost": [2],
       "ind_cost": [1],
-      "flow": [0.1]
+      "flow": [0.2]
     },
     "Ac": {
       "name": "Access control",
       "level_name": ["access control"],
+      "cost": [2],
+      "ind_cost": [1],
+      "flow": [0.1]
+    },
+    "En": {
+      "name": "Encryption",
+      "level_name": ["implement encryption"],
       "cost": [3],
       "ind_cost": [2],
       "flow": [0.01]
@@ -235,7 +235,8 @@
         "name": "escalate privileges",
         "controls": {
           "Sc": {},
-          "A1": {}
+          "A1": {},
+		  "Ac": {}
         }
       }
     }

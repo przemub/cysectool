@@ -134,7 +134,7 @@ class Model(metaclass=abc.ABCMeta):
                     continue
                 if control.id in edge.vulnerability.adjustment:
                     adj = edge.vulnerability.adjustment[control.id]
-                    flow *= max([control.flow * adj[0], adj[1]])
+                    flow *= min([control.flow * adj[0], adj[1]])
                 else:
                     flow *= control.flow
             edge_flow[edge] = flow

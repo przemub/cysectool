@@ -125,6 +125,7 @@ function save_edit() {
     edges_obj = [];
     for (const edge of edgesData)
         edges_obj.push({'source': edge.source, 'target': edge.target,
+			'default_flow': edge.default_flow,
             'vulnerability': {
                 'name': edge.name,
                 'controls': controlsReprToObj(edge.controls)
@@ -232,6 +233,7 @@ function main() {
         fields: [
             {name: "source", title: "Source", type: "number", width: 50, validate: "required"},
             {name: "target", title: "Target", type: "number", width: 50, validate: "required"},
+            {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: "required"},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
             {name: "controls", title: "Valid controls", type: "text", width: 100, validate: "required"},
             {type: "control"}

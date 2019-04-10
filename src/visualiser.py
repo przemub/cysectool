@@ -339,6 +339,7 @@ def main(document):
 
             controls = [model.control_subcategories[item[0]][item[1] - 1]
                         for item in control_levels.items() if item[1] > 0]
+            print(controls)
             total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
             total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
                                     sum(control.ind_cost for control in controls)
