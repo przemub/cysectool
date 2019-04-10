@@ -389,7 +389,7 @@ def main(document):
 
         for key in control_levels.keys():
             control_levels[key] = 0
-            selects[control.id].value = "None"
+            selects[key].value = "None"
         for control in controls:
             control_levels[control.id] = control.level
             selects[control.id].value = selects[control.id].options[control.level]
