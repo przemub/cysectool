@@ -1,4 +1,3 @@
 * optimisations (keeping results of old calculations, bringing down complexity, etc.)
 * proper scaling of arrows
 
-Remove graph cycles

@@ -16,38 +16,9 @@ from jinja2 import FileSystemLoader, Environment
 
 from src import optimisation
 from src.api import Memory
-from src.data import Edge, JSONModel
+from src.data import Edge, JSONModel, GraphError
 
 env = Environment(loader=FileSystemLoader('templates'))
-
-
-class GraphError(Exception):
-    pass
-
-
-def bfs(graph: networkx.Graph, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
-    depth = [-1 for _ in range(max(graph.nodes) + 1)]
-
-    queue = [(start, 0)]
-    while len(queue) > 0:
-        x, cur_depth = queue[0]
-        del queue[0]
-
-        if depth[x] != -1:
-            continue
-        depth[x] = cur_depth
-
-        for y in graph[x]:
-            queue.append((y, cur_depth + 1))
-
-    if -1 in depth:
-        raise GraphError("The graph is not connected!")
-
-    result = tuple(list() for _ in range(max(depth) + 1))
-    for x, x_depth in enumerate(depth):
-        result[x_depth].append(x)
-
-    return result, depth
 
 
 def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width: float = 1.5, vert_gap: float = 0.5,
@@ -160,18 +131,12 @@ def main(document):
     graph_data = model.graph
     n = max(graph_data.nodes) + 1
 
-    try:
-        levels, depth = bfs(graph_data, 0)
-    except GraphError as ge:
-        document.add_root(Div(text=str(ge)))
-        return
-
     # Create a bokeh graph
-    layout = tree_layout(graph_data, 0, depth)
+    layout = tree_layout(graph_data, 0, model.depth)
     graph = from_networkx(graph_data, layout)
 
     # Sort levels (y) by x
-    for level in levels:
+    for level in model.levels:
         level.sort(key=lambda v: graph.layout_provider.graph_layout[v][0])
 
     # Add colours and glyphs
@@ -210,7 +175,8 @@ def main(document):
 
     for x, y in bokeh_edges:
         if multiplicity[x][y] == 1 and \
-                (depth[x] != depth[y] or abs(levels[depth[x]].index(x) - levels[depth[y]].index(y)) == 1):
+                (model.depth[x] != model.depth[y] or
+                 abs(model.levels[model.depth[x]].index(x) - model.levels[model.depth[y]].index(y)) == 1):
             cur_xs = []
             cur_ys = []
 

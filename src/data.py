@@ -1,4 +1,5 @@
 import abc
+import heapq
 import json
 from collections import defaultdict
 from io import IOBase
@@ -6,7 +7,7 @@ from itertools import chain
 
 import networkx
 from abc import ABC
-from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping
+from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, List
 
 
 class Control(NamedTuple):
@@ -64,7 +65,7 @@ class Vulnerability(NamedTuple):
                                   self.adjustment[control.id].max_flow) \
                 if control.id in self.adjustment else ""
             controls[control.id] = result
-        return ";".join(key+value for key, value in controls.items())
+        return ";".join(key + value for key, value in controls.items())
 
 
 Adjustment = Vulnerability.Adjustment
@@ -93,6 +94,10 @@ class Edge(NamedTuple):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+class GraphError(Exception):
+    pass
 
 
 class Model(metaclass=abc.ABCMeta):
@@ -125,7 +130,7 @@ class Model(metaclass=abc.ABCMeta):
     def reflow(self, controls: Sequence[Control]) -> Mapping[Edge, float]:
         """
         Recalculates the flow, saves it in cached_flow and returns it.
-        Assumes that the graph is a directed acyclic graph, sorts it topologically and calculates the maximum flow.
+        Assumes that flows exist in <0; 1> and uses modified Dijkstra algorithm.
         """
         edge_flow = {}
         for edge in self.edges:
@@ -141,13 +146,18 @@ class Model(metaclass=abc.ABCMeta):
             edge_flow[edge] = flow
         self.edge_flow = edge_flow
 
-        topological_sort = list(networkx.topological_sort(self.graph))
-        vertex_flow = {topological_sort[0]: 1}
-        for vertex in topological_sort[1:]:
-            flow = 0
-            for edge in self.graph.in_edges(vertex, data="multiplicity"):
-                flow = max(flow, edge_flow[Edge(*edge)] * vertex_flow[edge[0]])
-            vertex_flow[vertex] = flow
+        heap = []
+        heapq.heappush(heap, (0, -1))
+        vertex_flow = {}
+        while heap:
+            vertex, flow = heapq.heappop(heap)
+            if vertex in vertex_flow:
+                continue
+            vertex_flow[vertex] = -flow
+
+            for other in self.graph.out_edges(vertex, data="multiplicity"):
+                heapq.heappush(heap, (other[1], flow*self.edge_flow[Edge(*other)]))
+
         self.vertex_flow = vertex_flow
 
         tree_flow = {}
@@ -169,8 +179,33 @@ class Model(metaclass=abc.ABCMeta):
 
         return g
 
+    def bfs(self, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
+        depth = [-1 for _ in range(max(self.graph.nodes) + 1)]
+
+        queue = [(start, 0)]
+        while len(queue) > 0:
+            x, cur_depth = queue[0]
+            del queue[0]
+
+            if depth[x] != -1:
+                continue
+            depth[x] = cur_depth
+
+            for y in self.graph[x]:
+                queue.append((y, cur_depth + 1))
+
+        if -1 in depth:
+            raise GraphError("The graph is not connected!")
+
+        result = tuple(list() for _ in range(max(depth) + 1))
+        for x, x_depth in enumerate(depth):
+            result[x_depth].append(x)
+
+        return result, depth
+
     def __init__(self):
         self.graph: networkx.MultiDiGraph = self.to_networkx()
+        self.levels, self.depth = self.bfs(0)
         self.reflow([])
 
     @classmethod
