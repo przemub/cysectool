@@ -126,7 +126,8 @@ def main(document):
 
     # Create a plot
     plot = figure(title="Attack Vector Graph", plot_width=800, plot_height=800,
-                  x_range=(-1.1, 1.1), y_range=(-2.1, 0.1))
+                  x_range=(-1.1, 1.1), y_range=(-2.1, 0.1),
+                  sizing_mode="scale_width", id="attack-figure")
 
     hover = HoverTool()
     hover.tooltips = [
@@ -426,5 +427,6 @@ def main(document):
     button_box = widgetbox([new_button, edit_button, save_button, div])
 
     # Layout
-    main_row = row([plot, box, column([optimisation_box, button_box])])
-    document.add_root(main_row)
+    control_row = row([box, column([optimisation_box, button_box])], id="control-row")
+    document.add_root(plot)
+    document.add_root(control_row)

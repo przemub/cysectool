@@ -1,0 +1,16 @@
+/*div.bk-plot-wrapper {
+  resize: both;
+  overflow: auto;
+}*/
+
+div#out-row {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+div#plot-my-wrapper {
+  width: 800px;
+  height: 800px;
+  resize: horizontal;
+  overflow: auto;
+}

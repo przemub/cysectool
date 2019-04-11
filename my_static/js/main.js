@@ -12,5 +12,16 @@ async function arrow() {
         arrow.parentNode.removeChild(arrow);
 }
 
-arrow().then();
 
+function main() {
+    // Resizing plot
+    let plotWrapper = $("div#plot-my-wrapper");
+    plotWrapper.addEventListener('mouseup', function(e){
+        plotWrapper.style.height = plotWrapper.style.width;
+        Bokeh.index["attack-figure"].resize();
+    }, false);
+
+    arrow().then();
+}
+
+window.onload = main;

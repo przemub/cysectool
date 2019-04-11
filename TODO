@@ -1,6 +1,4 @@
 * optimisations (keeping results of old calculations, bringing down complexity, etc.)
 * proper scaling of arrows
 
-Default flow in editing
-Resizing the plot
 Remove graph cycles
