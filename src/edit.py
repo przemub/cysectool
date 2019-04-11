@@ -22,7 +22,12 @@ class EditHandler(tornado.web.RequestHandler):
             return
         elif uid:
             mem = Memory.get_instance()
-            model = mem.documents[UUID(uid)]
+            try:
+                model = mem.documents[UUID(uid)]
+            except KeyError:
+                self.set_status(404)
+                self.finish("404: Model not found.")
+                return
         else:
             with open("doc/default.json", "r") as f:
                 model = JSONModel.create(f)()
@@ -33,7 +38,7 @@ class EditHandler(tornado.web.RequestHandler):
         levels = [{'gid': level.id, 'level': str(level.level), 'name': level.level_name, 'cost': level.cost,
                    'ind_cost': level.ind_cost, 'flow': level.flow}
                   for category in model.control_subcategories.values() for level in category]
-        edges = [{'source': edge.source, 'target': edge.target,
+        edges = [{'source': edge.source, 'target': edge.target, 'default_flow': edge.default_flow,
                   'name': edge.vulnerability.name, 'controls': edge.vulnerability.controls_repr()}
                  for edge in model.edges]
         dictionary = {
