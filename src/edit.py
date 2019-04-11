@@ -13,8 +13,14 @@ env = Environment(loader=FileSystemLoader('templates'))
 # noinspection PyAbstractClass
 class EditHandler(tornado.web.RequestHandler):
     def get(self):
+        template = env.get_template("edit.html")
+
         uid = self.get_argument('uid', None)
-        if uid:
+        if uid == 'empty':
+            result = template.render()
+            self.finish(result)
+            return
+        elif uid:
             mem = Memory.get_instance()
             model = mem.documents[UUID(uid)]
         else:
@@ -37,6 +43,5 @@ class EditHandler(tornado.web.RequestHandler):
             'edges': json.dumps(edges)
         }
 
-        template = env.get_template("edit.html")
         result = template.render(**dictionary)
         self.finish(result)

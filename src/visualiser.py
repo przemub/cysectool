@@ -115,7 +115,7 @@ def map_color(value: float) -> str:
     return PALETTE[threshold]
 
 
-def typescript(name: str, args=None) -> CustomJS:
+def javascript(name: str, args=None) -> CustomJS:
     if args is None:
         args = {}
     return CustomJS(code="%s();" % name, args=args)
@@ -137,7 +137,7 @@ def main(document):
     ]
 
     tap = TapTool()
-    tap.callback = typescript("on_tap")
+    tap.callback = javascript("on_tap")
 
     plot.add_tools(hover, tap, BoxSelectTool())
 
@@ -359,7 +359,18 @@ def main(document):
         selects[category_id] = select
         widgets.append(select)
 
-    widgets.extend([total_cost_p, total_ind_cost_p])
+    def clear_callback():
+        for key in control_levels.keys():
+            control_levels[key] = 0
+            selects[key].value = "None"
+
+        model.reflow([])
+        flow_to_bokeh()
+
+    clear = Button(label="Clear")
+    clear.on_click(clear_callback)
+
+    widgets.extend([total_cost_p, total_ind_cost_p, clear])
     box = widgetbox(widgets, width=400)
 
     color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
@@ -409,8 +420,10 @@ def main(document):
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
                    '<input type="file" onchange="load_model();" id="load" accept=".json">')
-    button = Button(label="Save Model", callback=typescript("save_model"))
-    button_box = widgetbox([button, div])
+    new_button = Button(label="New Model", callback=javascript("new_model"))
+    edit_button = Button(label="Edit Model", callback=javascript("edit_model"))
+    save_button = Button(label="Save Model", callback=javascript("save_model"))
+    button_box = widgetbox([new_button, edit_button, save_button, div])
 
     # Layout
     main_row = row([plot, box, column([optimisation_box, button_box])])

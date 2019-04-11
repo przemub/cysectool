@@ -1,8 +1,6 @@
 * optimisations (keeping results of old calculations, bringing down complexity, etc.)
 * proper scaling of arrows
 
-"Reset optimisation" button
-"Edit graph" button
-Check optimisation
 Default flow in editing
 Resizing the plot
+Remove graph cycles

@@ -10,11 +10,20 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
 
+    <!--suppress JSUnusedLocalSymbols -->
     <script type="text/javascript">
-        let vertices = JSON.parse('{{ vertices }}');
-        let groups = JSON.parse('{{ groups }}');
-        let levels = JSON.parse('{{ levels }}');
-        let edges = JSON.parse('{{ edges }}');
+        let vertices, groups, levels, edges;
+        try {
+            vertices = JSON.parse('{{ vertices }}');
+            groups = JSON.parse('{{ groups }}');
+            levels = JSON.parse('{{ levels }}');
+            edges = JSON.parse('{{ edges }}');
+        } catch (e) {
+            vertices = [];
+            groups = [];
+            levels = [];
+            edges = [];
+        }
     </script>
 </head>
 <body>

@@ -50,15 +50,20 @@ function load_model() {
     };
 }
 
-function save_model() {
+function get() {
     let get = {};
     location.search.substr(1).split("&").forEach(function(item) {
         get[item.split("=")[0]] = item.split("=")[1];
     });
 
+    return get;
+}
+
+function save_model() {
     let dict = {'cmd': 'save'};
-    if ('uid' in get)
-        dict['uid'] = get['uid'];
+    let get_table = get();
+    if ('uid' in get_table)
+        dict['uid'] = get_table['uid'];
     let json = JSON.stringify(dict);
 
     let http = new XMLHttpRequest();
@@ -77,4 +82,17 @@ function save_model() {
     };
 
     http.send(json);
+}
+
+function edit_model() {
+    let url = "/edit";
+    let get_table = get();
+    if ('id' in get_table)
+        url += "?uid=" + get_table['id'];
+
+    window.open(url, "_blank");
+}
+
+function new_model() {
+    window.open("/edit?uid=empty", "_blank");
 }
