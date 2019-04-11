@@ -17,6 +17,7 @@ function main() {
     // Resizing plot
     let plotWrapper = $("div#plot-my-wrapper");
     plotWrapper.addEventListener('mouseup', function(e){
+        // noinspection JSSuspiciousNameCombination
         plotWrapper.style.height = plotWrapper.style.width;
         Bokeh.index["attack-figure"].resize();
     }, false);
