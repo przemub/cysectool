@@ -430,3 +430,4 @@ def main(document):
     control_row = row([box, column([optimisation_box, button_box])], id="control-row")
     document.add_root(plot)
     document.add_root(control_row)
+    document.title = "Graph Security Optimiser"
