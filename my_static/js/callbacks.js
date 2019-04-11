@@ -38,8 +38,12 @@ function load_model() {
         http.setRequestHeader('Content-Type', 'application/json');
 
         http.onload = function () {
-            let response = JSON.parse(this.responseText);
-            window.location.href = "/visualiser?id=" + response['uid'];
+            try {
+                let response = JSON.parse(this.responseText);
+                window.location.href = "/visualiser?id=" + response['uid'];
+            } catch (e) {
+                alert(this.responseText);
+            }
         };
 
         http.send(JSON.stringify({'cmd': 'load', 'file': content}))

@@ -46,12 +46,12 @@ class ApiHandler(tornado.web.RequestHandler):
             request = json.loads(self.request.body)
         except json.decoder.JSONDecodeError:
             self.set_status(400)
-            self.finish("Bad JSON.")
+            self.finish("400: Bad JSON.")
             return
 
         if 'cmd' not in request:
             self.set_status(400)
-            self.finish('Nothing to do.')
+            self.finish('400: Nothing to do.')
 
         if request['cmd'] == 'load':
             file = request['file']
@@ -60,7 +60,10 @@ class ApiHandler(tornado.web.RequestHandler):
                 uid = mem.add_document(file)
             except MemoryError:
                 self.set_status(413)
-                self.finish('Payload too long.')
+                self.finish('413: Payload too long.')
+            except JSONModel.JSONError as jsone:
+                self.set_status(400)
+                self.finish('400:\n%s' % jsone.args)
             else:
                 self.finish(json.dumps({'uid': str(uid)}))
         elif request['cmd'] == 'save':
@@ -70,5 +73,6 @@ class ApiHandler(tornado.web.RequestHandler):
             else:
                 with open("doc/default.json", "r") as f:
                     model = JSONModel.create(f)()
+            self.set_header("Content-Type", "application/json")
             self.set_header("Content-Disposition", 'attachment; filename="%s.json"' % model.name)
             self.finish(model.save())
