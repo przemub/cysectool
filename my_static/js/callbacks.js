@@ -100,3 +100,13 @@ function edit_model() {
 function new_model() {
     window.open("/edit?uid=empty", "_blank");
 }
+
+function pareto_frontier() {
+    let modal = $("#pareto-modal");
+    modal.style.display = "block";
+}
+
+function pareto_close() {
+    let modal = $("#pareto-modal");
+    modal.style.display = "none";
+}

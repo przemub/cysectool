@@ -1,20 +1,24 @@
 {% extends base %}
 
 {% block js_resources %}
-{{ super() }}
-<script type="text/javascript" src="/my_static/js/main.js"></script>
-<script type="text/javascript" src="/my_static/js/callbacks.js"></script>
+    {{ super() }}
+    <script type="text/javascript" src="/my_static/js/main.js"></script>
+    <script type="text/javascript" src="/my_static/js/callbacks.js"></script>
 {% endblock %}
 {% block css_resources %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="/my_static/css/main.css">
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="/my_static/css/main.css">
 {% endblock %}
 
 {% block contents %}
     <div id="out-row">
-        <div id="plot-my-wrapper">
+    <div id="plot-my-wrapper">
         {{ embed(roots[0]) }}
+    </div>
+    {{ embed(roots[1]) }}
+    <div id="pareto-modal" class="modal">
+        <div id="pareto-content" class="modal-content">
+            {{ embed(roots[2]) }}
         </div>
-        {{ embed(roots[1]) }}
     </div>
 {% endblock %}

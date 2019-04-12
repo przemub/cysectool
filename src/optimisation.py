@@ -82,4 +82,28 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
 
     result = _optimal_solve(model.edges, nodes, sink_nodes, controls, control_ind, budget,
                             indirect_budget, pi, p, cost, ind_cost, 0.00001)
-    return result[2]
+    return result
+
+
+def pareto_frontier(model, budget):
+    """
+    Return pareto frontier with constant budget.
+    """
+    max_level_controls = [group[-1] for group in model.control_subcategories.values()]
+    total_ind_cost = sum(control.ind_cost for control in max_level_controls)
+    current_ind_budget = 0
+    px, py, solution = [], [], []
+    current_solution = (1, 0)
+
+    while current_ind_budget <= total_ind_cost:
+        sol = model_solve(model, budget, current_ind_budget)
+        if sol[0] != 1:
+            print('SOLUTION INFEASIBLE')
+        if (sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
+                sol[1] <= current_solution[0] and sol[4] > current_solution[1]):
+            solution.append(sol)
+            current_solution = (sol[1], sol[4])
+            px.append(sol[1])
+            py.append(sol[4])
+        current_ind_budget = current_ind_budget + 1
+    return px, py, solution

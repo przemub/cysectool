@@ -359,12 +359,12 @@ def main(document):
     total_cost = 1 if total_cost < 1 else total_cost
     total_ind_cost = 1 if total_ind_cost < 1 else total_ind_cost
 
-    slider1 = Slider(start=0, end=total_cost, value=total_cost//2, step=1, title="Target cost")
-    slider2 = Slider(start=0, end=total_ind_cost, value=total_ind_cost//2, step=1, title="Target indirect cost")
+    slider1 = Slider(start=0, end=total_cost, value=total_cost // 2, step=1, title="Target cost")
+    slider2 = Slider(start=0, end=total_ind_cost, value=total_ind_cost // 2, step=1, title="Target indirect cost")
 
     # TODO: non-blocking execution
     def optimise_callback():
-        controls = optimisation.model_solve(model, slider1.value, slider2.value)
+        controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
 
         for key in control_levels.keys():
             control_levels[key] = 0
@@ -381,8 +381,10 @@ def main(document):
 
     optimise = Button(label="Optimise")
     optimise.on_click(optimise_callback)
+    pareto_frontier = Button(label="Pareto Frontier")
+    pareto_frontier.js_on_click(javascript("pareto_frontier"))
 
-    optimisation_box = widgetbox([slider1, slider2, optimise])
+    optimisation_box = widgetbox([slider1, slider2, optimise, pareto_frontier])
 
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
@@ -392,8 +394,28 @@ def main(document):
     save_button = Button(label="Save Model", callback=javascript("save_model"))
     button_box = widgetbox([new_button, edit_button, save_button, div])
 
+    # Pareto frontier modal
+    def calculate_frontier_callback():
+        if calculate_button.disabled:
+            return
+        calculate_button.disabled = True
+        calculate_button.label = "Calculating…"
+
+        px, py, portfolios = optimisation.pareto_frontier(model, slider1.value)
+        print(px)
+        print(py)
+        print(portfolios)
+
+    pareto = figure()
+    calculate_button = Button(label="Calculate the frontier")
+    calculate_button.on_click(calculate_frontier_callback)
+    close_pareto_button = Button(label="Close")
+    close_pareto_button.js_on_click(javascript("pareto_close"))
+    pareto_column = column([pareto, row([calculate_button, close_pareto_button])])
+
     # Layout
     control_row = row([box, column([optimisation_box, button_box])], id="control-row")
     document.add_root(plot)
     document.add_root(control_row)
+    document.add_root(pareto_column)
     document.title = "Graph Security Optimiser"
