@@ -85,25 +85,48 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     return result
 
 
-def pareto_frontier(model, budget):
+def pareto_frontier(model, budget=None, ind_budget=None):
     """
-    Return pareto frontier with constant budget.
+    Return pareto frontier with constant budget for one of the parameters.
     """
     max_level_controls = [group[-1] for group in model.control_subcategories.values()]
-    total_ind_cost = sum(control.ind_cost for control in max_level_controls)
+
     current_ind_budget = 0
+    if budget is not None:
+        total_ind_cost = sum(control.ind_cost for control in max_level_controls)
+    elif ind_budget is not None:
+        total_ind_cost = sum(control.cost for control in max_level_controls)
+    else:
+        raise TypeError("Missing required budget or ind_budget")
+
     px, py, solution = [], [], []
     current_solution = (1, 0)
 
     while current_ind_budget <= total_ind_cost:
-        sol = model_solve(model, budget, current_ind_budget)
-        if sol[0] != 1:
-            print('SOLUTION INFEASIBLE')
-        if (sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
-                sol[1] <= current_solution[0] and sol[4] > current_solution[1]):
-            solution.append(sol)
-            current_solution = (sol[1], sol[4])
-            px.append(sol[1])
-            py.append(sol[4])
+        if budget is not None:
+            sol = model_solve(model, budget, current_ind_budget)
+
+            if sol[0] != 1:
+                print('SOLUTION INFEASIBLE')
+
+            if (sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
+                    sol[1] <= current_solution[0] and sol[4] > current_solution[1]):
+                solution.append(sol)
+                current_solution = (sol[1], sol[4])
+                px.append(sol[1])
+                py.append(sol[4])
+        else:
+            sol = model_solve(model, current_ind_budget, ind_budget)
+
+            if sol[0] != 1:
+                print('SOLUTION INFEASIBLE')
+
+            if (sol[1] < current_solution[0] and sol[3] >= current_solution[1]) or (
+                    sol[1] <= current_solution[0] and sol[3] > current_solution[1]):
+                solution.append(sol)
+                current_solution = (sol[1], sol[3])
+                px.append(sol[1])
+                py.append(sol[3])
+
         current_ind_budget = current_ind_budget + 1
     return px, py, solution

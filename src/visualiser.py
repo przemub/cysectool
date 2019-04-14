@@ -1,13 +1,16 @@
 import math
 import uuid
 from collections import defaultdict, OrderedDict
+from functools import partial
+from threading import Thread
 from typing import List, Tuple, Dict
 
 import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider, ColumnDataSource, Circle, \
+    RadioButtonGroup
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -16,7 +19,7 @@ from jinja2 import FileSystemLoader, Environment
 
 from src import optimisation
 from src.api import Memory
-from src.data import Edge, JSONModel, GraphError
+from src.data import Edge, JSONModel, GraphError, Control
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -362,10 +365,7 @@ def main(document):
     slider1 = Slider(start=0, end=total_cost, value=total_cost // 2, step=1, title="Target cost")
     slider2 = Slider(start=0, end=total_ind_cost, value=total_ind_cost // 2, step=1, title="Target indirect cost")
 
-    # TODO: non-blocking execution
-    def optimise_callback():
-        controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
-
+    def set_controls(controls):
         for key in control_levels.keys():
             control_levels[key] = 0
             selects[key].value = "None"
@@ -378,6 +378,11 @@ def main(document):
                                 sum(control.ind_cost for control in controls)
         model.reflow(controls)
         flow_to_bokeh()
+
+    # TODO: non-blocking execution
+    def optimise_callback():
+        controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
+        set_controls(controls)
 
     optimise = Button(label="Optimise")
     optimise.on_click(optimise_callback)
@@ -394,6 +399,15 @@ def main(document):
     save_button = Button(label="Save Model", callback=javascript("save_model"))
     button_box = widgetbox([new_button, edit_button, save_button, div])
 
+    def tap_callback(portfolios: List[Control]):
+        def _callback(_attr, _old, new: List[int]):
+            if len(new) == 0:
+                return
+
+            set_controls(portfolios[new[0]][2])
+
+        return _callback
+
     # Pareto frontier modal
     def calculate_frontier_callback():
         if calculate_button.disabled:
@@ -401,17 +415,55 @@ def main(document):
         calculate_button.disabled = True
         calculate_button.label = "Calculating…"
 
-        px, py, portfolios = optimisation.pareto_frontier(model, slider1.value)
-        print(px)
-        print(py)
-        print(portfolios)
+        def _update(px, py, portfolios):
+            new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
+                                y_axis_label="Security damage")
+            source = ColumnDataSource(data={'x': px, 'y': py})
 
-    pareto = figure()
+            new_pareto.circle('x', 'y', source=source, radius=0.5)
+            pareto_hover = HoverTool(
+                tooltips=[
+                    ("ind. cost" if constant_group.active == 0 else "cost", "@x"),
+                    ("security damage", "@y"),
+                ]
+            )
+            pareto_tap = TapTool()
+
+            new_pareto.add_tools(pareto_hover, pareto_tap)
+            source.selected.on_change('indices', tap_callback(portfolios))
+
+            pareto_column.children[0] = new_pareto
+
+            calculate_button.disabled = False
+            calculate_button.label = "Recalculate"
+
+        def _thread():
+            py, px, portfolios = optimisation.pareto_frontier(model,
+                                                              slider1.value if constant_group.active == 0 else None,
+                                                              slider2.value if constant_group.active == 1 else None)
+            document.add_next_tick_callback(partial(_update, px, py, portfolios))
+
+        thread = Thread(target=_thread)
+        thread.start()
+
     calculate_button = Button(label="Calculate the frontier")
+
+    def constant_callback(new):
+        if new == 0:
+            constant_row.children[0] = slider1
+        else:
+            constant_row.children[0] = slider2
+
+    constant_group = RadioButtonGroup(labels=["Constant cost", "Constant indirect cost"], active=0)
+    constant_group.on_click(constant_callback)
+    constant_row = row([slider1, constant_group], id="constant-row")
+
+    pareto = figure(x_axis_label="Indirect cost", y_axis_label="Security damage")
+
     calculate_button.on_click(calculate_frontier_callback)
     close_pareto_button = Button(label="Close")
     close_pareto_button.js_on_click(javascript("pareto_close"))
-    pareto_column = column([pareto, row([calculate_button, close_pareto_button])])
+    pareto_column = column([pareto, constant_row, row([calculate_button, close_pareto_button])])
 
     # Layout
     control_row = row([box, column([optimisation_box, button_box])], id="control-row")

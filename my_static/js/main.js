@@ -22,7 +22,8 @@ function main() {
         Bokeh.index["attack-figure"].resize();
     }, false);
 
-    arrow().then();
+    // Disable for now
+    //arrow().then();
 }
 
 window.onload = main;
