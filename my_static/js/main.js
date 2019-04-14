@@ -19,7 +19,11 @@ function main() {
     plotWrapper.addEventListener('mouseup', function(e){
         // noinspection JSSuspiciousNameCombination
         plotWrapper.style.height = plotWrapper.style.width;
-        Bokeh.index["attack-figure"].resize();
+
+        if ('resize' in Bokeh.index["attack-figure"])
+            Bokeh.index["attack-figure"].resize(); // Bokeh < 1.1
+        else
+            Bokeh.index["attack-figure"].resize_layout(); // Bokeh >= 1.1
     }, false);
 
     // Disable for now
