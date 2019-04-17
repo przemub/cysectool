@@ -143,7 +143,11 @@ def main(document):
         level.sort(key=lambda v: graph.layout_provider.graph_layout[v][0])
 
     # Add colours and glyphs
-    graph.node_renderer.data_source.add([Spectral8[0], *(Spectral8[3] for _ in range(n - 2)), Spectral8[7]], 'color')
+    node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
+                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] == n-1 else
+                   Spectral8[3] for i in range(n)]
+
+    graph.node_renderer.data_source.add(node_colors, 'color')
     graph.node_renderer.glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color='color')
     graph.node_renderer.selection_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[5])
     graph.node_renderer.hover_glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color=Spectral8[4])
