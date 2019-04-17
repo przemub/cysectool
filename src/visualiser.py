@@ -424,7 +424,7 @@ def main(document):
                                 y_axis_label="Security damage")
             source = ColumnDataSource(data={'x': px, 'y': py})
 
-            new_pareto.circle('x', 'y', source=source, radius=0.5)
+            new_pareto.circle('x', 'y', source=source, size=15)
             pareto_hover = HoverTool(
                 tooltips=[
                     ("ind. cost" if constant_group.active == 0 else "cost", "@x"),
