@@ -282,6 +282,9 @@ def main(document):
     # Add the graph to the plot and the plot to the doc
     plot.renderers.append(graph)
 
+    # Hover only over the graph
+    hover.renderers = [plot.renderers[0]]
+
     # Controls
     control_levels: Dict[str, int] = {category: 0 for category in model.control_categories.keys()}
 
@@ -313,7 +316,6 @@ def main(document):
 
             controls = [model.control_subcategories[item[0]][item[1] - 1]
                         for item in control_levels.items() if item[1] > 0]
-            print(controls)
             total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
             total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
                                     sum(control.ind_cost for control in controls)
