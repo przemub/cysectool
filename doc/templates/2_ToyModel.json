@@ -1,0 +1,141 @@
+{
+  "name": "ToyModel",
+  "controls": {
+    "c1": {
+      "name": "c1",
+      "level_name": [
+        "c1 1"
+      ],
+      "cost": [
+        1
+      ],
+      "ind_cost": [
+        1
+      ],
+      "flow": [
+        0.5
+      ]
+    },
+    "c2": {
+      "name": "c2",
+      "level_name": [
+        "c2 1"
+      ],
+      "cost": [
+        1
+      ],
+      "ind_cost": [
+        1
+      ],
+      "flow": [
+        0.2
+      ]
+    },
+    "c3": {
+      "name": "c3",
+      "level_name": [
+        "c3 1"
+      ],
+      "cost": [
+        1
+      ],
+      "ind_cost": [
+        1
+      ],
+      "flow": [
+        0.1
+      ]
+    },
+    "c4": {
+      "name": "c4",
+      "level_name": [
+        "c4 1"
+      ],
+      "cost": [
+        1
+      ],
+      "ind_cost": [
+        1
+      ],
+      "flow": [
+        0.2
+      ]
+    }
+  },
+  "vertices": [
+    "0",
+    "1",
+    "2",
+    "3"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 3,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v03",
+        "controls": {
+          "c3": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v01",
+        "controls": {
+          "c1": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v02",
+        "controls": {
+          "c2": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v12",
+        "controls": {
+          "c3": {},
+          "c4": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v13",
+        "controls": {
+          "c2": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "v23",
+        "controls": {
+          "c1": {},
+          "c4": {}
+        }
+      }
+    }
+  ]
+}

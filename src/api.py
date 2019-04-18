@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 
 import tornado.web
@@ -26,6 +27,13 @@ class Memory:
         Memory.__instance = self
 
         self.documents: Dict[uuid.UUID, Model] = {}
+
+        # Load templates
+        self.templates = []
+        for file in os.listdir('doc/templates/'):
+            with open(os.path.join('doc/templates/', file), 'r') as f:
+                uid = self.add_document(f.read())
+                self.templates.append(uid)
 
     def add_document(self, text) -> uuid.UUID:
         while len(self.documents) > 100:

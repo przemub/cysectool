@@ -1,0 +1,166 @@
+{
+  "name": "NIST",
+  "controls": {
+    "ScW": {
+      "name": "ScW",
+      "level_name": ["1"],
+      "cost": [1],
+      "ind_cost": [1],
+      "flow": [0.0000001]
+    },
+    "ScS": {
+      "name": "ScS",
+      "level_name": ["1"],
+      "cost": [1],
+      "ind_cost": [1],
+      "flow": [0.0000001]
+    },
+    "ScDb": {
+      "name": "ScDb",
+      "level_name": ["1"],
+      "cost": [1],
+      "ind_cost": [5],
+      "flow": [0.0000001]
+    },
+    "N1": {
+      "name": "N1",
+      "level_name": ["1"],
+      "cost": [1],
+      "ind_cost": [1],
+      "flow": [0.7]
+    },
+    "N2": {
+      "name": "N2",
+      "level_name": ["1"],
+      "cost": [1],
+      "ind_cost": [1],
+      "flow": [0.01]
+    },
+    "Ed": {
+      "name": "Ed",
+      "level_name": ["1","2"],
+      "cost": [1,1],
+      "ind_cost": [1,1],
+      "flow": [0.5,0.3]
+    }
+    
+  },
+  "vertices": ["start", "10", "14","18", "22","26","30"],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "multiplicity": 0,
+      "default_flow": 0.5,
+      "vulnerability": {
+        "name": "01",
+        "controls": {
+          "Ed": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "multiplicity": 1,
+      "default_flow": 0.8,
+      "vulnerability": {
+        "name": "01",
+        "controls": {
+          "Ed": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "multiplicity": 0,
+      "vulnerability": {
+        "name": "03",
+        "controls": {
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "multiplicity": 0,
+	  "default_flow": 0.9,
+      "vulnerability": {
+        "name": "12",
+        "controls": {
+          "ScW": {},
+          "N1":{}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "multiplicity": 0,
+      "vulnerability": {
+        "name": "23",
+        "controls": {
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 5,
+      "multiplicity": 0,
+      "vulnerability": {
+        "name": "23",
+        "controls": {
+        "N2":{}
+        }
+      }
+    },
+     {
+      "source": 4,
+      "target": 1,
+      "multiplicity": 0,
+      "vulnerability": {
+        "name": "23",
+        "controls": {
+        "Ed":{}
+        }
+      }
+    },
+     {
+      "source": 4,
+      "target": 5,
+      "multiplicity": 0,
+      "vulnerability": {
+        "name": "23",
+        "controls": {
+        }
+      }
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "multiplicity": 0,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "12",
+        "controls": {
+          "ScS": {},
+          "Ed": {},
+          "N2":{}
+        }
+      }      
+      },   
+      {
+      "source": 5,
+      "target": 6,
+      "multiplicity": 0,
+      "default_flow": 0.6,
+      "vulnerability": {
+        "name": "56",
+        "controls": {
+        "ScDb":{}
+        }
+      }
+    }
+   ]
+}

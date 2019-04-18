@@ -9,8 +9,8 @@ import colorcet
 import networkx
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
-    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider, ColumnDataSource, Circle, \
-    RadioButtonGroup
+    Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider, ColumnDataSource, \
+    RadioButtonGroup, Dropdown
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -19,7 +19,7 @@ from jinja2 import FileSystemLoader, Environment
 
 from src import optimisation
 from src.api import Memory
-from src.data import Edge, JSONModel, GraphError, Control
+from src.data import Edge, Control
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -89,10 +89,10 @@ def map_color(value: float) -> str:
     return PALETTE[threshold]
 
 
-def javascript(name: str, args=None) -> CustomJS:
+def javascript(name: str, args=None, code_args="") -> CustomJS:
     if args is None:
         args = {}
-    return CustomJS(code="%s();" % name, args=args)
+    return CustomJS(code="%s(%s);" % (name, code_args), args=args)
 
 
 def main(document):
@@ -120,6 +120,7 @@ def main(document):
     uid = document.session_context.request.arguments.get('id', None)
 
     model = None
+    memory = Memory.get_instance()
     if uid:
         uid = uuid.UUID(uid[0].decode('ascii'))
         try:
@@ -128,8 +129,7 @@ def main(document):
             pass
 
     if model is None:
-        with open("doc/default.json", "r") as f:
-            model = JSONModel.create(f)()
+        model = memory.documents[memory.templates[0]]
 
     graph_data = model.graph
     n = max(graph_data.nodes) + 1
@@ -403,7 +403,15 @@ def main(document):
     new_button = Button(label="New Model", callback=javascript("new_model"))
     edit_button = Button(label="Edit Model", callback=javascript("edit_model"))
     save_button = Button(label="Save Model", callback=javascript("save_model"))
-    button_box = widgetbox([new_button, edit_button, save_button, div])
+
+    menu = []
+    for template in memory.templates:
+        template_model = memory.documents[template]
+        menu.append((template_model.name, str(template)))
+    templates_drop = Dropdown(label="Load Template", menu=menu)
+    templates_drop.js_on_change('value', javascript('template_change', code_args="this.value"))
+
+    button_box = widgetbox([templates_drop, new_button, edit_button, save_button, div])
 
     def tap_callback(portfolios: List[Control]):
         def _callback(_attr, _old, new: List[int]):

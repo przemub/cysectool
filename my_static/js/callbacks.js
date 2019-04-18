@@ -110,3 +110,10 @@ function pareto_close() {
     let modal = $("#pareto-modal");
     modal.style.display = "none";
 }
+
+function template_change(value) {
+    let url = "/visualiser";
+    url += "?id=" + value;
+
+    window.open(url, "_blank");
+}
