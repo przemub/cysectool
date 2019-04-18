@@ -16,21 +16,20 @@ class EditHandler(tornado.web.RequestHandler):
         template = env.get_template("edit.html")
 
         uid = self.get_argument('uid', None)
+        memory = Memory.get_instance()
         if uid == 'empty':
             result = template.render()
             self.finish(result)
             return
         elif uid:
-            mem = Memory.get_instance()
             try:
-                model = mem.documents[UUID(uid)]
+                model = memory.documents[UUID(uid)]
             except KeyError:
                 self.set_status(404)
                 self.finish("404: Model not found.")
                 return
         else:
-            with open("doc/default.json", "r") as f:
-                model = JSONModel.create(f)()
+            model = memory.documents[memory.templates[0]]
 
         vertices = [{'name': vertex} for vertex in model.vertices]
         groups = [{'id': category_id, 'name': category[0], 'levels': category[1]}

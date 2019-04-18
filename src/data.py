@@ -29,7 +29,7 @@ class Control(NamedTuple):
     flow: float = 1
 
     def __hash__(self):
-        val: int = pow(self.level, 1.7)
+        val: int = hash(pow(self.level, 1.7))
         for i, letter in enumerate(self.id):
             val *= pow(ord(letter), 2.1 + 0.47 * i)
             val = hash(val)

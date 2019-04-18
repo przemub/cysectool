@@ -40,7 +40,7 @@ function setVertexId(grid, item) {
 }
 
 (function(jsGrid, $) {
-    var NumberField = jsGrid.NumberField;
+    let NumberField = jsGrid.NumberField;
 
     function DecimalField(config) {
         NumberField.call(this, config);
@@ -85,7 +85,7 @@ function save_edit() {
     const verticesData = verticesGrid.jsGrid("option", "data");
     const edgesData = edgesGrid.jsGrid("option", "data");
 
-    controls = {}
+    let controls = {};
     // TODO: Again, efficiency…
     for (const group of groupsData) {
         let group_obj = {'name': group.name, 'level_name': [], 'cost': [], 'ind_cost': [], 'flow': []};
@@ -100,7 +100,7 @@ function save_edit() {
         controls[group.id] = group_obj;
     }
 
-    vertices_obj = []
+    let vertices_obj = [];
     for (const vertex of verticesData)
         vertices_obj.push(vertex.name);
 
@@ -122,21 +122,21 @@ function save_edit() {
         return obj;
     }
 
-    edges_obj = [];
+    let edges_obj = [];
     for (const edge of edgesData)
         edges_obj.push({'source': edge.source, 'target': edge.target,
 			'default_flow': edge.default_flow,
             'vulnerability': {
                 'name': edge.name,
                 'controls': controlsReprToObj(edge.controls)
-            }})
+            }});
 
-    obj = {
+    let obj = {
         'name': "edit",
         'controls': controls,
         'vertices': vertices_obj,
         'edges': edges_obj
-    }
+    };
 
     const json = JSON.stringify(obj, null, 2);
 

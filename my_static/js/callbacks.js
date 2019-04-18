@@ -19,6 +19,7 @@ function on_tap() {
     our_tooltip = tooltip.parentNode.appendChild(clone);
 }
 
+// noinspection JSUnusedGlobalSymbols
 function load_model() {
     const file_list = $("input#load").files;
 
@@ -63,6 +64,7 @@ function get() {
     return get;
 }
 
+// noinspection JSUnusedGlobalSymbols
 function save_model() {
     let dict = {'cmd': 'save'};
     let get_table = get();
@@ -88,6 +90,7 @@ function save_model() {
     http.send(json);
 }
 
+// noinspection JSUnusedGlobalSymbols
 function edit_model() {
     let url = "/edit";
     let get_table = get();
@@ -97,20 +100,24 @@ function edit_model() {
     window.open(url, "_blank");
 }
 
+// noinspection JSUnusedGlobalSymbols
 function new_model() {
     window.open("/edit?uid=empty", "_blank");
 }
 
+// noinspection JSUnusedGlobalSymbols
 function pareto_frontier() {
     let modal = $("#pareto-modal");
     modal.style.display = "block";
 }
 
+// noinspection JSUnusedGlobalSymbols
 function pareto_close() {
     let modal = $("#pareto-modal");
     modal.style.display = "none";
 }
 
+// noinspection JSUnusedGlobalSymbols
 function template_change(value) {
     let url = "/visualiser";
     url += "?id=" + value;
