@@ -10,7 +10,7 @@ import networkx
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
     Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider, ColumnDataSource, \
-    RadioButtonGroup, Dropdown
+    RadioButtonGroup, Dropdown, Panel, Tabs
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -298,14 +298,17 @@ def main(document):
                 edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
                 color.append(map_color(flow[-1]))
 
+        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n-1]
+
         graph.edge_renderer.data_source.data['flow'] = flow
         graph.edge_renderer.data_source.data['edge_flow'] = edge_flow
         graph.edge_renderer.data_source.data['color'] = color
 
-    flow_to_bokeh()
-
     total_cost_p = Div(text="Total costs: <strong>0</strong>")
     total_ind_cost_p = Div(text="Total indirect costs: <strong>0</strong>")
+    max_flow_p = Div(text="Max flow to the target: <strong>1</strong>")
+
+    flow_to_bokeh()
 
     def change_security(category: str):
         def _change(_attr, _old, new):
@@ -346,7 +349,7 @@ def main(document):
     clear = Button(label="Clear")
     clear.on_click(clear_callback)
 
-    widgets.extend([total_cost_p, total_ind_cost_p, clear])
+    widgets.extend([total_cost_p, total_ind_cost_p, max_flow_p, clear])
     box = widgetbox(widgets, width=400)
 
     color_bar = ColorBar(color_mapper=mapper, orientation='vertical',
@@ -392,10 +395,8 @@ def main(document):
 
     optimise = Button(label="Optimise")
     optimise.on_click(optimise_callback)
-    pareto_frontier = Button(label="Pareto Frontier")
-    pareto_frontier.js_on_click(javascript("pareto_frontier"))
 
-    optimisation_box = widgetbox([slider1, slider2, optimise, pareto_frontier])
+    optimisation_box = widgetbox([slider1, slider2, optimise])
 
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
@@ -475,13 +476,15 @@ def main(document):
     pareto = figure(x_axis_label="Indirect cost", y_axis_label="Security damage")
 
     calculate_button.on_click(calculate_frontier_callback)
-    close_pareto_button = Button(label="Close")
-    close_pareto_button.js_on_click(javascript("pareto_close"))
-    pareto_column = column([pareto, constant_row, row([calculate_button, close_pareto_button])])
+    pareto_column = column([pareto, constant_row, calculate_button])
 
     # Layout
-    control_row = row([box, column([optimisation_box, button_box])], id="control-row")
     document.add_root(plot)
-    document.add_root(control_row)
-    document.add_root(pareto_column)
+
+    control_row = row([box, column([optimisation_box, button_box])], id="control-row")
+    panel_controls = Panel(child=control_row, title="Controls")
+    pareto_controls = Panel(child=pareto_column, title="Pareto Frontier")
+    tabs = Tabs(tabs=[panel_controls, pareto_controls])
+
+    document.add_root(tabs)
     document.title = "Graph Security Optimiser"

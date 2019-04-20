@@ -106,18 +106,6 @@ function new_model() {
 }
 
 // noinspection JSUnusedGlobalSymbols
-function pareto_frontier() {
-    let modal = $("#pareto-modal");
-    modal.style.display = "block";
-}
-
-// noinspection JSUnusedGlobalSymbols
-function pareto_close() {
-    let modal = $("#pareto-modal");
-    modal.style.display = "none";
-}
-
-// noinspection JSUnusedGlobalSymbols
 function template_change(value) {
     let url = "/visualiser";
     url += "?id=" + value;
