@@ -30,7 +30,7 @@ class Memory:
 
         # Load templates
         self.templates = []
-        for file in os.listdir('doc/templates/'):
+        for file in sorted(os.listdir('doc/templates/')):
             with open(os.path.join('doc/templates/', file), 'r') as f:
                 uid = self.add_document(f.read())
                 self.templates.append(uid)
