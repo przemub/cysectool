@@ -144,7 +144,7 @@ def main(document):
 
     # Add colours and glyphs
     node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
-                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] == n-1 else
+                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] == n - 1 else
                    Spectral8[3] for i in range(n)]
 
     graph.node_renderer.data_source.add(node_colors, 'color')
@@ -298,7 +298,7 @@ def main(document):
                 edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
                 color.append(map_color(flow[-1]))
 
-        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n-1]
+        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
         graph.edge_renderer.data_source.data['flow'] = flow
         graph.edge_renderer.data_source.data['edge_flow'] = edge_flow
@@ -307,6 +307,7 @@ def main(document):
     total_cost_p = Div(text="Total costs: <strong>0</strong>")
     total_ind_cost_p = Div(text="Total indirect costs: <strong>0</strong>")
     max_flow_p = Div(text="Max flow to the target: <strong>1</strong>")
+    pareto_current_controls = Div()
 
     flow_to_bokeh()
 
@@ -322,6 +323,11 @@ def main(document):
             total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
             total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
                                     sum(control.ind_cost for control in controls)
+            pareto_current_controls.text = "<strong>Current controls</strong>: %s" % \
+                                           ", ".join(
+                                               "%s (%s)" % (model.control_categories[control.id][0], control.level_name)
+                                               for
+                                               control in controls)
             model.reflow(controls)
             flow_to_bokeh()
 
@@ -385,6 +391,10 @@ def main(document):
         total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(control.cost for control in controls)
         total_ind_cost_p.text = "Total indirect costs: <strong>%d</strong>" % \
                                 sum(control.ind_cost for control in controls)
+        pareto_current_controls.text = "<strong>Current controls</strong>: %s" % \
+                                       ", ".join(
+                                           "%s (%s)" % (model.control_categories[control.id][0], control.level_name) for
+                                           control in controls)
         model.reflow(controls)
         flow_to_bokeh()
 
@@ -476,7 +486,7 @@ def main(document):
     pareto = figure(x_axis_label="Indirect cost", y_axis_label="Security damage")
 
     calculate_button.on_click(calculate_frontier_callback)
-    pareto_column = column([pareto, constant_row, calculate_button])
+    pareto_column = column([pareto, constant_row, calculate_button, pareto_current_controls])
 
     # Layout
     document.add_root(plot)
