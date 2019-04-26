@@ -298,8 +298,6 @@ def main(document):
                 edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
                 color.append(map_color(flow[-1]))
 
-        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
-
         graph.edge_renderer.data_source.data['flow'] = flow
         graph.edge_renderer.data_source.data['edge_flow'] = edge_flow
         graph.edge_renderer.data_source.data['color'] = color
@@ -328,6 +326,7 @@ def main(document):
                                                "%s (%s)" % (model.control_categories[control.id][0], control.level_name)
                                                for
                                                control in controls)
+            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
             model.reflow(controls)
             flow_to_bokeh()
 
@@ -395,6 +394,7 @@ def main(document):
                                        ", ".join(
                                            "%s (%s)" % (model.control_categories[control.id][0], control.level_name) for
                                            control in controls)
+        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
         model.reflow(controls)
         flow_to_bokeh()
 

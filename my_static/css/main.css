@@ -7,6 +7,13 @@ div#plot-my-wrapper {
   width: 800px;
   height: 800px;
   resize: horizontal;
-  overflow: auto;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  div#plot-my-wrapper {
+    overflow-x: scroll;
+    height: 820px;
+  }
+}
