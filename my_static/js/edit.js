@@ -117,7 +117,7 @@ function save_edit() {
             if (match === null)
                 obj[control] = {};
             else
-                obj[match[1]] = {'flow': match[2], 'max_flow': match[3]};
+                obj[match[1]] = {'flow': parseFloat([2]), 'max_flow': parseFloat(match[3])};
         }
         return obj;
     }
