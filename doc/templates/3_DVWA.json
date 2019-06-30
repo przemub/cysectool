@@ -1,0 +1,339 @@
+{
+  "name": "DVWA",
+  "controls": {
+    "Pn": {
+      "name": "Pentesting",
+      "level_name": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "cost": [
+        3,
+        5,
+        10
+      ],
+      "ind_cost": [
+        1,
+        2,
+        4
+      ],
+      "flow": [
+        0.7,
+        0.4,
+        0.1
+      ]
+    },
+    "Sc": {
+      "name": "Secure configuration",
+      "level_name": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "cost": [
+        2,
+        4,
+        7
+      ],
+      "ind_cost": [
+        1,
+        1,
+        2
+      ],
+      "flow": [
+        0.7,
+        0.4,
+        0.1
+      ]
+    },
+    "Pw": {
+      "name": "Password policy",
+      "level_name": [
+        "Basic",
+        "Strong"
+      ],
+      "cost": [
+        1,
+        2
+      ],
+      "ind_cost": [
+        2,
+        5
+      ],
+      "flow": [
+        0.6,
+        0.3
+      ]
+    },
+    "A2": {
+      "name": "Two-factor authentication",
+      "level_name": [
+        "Implemented"
+      ],
+      "cost": [
+        4
+      ],
+      "ind_cost": [
+        7
+      ],
+      "flow": [
+        0.1
+      ]
+    },
+    "Ex": {
+      "name": "External firewall",
+      "level_name": [
+        "Basic",
+        "Strong",
+        "VPN"
+      ],
+      "cost": [
+        3,
+        5,
+        6
+      ],
+      "ind_cost": [
+        1,
+        3,
+        8
+      ],
+      "flow": [
+        0.7,
+        0.3,
+        0.1
+      ]
+    },
+    "In": {
+      "name": "Internal firewall",
+      "level_name": [
+        "Basic",
+        "Strong"
+      ],
+      "cost": [
+        3,
+        5
+      ],
+      "ind_cost": [
+        1,
+        3
+      ],
+      "flow": [
+        0.7,
+        0.3
+      ]
+    },
+    "Vt": {
+      "name": "Virtualisation / Containerisation",
+      "level_name": [
+        "Implemented"
+      ],
+      "cost": [
+        5
+      ],
+      "ind_cost": [
+        3
+      ],
+      "flow": [
+        0.1
+      ]
+    },
+    "Ed": {
+      "name": "User education",
+      "level_name": [
+        "Online courses",
+        "Attack simulations",
+        "Strongly monitored policies"
+      ],
+      "cost": [
+        2,
+        4,
+        6
+      ],
+      "ind_cost": [
+        4,
+        6,
+        10
+      ],
+      "flow": [
+        0.8,
+        0.6,
+        0.3
+      ]
+    }
+  },
+  "vertices": [
+    "start",
+    "PHP script",
+    "admin panel",
+    "database",
+    "web user",
+    "root",
+    "ddos",
+    "machine"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.8,
+      "vulnerability": {
+        "name": "Brute force (login form)",
+        "controls": {
+          "Pw": {},
+          "A2": {},
+          "Ex": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.5,
+      "vulnerability": {
+        "name": "Cross Site Request Forgery",
+        "controls": {
+          "Pn": {},
+          "Ed": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "Command injection",
+        "controls": {
+          "Pn": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "default_flow": 0.4,
+      "vulnerability": {
+        "name": "File inclusion (remote PHP script injection)",
+        "controls": {
+          "Pn": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 1,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "File upload (PHP script)",
+        "controls": {
+          "Pn": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 4,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "File inclusion (local PHP script injection)",
+        "controls": {
+          "Pn": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "File inclusion (self-inclusion)",
+        "controls": {
+          "Pn": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "File upload (DDOS)",
+        "controls": {
+          "Pn": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "SQL injection",
+        "controls": {
+          "Pn": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "default_flow": 0.7,
+      "vulnerability": {
+        "name": "Brute force (on the database)",
+        "controls": {
+          "Ex": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Credentials change in the database",
+        "controls": {
+          "A2": {}
+        }
+      }
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "default_flow": 0.5,
+      "vulnerability": {
+        "name": "SQL shellcode",
+        "controls": {
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 4,
+      "target": 5,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Web user -> Root",
+        "controls": {
+          "In": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 5,
+      "target": 7,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Root -> Machine",
+        "controls": {
+          "Vt": {}
+        }
+      }
+    }
+  ]
+}
