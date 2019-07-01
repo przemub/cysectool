@@ -28,7 +28,7 @@ conda env create -f environment.yml
 
 ### Run
 ```sh
-conda activate visualiser
+conda activate visualiser-env
 python main.py
 ```
 
