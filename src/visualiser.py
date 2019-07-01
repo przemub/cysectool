@@ -440,6 +440,8 @@ def main(document):
         calculate_button.disabled = True
         calculate_button.label = "Calculating…"
 
+        clear_callback()
+
         def _update(px, py, portfolios):
             new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
                                 y_axis_label="Security damage")
