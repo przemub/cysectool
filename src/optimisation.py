@@ -46,8 +46,9 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
     if not model.status == 1:
         return
     for i in controls:
-        total_cost += cost(i) * x[i].varValue
-        total_ind_cost += ind_cost(i) * x[i].varValue
+        if x[i].varValue is not None:
+            total_cost += cost(i) * x[i].varValue
+            total_ind_cost += ind_cost(i) * x[i].varValue
         # if x[i].varValue!=0:
         # print(x[i].name,' '*(20-len(x[i].name)),x[i].varValue)
     # print('\ntotal_cost= ',total_cost,'   total Indirect costs=',total_ind_cost )
