@@ -326,9 +326,9 @@ def main(document):
                                                "%s (%s)" % (model.control_categories[control.id][0], control.level_name)
                                                for
                                                control in controls)
-            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
             model.reflow(controls)
             flow_to_bokeh()
+            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
         return _change
 
@@ -394,9 +394,9 @@ def main(document):
                                        ", ".join(
                                            "%s (%s)" % (model.control_categories[control.id][0], control.level_name) for
                                            control in controls)
-        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
         model.reflow(controls)
         flow_to_bokeh()
+        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
     # TODO: non-blocking execution
     def optimise_callback():
