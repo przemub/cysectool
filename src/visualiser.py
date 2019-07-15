@@ -400,8 +400,12 @@ def main(document):
 
     # TODO: non-blocking execution
     def optimise_callback():
-        controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
-        set_controls(controls)
+        try:
+            controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
+            set_controls(controls)
+        except:
+            import traceback
+            traceback.print_exc()
 
     optimise = Button(label="Optimise")
     optimise.on_click(optimise_callback)
@@ -442,15 +446,16 @@ def main(document):
 
         clear_callback()
 
-        def _update(px, py, portfolios):
+        def _update(px, py, pz, portfolios):
             new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
                                 y_axis_label="Security damage")
-            source = ColumnDataSource(data={'x': px, 'y': py})
+            source = ColumnDataSource(data={'x': px, 'y': py, 'z': pz})
 
             new_pareto.circle('x', 'y', source=source, size=15)
             pareto_hover = HoverTool(
                 tooltips=[
                     ("ind. cost" if constant_group.active == 0 else "cost", "@x"),
+                    ("ind. cost" if constant_group.active == 1 else "cost", "@z"),
                     ("security damage", "@y"),
                 ]
             )
@@ -465,10 +470,10 @@ def main(document):
             calculate_button.label = "Recalculate"
 
         def _thread():
-            py, px, portfolios = optimisation.pareto_frontier(model,
-                                                              slider1.value if constant_group.active == 0 else None,
-                                                              slider2.value if constant_group.active == 1 else None)
-            document.add_next_tick_callback(partial(_update, px, py, portfolios))
+            py, px, pz, portfolios = optimisation.pareto_frontier(model,
+                                                                  slider1.value if constant_group.active == 0 else None,
+                                                                  slider2.value if constant_group.active == 1 else None)
+            document.add_next_tick_callback(partial(_update, px, py, pz, portfolios))
 
         thread = Thread(target=_thread)
         thread.start()

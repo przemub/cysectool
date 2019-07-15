@@ -2,7 +2,7 @@
 * proper scaling of arrows
 
 01.07.2019
-direct cost in the pareto frontier dots
+DONE: direct cost in the pareto frontier dots
 BUG: invalid value in "Max flow to the target: 0.0035"
 justification of the flows (categories of easiness of exploitation) and costs
 patching as a control (SQL injection for example)
