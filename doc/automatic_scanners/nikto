@@ -1,0 +1,26 @@
+[przemub@rem ~]$ nikto -host localhost:8000
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          127.0.0.1
++ Target Hostname:    localhost
++ Target Port:        8000
++ Start Time:         2019-07-06 21:52:35 (GMT1)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.25 (Debian)
++ Cookie PHPSESSID created without the httponly flag
++ Cookie security created without the httponly flag
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Root page / redirects to: login.php
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Server leaks inodes via ETags, header found with file /robots.txt, fields: 0x1a 0x5780ba3955700 
++ OSVDB-3268: /config/: Directory indexing found.
++ /config/: Configuration information may be available remotely.
++ OSVDB-3268: /docs/: Directory indexing found.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /login.php: Admin login page/section found.
++ 7375 requests: 0 error(s) and 11 item(s) reported on remote host
++ End Time:           2019-07-06 21:52:44 (GMT1) (9 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
