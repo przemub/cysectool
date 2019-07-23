@@ -1,6 +1,7 @@
 *.js.map
 
 venv
+env
 *.pyc
 __pycache__
 

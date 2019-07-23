@@ -86,6 +86,13 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     return result
 
 
+def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
+    """Iterates over model_solve to spend all the budget."""
+    # TODO
+
+    return model_solve(model, budget, indirect_budget)
+
+
 def pareto_frontier(model, budget=None, ind_budget=None):
     """
     Return pareto frontier with constant budget for one of the parameters.

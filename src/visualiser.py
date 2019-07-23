@@ -399,18 +399,23 @@ def main(document):
         max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
     # TODO: non-blocking execution
-    def optimise_callback():
+    def optimise_callback(iterative):
         try:
-            controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
+            if iterative:
+                controls = optimisation.model_solve_iterate(model, slider1.value, slider2.value)[2]
+            else:
+                controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
             set_controls(controls)
         except:
             import traceback
             traceback.print_exc()
 
     optimise = Button(label="Optimise")
-    optimise.on_click(optimise_callback)
+    optimise.on_click(partial(optimise_callback, False))
+    optimise_iterative = Button(label="Optimise (iterative)")
+    optimise.on_click(partial(optimise_callback, True))
 
-    optimisation_box = widgetbox([slider1, slider2, optimise])
+    optimisation_box = widgetbox([slider1, slider2, optimise_iterative])
 
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
