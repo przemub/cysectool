@@ -86,6 +86,13 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     return result
 
 
+def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
+    """Iterates over model_solve to spend all the budget."""
+    # TODO
+
+    return model_solve(model, budget, indirect_budget)
+
+
 def pareto_frontier(model, budget=None, ind_budget=None):
     """
     Return pareto frontier with constant budget for one of the parameters.
@@ -100,7 +107,7 @@ def pareto_frontier(model, budget=None, ind_budget=None):
     else:
         raise TypeError("Missing required budget or ind_budget")
 
-    px, py, solution = [], [], []
+    px, py, pz, solution = [], [], [], []
     current_solution = (1, 0)
 
     while current_ind_budget <= total_ind_cost:
@@ -116,6 +123,7 @@ def pareto_frontier(model, budget=None, ind_budget=None):
                 current_solution = (sol[1], sol[4])
                 px.append(sol[1])
                 py.append(sol[4])
+                pz.append(sol[3])
         else:
             sol = model_solve(model, current_ind_budget, ind_budget)
 
@@ -128,6 +136,7 @@ def pareto_frontier(model, budget=None, ind_budget=None):
                 current_solution = (sol[1], sol[3])
                 px.append(sol[1])
                 py.append(sol[3])
+                pz.append(sol[4])
 
         current_ind_budget = current_ind_budget + 1
-    return px, py, solution
+    return px, py, pz, solution

@@ -2,13 +2,13 @@
 * proper scaling of arrows
 
 01.07.2019
-direct cost in the pareto frontier dots
-BUG: invalid value in "Max flow to the target: 0.0035"
-justification of the flows (categories of easiness of exploitation) and costs
-patching as a control (SQL injection for example)
+DONE: direct cost in the pareto frontier dots
+DONE: BUG: invalid value in "Max flow to the target: 0.0035"
+WIP: justification of the flows (categories of easiness of exploitation) and costs
+WIP: patching as a control (SQL injection for example)
 
 08.07.2019
-recovery controls (as a tool feature)
-iterative optimisation (for spending all the budgets)
-CVSS (CVE score system)
+recovery controls (as a tool feature) (how?)
+WIP: iterative optimisation (for spending all the budgets)
+WIP: CVSS (CVE score system)
 hackmageddon.com

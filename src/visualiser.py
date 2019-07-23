@@ -326,9 +326,9 @@ def main(document):
                                                "%s (%s)" % (model.control_categories[control.id][0], control.level_name)
                                                for
                                                control in controls)
-            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
             model.reflow(controls)
             flow_to_bokeh()
+            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
         return _change
 
@@ -394,19 +394,28 @@ def main(document):
                                        ", ".join(
                                            "%s (%s)" % (model.control_categories[control.id][0], control.level_name) for
                                            control in controls)
-        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
         model.reflow(controls)
         flow_to_bokeh()
+        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
 
     # TODO: non-blocking execution
-    def optimise_callback():
-        controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
-        set_controls(controls)
+    def optimise_callback(iterative):
+        try:
+            if iterative:
+                controls = optimisation.model_solve_iterate(model, slider1.value, slider2.value)[2]
+            else:
+                controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
+            set_controls(controls)
+        except:
+            import traceback
+            traceback.print_exc()
 
     optimise = Button(label="Optimise")
-    optimise.on_click(optimise_callback)
+    optimise.on_click(partial(optimise_callback, False))
+    optimise_iterative = Button(label="Optimise (iterative)")
+    optimise.on_click(partial(optimise_callback, True))
 
-    optimisation_box = widgetbox([slider1, slider2, optimise])
+    optimisation_box = widgetbox([slider1, slider2, optimise_iterative])
 
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
@@ -442,15 +451,16 @@ def main(document):
 
         clear_callback()
 
-        def _update(px, py, portfolios):
+        def _update(px, py, pz, portfolios):
             new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
                                 y_axis_label="Security damage")
-            source = ColumnDataSource(data={'x': px, 'y': py})
+            source = ColumnDataSource(data={'x': px, 'y': py, 'z': pz})
 
             new_pareto.circle('x', 'y', source=source, size=15)
             pareto_hover = HoverTool(
                 tooltips=[
                     ("ind. cost" if constant_group.active == 0 else "cost", "@x"),
+                    ("ind. cost" if constant_group.active == 1 else "cost", "@z"),
                     ("security damage", "@y"),
                 ]
             )
@@ -465,10 +475,10 @@ def main(document):
             calculate_button.label = "Recalculate"
 
         def _thread():
-            py, px, portfolios = optimisation.pareto_frontier(model,
-                                                              slider1.value if constant_group.active == 0 else None,
-                                                              slider2.value if constant_group.active == 1 else None)
-            document.add_next_tick_callback(partial(_update, px, py, portfolios))
+            py, px, pz, portfolios = optimisation.pareto_frontier(model,
+                                                                  slider1.value if constant_group.active == 0 else None,
+                                                                  slider2.value if constant_group.active == 1 else None)
+            document.add_next_tick_callback(partial(_update, px, py, pz, portfolios))
 
         thread = Thread(target=_thread)
         thread.start()
