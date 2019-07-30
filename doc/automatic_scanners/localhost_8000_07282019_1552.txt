@@ -1,0 +1,26 @@
+********************************************************************************
+                     Wapiti 3.0.1 - wapiti.sourceforge.net
+                       Report for http://localhost:8000/
+              Date of the scan : Sun, 28 Jul 2019 15:52:07 +0000
+                          Scope of the scan : domain
+********************************************************************************
+
+Summary of vulnerabilities :
+----------------------------
+                                                            SQL Injection :   0
+                                                      Blind SQL Injection :   0
+                                                            File Handling :   0
+                                                     Cross Site Scripting :   0
+                                                           CRLF Injection :   0
+                                                       Commands execution :   0
+                                                          Htaccess Bypass :   0
+                                                              Backup file :   0
+                                               Potentially dangerous file :   0
+                                              Server Side Request Forgery :   0
+********************************************************************************
+
+Summary of anomalies :
+----------------------
+                                                    Internal Server Error :   0
+                                                     Resource consumption :   0
+********************************************************************************

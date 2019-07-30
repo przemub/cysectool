@@ -1,0 +1,20 @@
+{
+  ".localhost.local": {
+    "/": {
+      "PHPSESSID": {
+        "value": "2m04ks2dcu5mjb4e6hu99q9pv7",
+        "expires": null,
+        "secure": false,
+        "port": null,
+        "version": 0
+      },
+      "security": {
+        "value": "high",
+        "expires": null,
+        "secure": false,
+        "port": null,
+        "version": 0
+      }
+    }
+  }
+}
