@@ -65,8 +65,8 @@ def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width
 
 CIRCLE_SIZE = 15
 ARROW_PADDING = CIRCLE_SIZE / 670
-BEZIER_CONTROL = 0.1
-BEZIER_STEPS = 20
+BEZIER_CONTROL = 0.04
+BEZIER_STEPS = 200
 PALETTE: List[str] = colorcet.b_diverging_gkr_60_10_c40
 BAR_MAX, BAR_MIN = 0, -3  # 10**value
 GLYPH_WIDTH: float = 0.25  # in pixels
@@ -182,6 +182,7 @@ def main(document):
         ty = (1 - step) * ((1 - step) * p0[1] + step * p1[1]) + step * ((1 - step) * p1[1] + step * p2[1])
         return tx, ty
 
+    print(multiplicity)
     for x, y in bokeh_edges:
         if multiplicity[x][y] == 1 and \
                 (model.depth[x] != model.depth[y] or
@@ -223,7 +224,7 @@ def main(document):
             start_x, start_y = graph.layout_provider.graph_layout[x]
             end_x, end_y = graph.layout_provider.graph_layout[y]
             angle = math.atan2(start_x - end_x, start_y - end_y)
-            distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
+            distance = math.pow(math.e / 2, math.hypot(start_x - end_x, start_y - end_y))
 
             # Account for the glyph
             if start_y > end_y:
@@ -233,19 +234,27 @@ def main(document):
                 start_y += GLYPH_HEIGHT / 2
                 end_y -= GLYPH_HEIGHT / 2
             else:
-                start_y -= GLYPH_HEIGHT / 2
-                end_y -= GLYPH_HEIGHT / 2
+                if z % 2:
+                    start_y += GLYPH_HEIGHT / 2
+                    end_y += GLYPH_HEIGHT / 2
+                else:
+                    start_y -= GLYPH_HEIGHT / 2
+                    end_y -= GLYPH_HEIGHT / 2
 
             mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
                     (1 if z % 2 else -1) * (z // 2 + 1)
-            mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
+            mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * -math.sin(angle) * \
                     (1 if z % 2 else -1) * (z // 2 + 1)
+
+            # https://stackoverflow.com/questions/6711707/draw-a-quadratic-b%C3%A9zier-curve-through-three-given-points
+            control_x = 2 * mid_x - start_x/2 - end_x/2
+            control_y = 2 * mid_y - start_y/2 - end_y/2
 
             cur_xs = []
             cur_ys = []
             for i in range(BEZIER_STEPS + 1):
                 t = i * (1 / BEZIER_STEPS)
-                bx, by = quadratic_bezier(t, (start_x, start_y), (mid_x, mid_y), (end_x, end_y))
+                bx, by = quadratic_bezier(t, (start_x, start_y), (control_x, control_y), (end_x, end_y))
                 cur_xs.append(bx)
                 cur_ys.append(by)
 
@@ -267,7 +276,7 @@ def main(document):
                 start_x, end_x, start_y, end_y = graph_data[x][y][z]['edge_ends']
 
                 angle = math.atan2(start_x - end_x, start_y - end_y)
-                distance = math.hypot(start_x - end_x, start_y - end_y) // 0.4
+                distance = pow(math.e / 2, math.hypot(start_x - end_x, start_y - end_y))
 
                 # Account for the curves
                 if graph_data[x][y][z]['edge_curve'] > -1:
