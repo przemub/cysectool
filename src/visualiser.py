@@ -10,7 +10,7 @@ import networkx
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
     Select, LogColorMapper, ColorBar, FixedTicker, CustomJS, Rect, Div, Button, Slider, ColumnDataSource, \
-    RadioButtonGroup, Dropdown, Panel, Tabs
+    RadioButtonGroup, Dropdown, Panel, Tabs, MultiSelect
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -182,7 +182,6 @@ def main(document):
         ty = (1 - step) * ((1 - step) * p0[1] + step * p1[1]) + step * ((1 - step) * p1[1] + step * p2[1])
         return tx, ty
 
-    print(multiplicity)
     for x, y in bokeh_edges:
         if multiplicity[x][y] == 1 and \
                 (model.depth[x] != model.depth[y] or
@@ -426,7 +425,7 @@ def main(document):
     optimise_iterative = Button(label="Optimise (iterative)")
     optimise.on_click(partial(optimise_callback, True))
 
-    optimisation_box = widgetbox([slider1, slider2, optimise_iterative])
+    optimisation_box = widgetbox([slider1, slider2, optimise, optimise_iterative])
 
     # Add load/save buttons
     div = Div(text='<label for="load">Load Model</label>'
@@ -443,6 +442,22 @@ def main(document):
     templates_drop.js_on_change('value', javascript('template_change', code_args="this.value"))
 
     button_box = widgetbox([templates_drop, new_button, edit_button, save_button, div])
+
+    def target_callback(_attr, _old, targets: List[str]):
+        node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
+                       Spectral8[7] if str(graph.node_renderer.data_source.data['index'][i]) in targets else
+                       Spectral8[3] for i in range(n)]
+
+        graph.node_renderer.data_source.data = {
+            'index': graph.node_renderer.data_source.data['index'],
+            'color': node_colors
+        }
+
+    targets = [(str(i), model.vertices[i]) for i in range(n)]
+    target = MultiSelect(options=targets, value=[str(n-1)])
+    target.on_change('value', target_callback)
+    print(target.__dict__)
+    target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl to multi-select)"), target])
 
     def tap_callback(portfolios: List[Control]):
         def _callback(_attr, _old, new: List[int]):
@@ -514,7 +529,7 @@ def main(document):
     # Layout
     document.add_root(plot)
 
-    control_row = row([box, column([optimisation_box, button_box])], id="control-row")
+    control_row = row([box, column([optimisation_box, target_box, button_box])], id="control-row")
     panel_controls = Panel(child=control_row, title="Controls")
     pareto_controls = Panel(child=pareto_column, title="Pareto Frontier")
     tabs = Tabs(tabs=[panel_controls, pareto_controls])

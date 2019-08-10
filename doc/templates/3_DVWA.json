@@ -51,170 +51,140 @@
       "name": "Password policy",
       "level_name": [
         "Basic",
-        "Strong"
+        "Strong",
+		"2FA"
       ],
       "cost": [
         1,
-        2
+        2,
+		3
       ],
       "ind_cost": [
         2,
-        5
+        5,
+		10
       ],
       "flow": [
         0.6,
-        0.3
-      ]
-    },
-    "A2": {
-      "name": "Two-factor authentication",
-      "level_name": [
-        "Implemented"
-      ],
-      "cost": [
-        4
-      ],
-      "ind_cost": [
-        7
-      ],
-      "flow": [
-        0.1
-      ]
-    },
-    "Ex": {
-      "name": "External firewall",
-      "level_name": [
-        "Basic",
-        "Strong",
-        "VPN"
-      ],
-      "cost": [
-        3,
-        5,
-        6
-      ],
-      "ind_cost": [
-        1,
-        3,
-        8
-      ],
-      "flow": [
-        0.7,
         0.3,
-        0.1
-      ]
-    },
-    "In": {
-      "name": "Internal firewall",
-      "level_name": [
-        "Basic",
-        "Strong"
-      ],
-      "cost": [
-        3,
-        5
-      ],
-      "ind_cost": [
-        1,
-        3
-      ],
-      "flow": [
-        0.7,
-        0.3
-      ]
-    },
-    "Vt": {
-      "name": "Virtualisation / Containerisation",
-      "level_name": [
-        "Implemented"
-      ],
-      "cost": [
-        5
-      ],
-      "ind_cost": [
-        3
-      ],
-      "flow": [
-        0.1
+		0.1
       ]
     },
     "Ed": {
       "name": "User education",
+      "level_name": ["basic training", "active simulated social engineering attacks",
+              "strongly monitored policies"],
+      "cost": [3, 5, 6],
+      "ind_cost": [2, 5, 10],
+      "flow": [0.5, 0.3, 0.25]
+    },
+    "Au": {
+      "name": "Automated scanning",
       "level_name": [
-        "Online courses",
-        "Attack simulations",
-        "Strongly monitored policies"
+        "Basic",
+        "Continous integration"
       ],
       "cost": [
-        2,
-        4,
-        6
+        3,
+        10
       ],
       "ind_cost": [
-        4,
-        6,
+        3,
         10
       ],
       "flow": [
-        0.8,
-        0.6,
-        0.3
+        0.4,
+        0.2
       ]
     }
   },
   "vertices": [
     "start",
-    "PHP script",
+    "user interaction",
+    "user panel",
     "admin panel",
     "database",
     "web user",
     "root",
-    "ddos",
-    "machine"
+    "ddos"
   ],
   "edges": [
     {
-      "source": 0,
-      "target": 2,
-      "default_flow": 0.8,
-      "vulnerability": {
-        "name": "Brute force (login form)",
-        "controls": {
-          "Pw": {},
-          "A2": {},
-          "Ex": {}
-        }
-      }
-    },
-    {
-      "source": 0,
-      "target": 2,
-      "default_flow": 0.5,
-      "vulnerability": {
-        "name": "Cross Site Request Forgery",
-        "controls": {
-          "Pn": {},
-          "Ed": {}
-        }
-      }
-    },
-    {
-      "source": 2,
-      "target": 4,
-      "default_flow": 0.7,
+      "source": 3,
+      "target": 5,
+      "default_flow": 0.04,
       "vulnerability": {
         "name": "Command injection",
+        "controls": {
+          "Pn": {},
+          "Au": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "default_flow": 0.68,
+      "vulnerability": {
+        "name": "Cross Site Request Forgery",
         "controls": {
           "Pn": {}
         }
       }
     },
     {
-      "source": 2,
-      "target": 4,
-      "default_flow": 0.4,
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.2,
       "vulnerability": {
-        "name": "File inclusion (remote PHP script injection)",
+        "name": "Weak password",
+        "controls": {
+          "Pw": {},
+          "Ed": {},
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "default_flow": 0.1,
+      "vulnerability": {
+        "name": "Admin interaction",
+        "controls": {
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.5,
+      "vulnerability": {
+        "name": "Phishing",
+        "controls": {
+          "Ed": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 5,
+      "default_flow": 0.11,
+      "vulnerability": {
+        "name": "File inclusion (PHP script injection)",
+        "controls": {
+          "Sc": {},
+          "Pn": {},
+          "Au": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 7,
+      "default_flow": 0.43,
+      "vulnerability": {
+        "name": "Denial of Service",
         "controls": {
           "Pn": {},
           "Sc": {}
@@ -223,10 +193,22 @@
     },
     {
       "source": 2,
-      "target": 1,
-      "default_flow": 0.7,
+      "target": 4,
+      "default_flow": 0.45,
       "vulnerability": {
-        "name": "File upload (PHP script)",
+        "name": "SQL injection",
+        "controls": {
+          "Pn": {},
+          "Au": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.12,
+      "vulnerability": {
+        "name": "Weak session ID",
         "controls": {
           "Pn": {},
           "Sc": {}
@@ -235,32 +217,45 @@
     },
     {
       "source": 1,
-      "target": 4,
-      "default_flow": 0.7,
+      "target": 2,
+      "default_flow": 1,
       "vulnerability": {
-        "name": "File inclusion (local PHP script injection)",
+        "name": "Non-DOM Cross Site Scripting",
         "controls": {
           "Pn": {}
         }
       }
     },
     {
-      "source": 2,
+      "source": 5,
       "target": 6,
-      "default_flow": 0.7,
+      "default_flow": 0.2,
       "vulnerability": {
-        "name": "File inclusion (self-inclusion)",
+        "name": "Password sniffing",
         "controls": {
-          "Pn": {}
+          "Sc": {}
         }
       }
     },
     {
-      "source": 2,
-      "target": 6,
-      "default_flow": 0.7,
+      "source": 0,
+      "target": 5,
+      "default_flow": 0.79,
       "vulnerability": {
-        "name": "File upload (DDOS)",
+        "name": "Web Server Vulnerabilities & Misconfigurations",
+        "controls": {
+          "Sc": {},
+          "Pn": {},
+          "Au": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.38,
+      "vulnerability": {
+        "name": "SSL and authentication vulnerabilities",
         "controls": {
           "Pn": {},
           "Sc": {}
@@ -268,70 +263,36 @@
       }
     },
     {
-      "source": 0,
+      "source": 2,
       "target": 3,
-      "default_flow": 0.7,
+      "default_flow": 0.27,
       "vulnerability": {
-        "name": "SQL injection",
+        "name": "Missing / invalid access control",
         "controls": {
           "Pn": {}
         }
       }
     },
     {
-      "source": 0,
-      "target": 3,
-      "default_flow": 0.7,
-      "vulnerability": {
-        "name": "Brute force (on the database)",
-        "controls": {
-          "Ex": {},
-          "Sc": {}
-        }
-      }
-    },
-    {
-      "source": 3,
-      "target": 2,
-      "default_flow": 1,
-      "vulnerability": {
-        "name": "Credentials change in the database",
-        "controls": {
-          "A2": {}
-        }
-      }
-    },
-    {
-      "source": 3,
-      "target": 4,
-      "default_flow": 0.5,
-      "vulnerability": {
-        "name": "SQL shellcode",
-        "controls": {
-          "Sc": {}
-        }
-      }
-    },
-    {
-      "source": 4,
-      "target": 5,
-      "default_flow": 1,
-      "vulnerability": {
-        "name": "Web user -> Root",
-        "controls": {
-          "In": {},
-          "Sc": {}
-        }
-      }
-    },
-    {
       "source": 5,
-      "target": 7,
-      "default_flow": 1,
+      "target": 6,
+      "default_flow": 0.6,
       "vulnerability": {
-        "name": "Root -> Machine",
+        "name": "Network vulnerability",
         "controls": {
-          "Vt": {}
+          "Sc": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "default_flow": 0.05,
+      "vulnerability": {
+        "name": "Unvalidated redirect / forward",
+        "controls": {
+          "Pn": {},
+          "Au": {}
         }
       }
     }
