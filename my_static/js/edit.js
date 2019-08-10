@@ -235,7 +235,7 @@ function main() {
             {name: "target", title: "Target", type: "number", width: 50, validate: "required"},
             {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: "required"},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
-            {name: "controls", title: "Valid controls", type: "text", width: 100, validate: "required"},
+            {name: "controls", title: "Valid controls", type: "text", width: 100},
             {type: "control"}
         ]
     });

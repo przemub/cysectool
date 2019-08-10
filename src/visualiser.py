@@ -37,6 +37,7 @@ def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width
 
     def h_recur(local_root, local_width, local_vert_loc, local_x_center,
                 pos=None, parsed=None, level=0):
+
         if parsed is None:
             parsed = []
         if local_root not in parsed:
@@ -48,10 +49,11 @@ def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width
 
             neighbors = graph_data.neighbors(local_root)
             neighbors = list(filter(lambda x: depth[x] == level + 1, neighbors))
+            root_local_width = max((local_width, (len(neighbors)+1)*GLYPH_WIDTH))
 
             if len(neighbors) != 0:
-                dx = local_width / len(neighbors)
-                next_x = local_x_center - local_width / 2 - dx / 2
+                dx = root_local_width / len(neighbors)
+                next_x = local_x_center - root_local_width / 2 - dx / 2
                 for neighbor in neighbors:
                     next_x += dx
                     pos = h_recur(neighbor, local_width=dx, local_vert_loc=local_vert_loc - vert_gap,
