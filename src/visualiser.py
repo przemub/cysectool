@@ -252,7 +252,7 @@ def main(document):
             controls = [model.control_subcategories[item[0]][item[1] - 1]
                         for item in control_levels.items() if item[1] > 0]
             model.reflow(controls)
-            flow_to_bokeh([])
+            flow_to_bokeh(controls)
 
         return _change
 

@@ -102,6 +102,7 @@ def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> 
     changed = True
 
     while changed:
+        # TODO Make selected controls free
         result_new = model_solve(model, budget, indirect_budget, result[2])
         changed = result[2] != result_new[2]
         result = result_new
