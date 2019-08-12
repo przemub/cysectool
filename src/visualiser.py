@@ -314,13 +314,32 @@ def main(document):
         model.reflow(controls)
         flow_to_bokeh(controls)
 
-    # TODO: non-blocking execution
     def optimise_callback(iterative):
-        if iterative:
-            controls = optimisation.model_solve_iterate(model, slider1.value, slider2.value)[2]
-        else:
-            controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
-        set_controls(controls)
+        if optimise.disabled:
+            return
+        optimise.label = "Calculating…"
+        optimise.disabled = True
+        optimise_iterative.label = "Calculating…"
+        optimise_iterative.disabled = True
+
+        def _update(controls):
+            set_controls(controls)
+
+            optimise.label = "Optimise"
+            optimise.disabled = False
+            optimise_iterative.label = "Optimise (iterative)"
+            optimise_iterative.disabled = False
+
+        def _thread():
+            if iterative:
+                controls = optimisation.model_solve_iterate(model, slider1.value, slider2.value)[2]
+            else:
+                controls = optimisation.model_solve(model, slider1.value, slider2.value)[2]
+
+            document.add_next_tick_callback(partial(_update, controls))
+
+        thread = Thread(target=_thread)
+        thread.start()
 
     optimise = Button(label="Optimise")
     optimise.on_click(partial(optimise_callback, False))
@@ -358,14 +377,16 @@ def main(document):
             'color': node_colors
         }
 
-        clear_callback()
+        controls = [model.control_subcategories[item[0]][item[1] - 1]
+                    for item in control_levels.items() if item[1] > 0]
+        flow_to_bokeh(controls)
 
     targets = [(str(i), model.vertices[i]) for i in range(n)]
     target = MultiSelect(options=targets, value=[str(n-1)])
     target.on_change('value', target_callback)
     model.sink_nodes = [n-1]
 
-    target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl to multi-select)"), target])
+    target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl/Cmd to multi-select)"), target])
 
     def tap_callback(portfolios: List[Control]):
         def _callback(_attr, _old, new: List[int]):
