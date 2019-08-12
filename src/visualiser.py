@@ -40,7 +40,7 @@ def main(document):
     hover = HoverTool()
     hover.tooltips = [
         ("flow", "@flow{0.0[0000]}"),
-        ("flow reduction", "@edge_flow{0.0[0000]}"),
+        ("edge flow", "@edge_flow{0.0[0000]}"),
         ("vulnerability", "@vuln_name"),
         ("controls", "@possible_controls")
     ]
