@@ -314,7 +314,7 @@ def main(document):
 
     total_cost_p = Div(text="Total costs: <strong>0</strong>")
     total_ind_cost_p = Div(text="Total indirect costs: <strong>0</strong>")
-    max_flow_p = Div(text="Max flow to the target: <strong>1</strong>")
+    max_flow_p = Div(text="Max flow to the target(s): <strong>1</strong>")
     pareto_current_controls = Div()
 
     flow_to_bokeh()
@@ -338,7 +338,8 @@ def main(document):
                                                control in controls)
             model.reflow(controls)
             flow_to_bokeh()
-            max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
+            max_flow = max(model.vertex_flow[i] for i in model.sink_nodes)
+            max_flow_p.text = "Max flow to the target(s): <strong>%.5g</strong>" % max_flow
 
         return _change
 
@@ -406,7 +407,9 @@ def main(document):
                                            control in controls)
         model.reflow(controls)
         flow_to_bokeh()
-        max_flow_p.text = "Max flow to the target: <strong>%.5g</strong>" % model.vertex_flow[model.n - 1]
+
+        max_flow = max(model.vertex_flow[i] for i in model.sink_nodes)
+        max_flow_p.text = "Max flow to the target(s): <strong>%.5g</strong>" % max_flow
 
     # TODO: non-blocking execution
     def optimise_callback(iterative):
@@ -423,7 +426,7 @@ def main(document):
     optimise = Button(label="Optimise")
     optimise.on_click(partial(optimise_callback, False))
     optimise_iterative = Button(label="Optimise (iterative)")
-    optimise.on_click(partial(optimise_callback, True))
+    optimise_iterative.on_click(partial(optimise_callback, True))
 
     optimisation_box = widgetbox([slider1, slider2, optimise, optimise_iterative])
 
@@ -448,15 +451,20 @@ def main(document):
                        Spectral8[7] if str(graph.node_renderer.data_source.data['index'][i]) in targets else
                        Spectral8[3] for i in range(n)]
 
+        model.sink_nodes = [int(i) for i in targets]
+
         graph.node_renderer.data_source.data = {
             'index': graph.node_renderer.data_source.data['index'],
             'color': node_colors
         }
 
+        clear_callback()
+
     targets = [(str(i), model.vertices[i]) for i in range(n)]
     target = MultiSelect(options=targets, value=[str(n-1)])
     target.on_change('value', target_callback)
-    print(target.__dict__)
+    model.sink_nodes = [n-1]
+
     target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl to multi-select)"), target])
 
     def tap_callback(portfolios: List[Control]):

@@ -9,6 +9,12 @@ WIP: patching as a control (SQL injection for example)
 
 08.07.2019
 recovery controls (as a tool feature) (how?)
-WIP: iterative optimisation (for spending all the budgets)
-WIP: CVSS (CVE score system)
-hackmageddon.com
+Done? WIP: iterative optimisation (for spending all the budgets)
+? WIP: CVSS (CVE score system)
+? hackmageddon.com
+
+before 12.08.2019
+iterative optimisation gives the same results as noniterative??
+done: selectable controls
+done: initial flows from the case study
+

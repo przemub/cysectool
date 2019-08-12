@@ -121,6 +121,7 @@ class Model(metaclass=abc.ABCMeta):
     n: int
     edges: Sequence[Edge]
     vertices: Sequence[str]
+    sink_nodes: Sequence[int]
 
     # Simulation results
     edge_flow: Mapping[Edge, float]

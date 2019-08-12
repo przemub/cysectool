@@ -11,7 +11,11 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
                    controls: Sequence[Control], control_ind: Mapping[Edge, Sequence[Control]],
                    budget: Real, budget_indirect: Real,
                    pi: Callable[[Edge], Real], p: Callable[[Edge], Real],
-                   cost: Callable[[Control], Real], ind_cost: Callable[[Control], Real], eps: Real):
+                   cost: Callable[[Control], Real], ind_cost: Callable[[Control], Real], eps: Real,
+                   selected=None):
+    if selected is None:
+        selected = []
+
     model = LpProblem("simple", pulp.LpMinimize)
 
     # set up optimization variables
@@ -34,6 +38,9 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
 
     for e in arcs:  # CONSTRAINTS: duality lagrangian
         model += lam[e[0]] - lam[e[1]] >= math.log(pi(e)) + lpSum(x[c] * math.log(p(c, e)) for c in control_ind[e])
+
+    for c in selected:  # CONSTRAINTS: select the selected
+        model += x[c] == 1
 
         # print(model)
     # ============ SOLVE OPTIMIZATION
@@ -59,13 +66,16 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
         total_ind_cost)
 
 
-def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
+def model_solve(model: Model, budget: float, indirect_budget: float,
+                selected=None) -> Sequence[Control]:
     """
     Passes model to  the original optimisation function.
     Returns a sequence of controls to turn on.
     """
+    if selected is None:
+        selected = []
+
     nodes = list(range(model.n))
-    sink_nodes = [model.n - 1]
 
     controls = []
     controls.extend(sum((level for level in model.control_subcategories.values()), []))
@@ -81,16 +91,22 @@ def model_solve(model: Model, budget: float, indirect_budget: float) -> Sequence
     cost = lambda control: control.cost
     ind_cost = lambda control: control.ind_cost
 
-    result = _optimal_solve(model.edges, nodes, sink_nodes, controls, control_ind, budget,
-                            indirect_budget, pi, p, cost, ind_cost, 0.00001)
+    result = _optimal_solve(model.edges, nodes, model.sink_nodes, controls, control_ind, budget,
+                            indirect_budget, pi, p, cost, ind_cost, 0.00001, selected)
     return result
 
 
 def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
     """Iterates over model_solve to spend all the budget."""
-    # TODO
+    result = (0, 0, [], 0, 0)
+    changed = True
 
-    return model_solve(model, budget, indirect_budget)
+    while changed:
+        result_new = model_solve(model, budget, indirect_budget, result[2])
+        changed = result[2] != result_new[2]
+        result = result_new
+
+    return result
 
 
 def pareto_frontier(model, budget=None, ind_budget=None):
