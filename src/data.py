@@ -304,7 +304,8 @@ class JSONModel(Model, ABC):
                'control_subcategories': control_subcategories,
                'n': len(d['vertices']),
                'vertices': d['vertices'],
-               'edges': edges
+               'edges': edges,
+               'sink_nodes': [len(d['vertices'])-1]
                }
 
         # Checking

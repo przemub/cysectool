@@ -5,6 +5,8 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="bokeh.palettes.*" />
+          <option value="multiplicity" />
+          <option value="default_flow" />
         </list>
       </option>
     </inspection_tool>
