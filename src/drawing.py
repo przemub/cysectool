@@ -5,7 +5,7 @@ import colorcet
 import networkx
 from bokeh.models import CustomJS
 
-BEZIER_STEPS = 200
+BEZIER_STEPS = 20
 BAR_MAX, BAR_MIN = 0, -3  # 10**value
 GLYPH_WIDTH: float = 0.25  # in pixels
 GLYPH_HEIGHT: float = 0.05  # in axis units

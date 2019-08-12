@@ -1,6 +1,6 @@
 import math
 import uuid
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from functools import partial
 from threading import Thread
 from typing import List, Dict
@@ -45,10 +45,7 @@ def main(document):
         ("controls", "@possible_controls")
     ]
 
-    tap = TapTool()
-    tap.callback = javascript("on_tap")
-
-    plot.add_tools(hover, tap, BoxSelectTool())
+    plot.add_tools(hover, BoxSelectTool())
 
     # Import a model and a graph
     uid = document.session_context.request.arguments.get('id', None)
@@ -96,7 +93,7 @@ def main(document):
     graph.inspection_policy = EdgesAndLinkedNodes()
 
     # Drawing edges
-    # Support drawing 1) multiple edges, 3) edges circumventing vertices
+    # Support drawing 1) multiple edges, 2) edges circumventing vertices
     multiplicity = defaultdict(lambda: defaultdict(int))
     for x in graph_data:
         for y in graph_data[x]:
@@ -104,76 +101,81 @@ def main(document):
                 multiplicity[x][y] += 1
 
     xs, ys = [], []
-    bokeh_edges = graph.edge_renderer.data_source.data
-    bokeh_edges = list(OrderedDict.fromkeys(zip(bokeh_edges['start'], bokeh_edges['end'])))
 
-    for x, y in bokeh_edges:
-        if multiplicity[x][y] == 1 and \
-                (model.depth[x] != model.depth[y] or
-                 abs(model.levels[model.depth[x]].index(x) - model.levels[model.depth[y]].index(y)) == 1):
-            start_x, start_y = graph.layout_provider.graph_layout[x]
-            end_x, end_y = graph.layout_provider.graph_layout[y]
+    for x in graph_data:
+        for y in graph_data[x]:
+            if multiplicity[x][y] == 1 and \
+                    (model.depth[x] != model.depth[y] or
+                     abs(model.levels[model.depth[x]].index(x) - model.levels[model.depth[y]].index(y)) == 1):
+                start_x, start_y = graph.layout_provider.graph_layout[x]
+                end_x, end_y = graph.layout_provider.graph_layout[y]
 
-            # Account for the glyph
-            if start_y > end_y:
-                start_y -= GLYPH_HEIGHT / 2
-                end_y += GLYPH_HEIGHT / 2
-            elif start_y < end_y:
-                start_y += GLYPH_HEIGHT / 2
-                end_y -= GLYPH_HEIGHT / 2
-            elif start_x < end_x:
-                start_x += GLYPH_WIDTH / 2
-                end_x -= GLYPH_WIDTH / 2
-            elif start_x > end_x:
-                start_x -= GLYPH_WIDTH / 2
-                end_x += GLYPH_WIDTH / 2
-
-            # Generate multiple points along the line so HoverTool can display close to the mouse,
-            # not next to an end-point
-
-            cur_xs, cur_ys = quadratic_bezier_curve((start_x, start_y), (start_x, start_y), (end_x, end_y))
-            xs.append(cur_xs)
-            ys.append(cur_ys)
-
-            graph_data[x][y][0]['edge_ends'] = (start_x, end_x, start_y, end_y)
-            graph_data[x][y][0]['edge_curve'] = -1
-            continue
-        for z in range(multiplicity[x][y]):
-            start_x, start_y = graph.layout_provider.graph_layout[x]
-            end_x, end_y = graph.layout_provider.graph_layout[y]
-            angle = math.atan2(start_x - end_x, start_y - end_y)
-            distance = math.pow(math.e / 2, math.hypot(start_x - end_x, start_y - end_y))
-
-            # Account for the glyph
-            if start_y > end_y:
-                start_y -= GLYPH_HEIGHT / 2
-                end_y += GLYPH_HEIGHT / 2
-            elif start_y < end_y:
-                start_y += GLYPH_HEIGHT / 2
-                end_y -= GLYPH_HEIGHT / 2
-            else:
-                if z % 2:
-                    start_y += GLYPH_HEIGHT / 2
-                    end_y += GLYPH_HEIGHT / 2
-                else:
+                # Account for the glyph
+                if start_y > end_y:
                     start_y -= GLYPH_HEIGHT / 2
+                    end_y += GLYPH_HEIGHT / 2
+                elif start_y < end_y:
+                    start_y += GLYPH_HEIGHT / 2
                     end_y -= GLYPH_HEIGHT / 2
+                elif start_x < end_x:
+                    start_x += GLYPH_WIDTH / 2
+                    end_x -= GLYPH_WIDTH / 2
+                elif start_x > end_x:
+                    start_x -= GLYPH_WIDTH / 2
+                    end_x += GLYPH_WIDTH / 2
 
-            mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
-                    (1 if z % 2 else -1) * (z // 2 + 1)
-            mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * -math.sin(angle) * \
-                    (1 if z % 2 else -1) * (z // 2 + 1)
+                # Generate multiple points along the line so HoverTool can display close to the mouse,
+                # not next to an end-point
+                cur_xs, cur_ys = quadratic_bezier_curve((start_x, start_y), (start_x, start_y), (end_x, end_y))
+                xs.append(cur_xs)
+                ys.append(cur_ys)
 
-            # https://stackoverflow.com/questions/6711707/draw-a-quadratic-b%C3%A9zier-curve-through-three-given-points
-            control_x = 2 * mid_x - start_x/2 - end_x/2
-            control_y = 2 * mid_y - start_y/2 - end_y/2
+                graph_data[x][y][0]['edge_ends'] = (start_x, end_x, start_y, end_y)
+                continue
 
-            cur_xs, cur_ys = quadratic_bezier_curve((start_x, start_y), (control_x, control_y), (end_x, end_y))
-            xs.append(cur_xs)
-            ys.append(cur_ys)
+            for z in range(multiplicity[x][y]):
+                start_x, start_y = graph.layout_provider.graph_layout[x]
+                end_x, end_y = graph.layout_provider.graph_layout[y]
+                angle = math.atan2(start_x - end_x, start_y - end_y)
+                distance = math.pow(math.e / 2, math.hypot(start_x - end_x, start_y - end_y))
 
-            graph_data[x][y][z]['edge_ends'] = (start_x, end_x, start_y, end_y)
-            graph_data[x][y][z]['edge_curve'] = z
+                # Account for the glyph
+                if start_y > end_y:
+                    start_y -= GLYPH_HEIGHT / 2
+                    end_y += GLYPH_HEIGHT / 2
+                elif start_y < end_y:
+                    start_y += GLYPH_HEIGHT / 2
+                    end_y -= GLYPH_HEIGHT / 2
+                else:
+                    if start_x > start_y:
+                        if z % 2:
+                            start_y -= GLYPH_HEIGHT / 2
+                            end_y -= GLYPH_HEIGHT / 2
+                        else:
+                            start_y += GLYPH_HEIGHT / 2
+                            end_y += GLYPH_HEIGHT / 2
+                    else:
+                        if z % 2:
+                            start_y += GLYPH_HEIGHT / 2
+                            end_y += GLYPH_HEIGHT / 2
+                        else:
+                            start_y -= GLYPH_HEIGHT / 2
+                            end_y -= GLYPH_HEIGHT / 2
+
+                mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
+                        (1 if z % 2 else -1) * (z // 2 + 1)
+                mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * -math.sin(angle) * \
+                        (1 if z % 2 else -1) * (z // 2 + 1)
+
+                # https://stackoverflow.com/questions/6711707/draw-a-quadratic-b%C3%A9zier-curve-through-three-given-points
+                control_x = 2 * mid_x - start_x/2 - end_x/2
+                control_y = 2 * mid_y - start_y/2 - end_y/2
+
+                cur_xs, cur_ys = quadratic_bezier_curve((start_x, start_y), (control_x, control_y), (end_x, end_y))
+                xs.append(cur_xs)
+                ys.append(cur_ys)
+
+                graph_data[x][y][z]['edge_ends'] = (control_x, end_x, control_y, end_y)
 
     graph.edge_renderer.data_source.data['xs'] = xs
     graph.edge_renderer.data_source.data['ys'] = ys
@@ -184,19 +186,7 @@ def main(document):
     for x in graph_data:
         for y in graph_data[x]:
             for z in graph_data[x][y]:
-                start_x, end_x, start_y, end_y = graph_data[x][y][z]['edge_ends']
-
-                angle = math.atan2(start_x - end_x, start_y - end_y)
-                distance = pow(math.e / 2, math.hypot(start_x - end_x, start_y - end_y))
-
-                # Account for the curves
-                if graph_data[x][y][z]['edge_curve'] > -1:
-                    mid_x = (start_x + end_x) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * \
-                            (1 if z % 2 else -1) * (z // 2 + 1)
-                    mid_y = (start_y + end_y) / 2 + BEZIER_CONTROL * distance * math.sin(angle) * \
-                            (1 if z % 2 else -1) * (z // 2 + 1)
-                else:
-                    mid_x, mid_y = start_x, start_y
+                mid_x, end_x, mid_y, end_y = graph_data[x][y][z]['edge_ends']
 
                 plot.add_layout(Arrow(end=VeeHead(fill_color="orange", size=10),
                                       x_start=mid_x, y_start=mid_y, x_end=end_x, y_end=end_y, line_alpha=0))
@@ -214,11 +204,12 @@ def main(document):
         flow = []
         edge_flow = []
         color = []
-        for _x, _y in bokeh_edges:
-            for _z in range(multiplicity[_x][_y]):
-                flow.append(model.tree_flow[Edge(_x, _y, _z)])
-                edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
-                color.append(map_color(flow[-1]))
+        for _x in graph_data:
+            for _y in graph_data[_x]:
+                for _z in range(multiplicity[_x][_y]):
+                    flow.append(model.tree_flow[Edge(_x, _y, _z)])
+                    edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
+                    color.append(map_color(flow[-1]))
 
         graph.edge_renderer.data_source.data['flow'] = flow
         graph.edge_renderer.data_source.data['edge_flow'] = edge_flow
