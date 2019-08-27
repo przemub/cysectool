@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/visualiser" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (security-graph-visualiser) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (security-graph-visualiser-env)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jsgrid" level="application" />
     <orderEntry type="library" name="jquery-3.3.1.slim" level="application" />

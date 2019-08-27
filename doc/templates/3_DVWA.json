@@ -82,7 +82,7 @@
       "name": "Automated scanning",
       "level_name": [
         "Basic",
-        "Continous integration"
+        "Continuous integration"
       ],
       "cost": [
         3,
@@ -124,7 +124,7 @@
     {
       "source": 1,
       "target": 2,
-      "default_flow": 0.68,
+      "default_flow": 0.26,
       "vulnerability": {
         "name": "Cross Site Request Forgery",
         "controls": {
@@ -135,7 +135,7 @@
     {
       "source": 0,
       "target": 2,
-      "default_flow": 0.2,
+      "default_flow": 0.28,
       "vulnerability": {
         "name": "Weak password",
         "controls": {
@@ -169,7 +169,7 @@
     {
       "source": 2,
       "target": 5,
-      "default_flow": 0.11,
+      "default_flow": 0.03,
       "vulnerability": {
         "name": "File inclusion (PHP script injection)",
         "controls": {
@@ -182,7 +182,7 @@
     {
       "source": 2,
       "target": 7,
-      "default_flow": 0.43,
+      "default_flow": 0.18,
       "vulnerability": {
         "name": "Denial of Service",
         "controls": {
@@ -194,7 +194,7 @@
     {
       "source": 2,
       "target": 4,
-      "default_flow": 0.45,
+      "default_flow": 0.24,
       "vulnerability": {
         "name": "SQL injection",
         "controls": {
@@ -206,7 +206,7 @@
     {
       "source": 0,
       "target": 2,
-      "default_flow": 0.12,
+      "default_flow": 0.13,
       "vulnerability": {
         "name": "Weak session ID",
         "controls": {
@@ -229,7 +229,7 @@
     {
       "source": 5,
       "target": 6,
-      "default_flow": 0.2,
+      "default_flow": 0.21,
       "vulnerability": {
         "name": "Password sniffing",
         "controls": {
@@ -240,7 +240,7 @@
     {
       "source": 0,
       "target": 5,
-      "default_flow": 0.79,
+      "default_flow": 0.48,
       "vulnerability": {
         "name": "Web Server Vulnerabilities & Misconfigurations",
         "controls": {
@@ -253,7 +253,7 @@
     {
       "source": 0,
       "target": 2,
-      "default_flow": 0.38,
+      "default_flow": 0.29,
       "vulnerability": {
         "name": "SSL and authentication vulnerabilities",
         "controls": {
@@ -265,7 +265,7 @@
     {
       "source": 2,
       "target": 3,
-      "default_flow": 0.27,
+      "default_flow": 0.28,
       "vulnerability": {
         "name": "Missing / invalid access control",
         "controls": {
@@ -276,7 +276,7 @@
     {
       "source": 5,
       "target": 6,
-      "default_flow": 0.6,
+      "default_flow": 0.43,
       "vulnerability": {
         "name": "Network vulnerability",
         "controls": {
