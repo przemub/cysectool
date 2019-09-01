@@ -1,13 +1,14 @@
 import abc
 import heapq
 import json
+import math
 from collections import defaultdict
 from io import IOBase
 from itertools import chain
 
 import networkx
 from abc import ABC
-from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, List
+from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, List, Optional
 
 
 class Control(NamedTuple):
@@ -55,6 +56,7 @@ class Vulnerability(NamedTuple):
     class Adjustment(NamedTuple):
         flow: float
         max_flow: float
+        custom: List[float]
 
     adjustment: MutableMapping[str, Adjustment]
 
@@ -64,6 +66,8 @@ class Vulnerability(NamedTuple):
             result = "(%s,%s)" % (self.adjustment[control.id].flow,
                                   self.adjustment[control.id].max_flow) \
                 if control.id in self.adjustment else ""
+            if self.adjustment[control.id].custom:
+                result = "[%s]" % ",".join(str(i) for i in self.adjustment[control.id].custom)
             controls[control.id] = result
         return ";".join(key + value for key, value in controls.items())
 
@@ -141,7 +145,10 @@ class Model(metaclass=abc.ABCMeta):
                     continue
                 if control.id in edge.vulnerability.adjustment:
                     adj = edge.vulnerability.adjustment[control.id]
-                    flow *= min([control.flow * adj[0], adj[1]])
+                    if math.isnan(adj[0]):
+                        flow *= adj.custom[control.level-1]
+                    else:
+                        flow *= min([control.flow * adj[0], adj[1]])
                 else:
                     flow *= control.flow
             edge_flow[edge] = flow
@@ -288,7 +295,11 @@ class JSONModel(Model, ABC):
                 for control_id, control_settings in edge['vulnerability']['controls'].items():
                     if 'flow' in control_settings:
                         edge_obj.vulnerability.adjustment[control_id] = Adjustment(control_settings['flow'],
-                                                                                   control_settings.get('max_flow', 1))
+                                                                                   control_settings.get('max_flow', 1),
+                                                                                   None)
+                    elif 'custom' in control_settings:
+                        edge_obj.vulnerability.adjustment[control_id] = Adjustment(float('nan'), float('nan'),
+                                                                                   control_settings['custom'])
                     for level in range(control_categories[control_id][1]):
                         try:
                             control = control_subcategories[control_id][level]

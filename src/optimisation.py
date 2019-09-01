@@ -82,12 +82,17 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
 
     control_ind = {edge: edge.vulnerability.controls for edge in model.edges}
     pi = lambda edge: edge.default_flow
+
     def p(control, edge):
         if control.id in edge.vulnerability.adjustment:
             adj = edge.vulnerability.adjustment[control.id]
-            return min([control.flow * adj[0], adj[1]])
+            if math.isnan(adj[0]):
+                return adj.custom[control.level-1]
+            else:
+                return min([control.flow * adj[0], adj[1]])
         else:
             return control.flow
+
     cost = lambda control: control.cost
     ind_cost = lambda control: control.ind_cost
 

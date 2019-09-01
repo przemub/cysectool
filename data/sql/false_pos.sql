@@ -26,7 +26,8 @@ AS
 DROP VIEW IF EXISTS score_by_tool;
 CREATE VIEW score_by_tool
 AS
-	SELECT score.tool, Round(Avg(score.true_pos_score),3) AS true_pos_score, Round(Avg(score.false_pos_score),3) AS false_pos_score, Round(Avg(score.youden),3) AS youden
+	SELECT score.tool, Round(Avg(score.true_pos_score),3) AS true_pos_score, Round(Avg(score.false_pos_score),3) AS false_pos_score, Round(Avg(score.youden),3) AS youden,
+		ROUND((true_pos_score+false_pos_score)*100) AS cost
 	FROM score
 	GROUP BY score.tool
 ;

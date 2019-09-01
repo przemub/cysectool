@@ -52,49 +52,72 @@
       "level_name": [
         "Basic",
         "Strong",
-		"2FA"
+        "2FA"
       ],
       "cost": [
         1,
         2,
-		3
+        3
       ],
       "ind_cost": [
         2,
         5,
-		10
+        10
       ],
       "flow": [
         0.6,
         0.3,
-		0.1
+        0.1
       ]
     },
     "Ed": {
       "name": "User education",
-      "level_name": ["basic training", "active simulated social engineering attacks",
-              "strongly monitored policies"],
-      "cost": [3, 5, 6],
-      "ind_cost": [2, 5, 10],
-      "flow": [0.5, 0.3, 0.25]
+      "level_name": [
+        "basic training",
+        "active simulated social engineering attacks",
+        "strongly monitored policies"
+      ],
+      "cost": [
+        3,
+        5,
+        6
+      ],
+      "ind_cost": [
+        2,
+        5,
+        10
+      ],
+      "flow": [
+        0.5,
+        0.3,
+        0.25
+      ]
     },
     "Au": {
       "name": "Automated scanning",
       "level_name": [
-        "Basic",
-        "Continuous integration"
+        "OWASP ZAP (TP: 20%, FP: 0%, Y: 20%)",
+        "SonarQube (TP: 50%, FP: 17%, Y: 33%)",
+        "FBwFindSecBugs 1.4.4 (TP: 79%, FP: 45%, Y: 34%)",
+        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)"
       ],
       "cost": [
-        3,
-        10
+        20,
+        67,
+        123,
+        155
       ],
       "ind_cost": [
-        3,
+        10,
+        10,
+        10,
         10
       ],
       "flow": [
-        0.4,
-        0.2
+        1,
+        1,
+        1,
+        1
       ]
     }
   },
@@ -117,7 +140,14 @@
         "name": "Command injection",
         "controls": {
           "Pn": {},
-          "Au": {}
+          "Au": {
+            "custom": [
+              0.68,
+              0.15,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -128,7 +158,15 @@
       "vulnerability": {
         "name": "Cross Site Request Forgery",
         "controls": {
-          "Pn": {}
+          "Pn": {},
+          "Au": {
+            "custom": [
+              0.71,
+              1.0,
+              0.99,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -151,8 +189,7 @@
       "default_flow": 0.1,
       "vulnerability": {
         "name": "Admin interaction",
-        "controls": {
-        }
+        "controls": {}
       }
     },
     {
@@ -175,7 +212,14 @@
         "controls": {
           "Sc": {},
           "Pn": {},
-          "Au": {}
+          "Au": {
+            "custom": [
+              1.0,
+              1.0,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -199,7 +243,14 @@
         "name": "SQL injection",
         "controls": {
           "Pn": {},
-          "Au": {}
+          "Au": {
+            "custom": [
+              0.42,
+              1.0,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -211,7 +262,15 @@
         "name": "Weak session ID",
         "controls": {
           "Pn": {},
-          "Sc": {}
+          "Sc": {},
+          "Au": {
+            "custom": [
+              1.0,
+              0.05,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -222,7 +281,15 @@
       "vulnerability": {
         "name": "Non-DOM Cross Site Scripting",
         "controls": {
-          "Pn": {}
+          "Pn": {},
+          "Au": {
+            "custom": [
+              0.71,
+              1.0,
+              0.99,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -233,7 +300,15 @@
       "vulnerability": {
         "name": "Password sniffing",
         "controls": {
-          "Sc": {}
+          "Sc": {},
+          "Au": {
+            "custom": [
+              1.0,
+              0.05,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -258,7 +333,15 @@
         "name": "SSL and authentication vulnerabilities",
         "controls": {
           "Pn": {},
-          "Sc": {}
+          "Sc": {},
+          "Au": {
+            "custom": [
+              1.0,
+              0.05,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -269,7 +352,15 @@
       "vulnerability": {
         "name": "Missing / invalid access control",
         "controls": {
-          "Pn": {}
+          "Pn": {},
+          "Au": {
+            "custom": [
+              1.0,
+              1.0,
+              1.0,
+              0.05
+            ]
+          }
         }
       }
     },
@@ -292,7 +383,14 @@
         "name": "Unvalidated redirect / forward",
         "controls": {
           "Pn": {},
-          "Au": {}
+          "Au": {
+            "custom": [
+              1.0,
+              1.0,
+              0.05,
+              0.05
+            ]
+          }
         }
       }
     }
