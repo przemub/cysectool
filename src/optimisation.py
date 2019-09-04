@@ -1,3 +1,4 @@
+import copy
 from numbers import Real, Integral
 from typing import Sequence, Mapping, Callable, Tuple
 
@@ -67,13 +68,15 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
 
 
 def model_solve(model: Model, budget: float, indirect_budget: float,
-                selected=None) -> Sequence[Control]:
+                selected=None, turned_off=None) -> Sequence[Control]:
     """
     Passes model to  the original optimisation function.
     Returns a sequence of controls to turn on.
     """
     if selected is None:
         selected = []
+    if turned_off is None:
+        turned_off = []
 
     nodes = list(range(model.n))
 
@@ -81,13 +84,13 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
     controls.extend(sum((level for level in model.control_subcategories.values()), []))
 
     control_ind = {edge: edge.vulnerability.controls for edge in model.edges}
-    pi = lambda edge: edge.default_flow
+    pi = lambda edge: 0.00001 if edge in turned_off else edge.default_flow
 
     def p(control, edge):
         if control.id in edge.vulnerability.adjustment:
             adj = edge.vulnerability.adjustment[control.id]
             if math.isnan(adj[0]):
-                return adj.custom[control.level-1]
+                return adj.custom[control.level - 1]
             else:
                 return min([control.flow * adj[0], adj[1]])
         else:
@@ -104,13 +107,26 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
 def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
     """Iterates over model_solve to spend all the budget."""
     result = (0, 0, [], 0, 0)
-    changed = True
+    model_tmp = copy.deepcopy(model)
+    turned_off = set()
+    turned_off_nodes = set()
 
-    while changed:
-        # TODO Make selected controls free
-        result_new = model_solve(model, budget, indirect_budget, result[2])
-        changed = result[2] != result_new[2]
-        result = result_new
+    while model_tmp.sink_nodes:
+        final_edges = (edge for edge in model_tmp.edges if edge.target in model_tmp.sink_nodes
+                       and edge not in turned_off)
+
+        try:
+            turn_off = max(final_edges, key=lambda edge: model_tmp.tree_flow[edge])
+        except ValueError:
+            for sink in model_tmp.sink_nodes:
+                turned_off_nodes.add(sink)
+            # Breadth-first search
+            model_tmp.sink_nodes = [edge.source for edge in model_tmp.edges if edge.target in model_tmp.sink_nodes
+                                    and edge.source not in turned_off_nodes]
+            continue
+
+        turned_off.add(turn_off)
+        result = model_solve(model_tmp, budget, indirect_budget, result[2], turned_off)
 
     return result
 
