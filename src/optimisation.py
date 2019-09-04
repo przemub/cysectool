@@ -40,8 +40,12 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
     for e in arcs:  # CONSTRAINTS: duality lagrangian
         model += lam[e[0]] - lam[e[1]] >= math.log(pi(e)) + lpSum(x[c] * math.log(p(c, e)) for c in control_ind[e])
 
-    for c in selected:  # CONSTRAINTS: select the selected
-        model += x[c] == 1
+    for c in selected:  # CONSTRAINTS: select the selected or higher level
+        category = x[c]  # Magical OR implementation in LP
+        for control in controls:
+            if control.id == c.id and control.level > c.level:
+                category += x[control]
+        model += category == 1
 
         # print(model)
     # ============ SOLVE OPTIMIZATION
