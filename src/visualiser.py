@@ -437,11 +437,11 @@ def main(document):
         else:
             constant_row.children[0] = slider2
 
-    constant_group = RadioButtonGroup(labels=["Constant cost", "Constant indirect cost"], active=0)
+    constant_group = RadioButtonGroup(labels=["Cost bound", "Indirect cost bound"], active=1)
     constant_group.on_click(constant_callback)
     constant_row = row([slider1, constant_group], id="constant-row")
 
-    pareto = figure(x_axis_label="Indirect cost", y_axis_label="Security damage")
+    pareto = figure(x_axis_label="Cost", y_axis_label="Security damage")
 
     calculate_button.on_click(calculate_frontier_callback)
     pareto_column = column([pareto, constant_row, calculate_button, pareto_current_controls])
