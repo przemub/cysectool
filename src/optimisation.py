@@ -150,7 +150,7 @@ def pareto_frontier(model, budget=None, ind_budget=None):
         raise TypeError("Missing required budget or ind_budget")
 
     px, py, pz, solution = [], [], [], []
-    current_solution = (1, 0)
+    current_solution = (1, 0, [])
 
     while current_ind_budget <= total_ind_cost:
         if budget is not None:
@@ -159,10 +159,11 @@ def pareto_frontier(model, budget=None, ind_budget=None):
             if sol[0] != 1:
                 print('SOLUTION INFEASIBLE')
 
-            if (sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
-                    sol[1] <= current_solution[0] and sol[4] > current_solution[1]):
+            if ((sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
+                    sol[1] <= current_solution[0] and sol[4] > current_solution[1])) \
+                    and sol[2] != current_solution[2]:  # Necessary due to floating-point inaccuracy
                 solution.append(sol)
-                current_solution = (sol[1], sol[4])
+                current_solution = (sol[1], sol[4], sol[2])
                 px.append(sol[1])
                 py.append(sol[4])
                 pz.append(sol[3])
@@ -172,10 +173,11 @@ def pareto_frontier(model, budget=None, ind_budget=None):
             if sol[0] != 1:
                 print('SOLUTION INFEASIBLE')
 
-            if (sol[1] < current_solution[0] and sol[3] >= current_solution[1]) or (
-                    sol[1] <= current_solution[0] and sol[3] > current_solution[1]):
+            if ((sol[1] < current_solution[0] and sol[3] >= current_solution[1]) or (
+                    sol[1] <= current_solution[0] and sol[3] > current_solution[1])) \
+                    and sol[2] != current_solution[2]:  # See the alternative flow
                 solution.append(sol)
-                current_solution = (sol[1], sol[3])
+                current_solution = (sol[1], sol[3], sol[2])
                 px.append(sol[1])
                 py.append(sol[3])
                 pz.append(sol[4])

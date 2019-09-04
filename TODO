@@ -30,7 +30,7 @@ SB: Should pentesting and automated analysis stack??
 
 02.09.2019
 DONE: Constant -> Bound {indirect ,}cost
-?? doubled portfolios on pareto frontier
+DONE: doubled portfolios on pareto frontier (floating point inaccuracy)
 high pentesting includes automated analysis
 SB: iterative optimisation: turn off edges connected to the target keeping everything connected earlier on!
 
