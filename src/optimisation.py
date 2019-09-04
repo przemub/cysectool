@@ -149,6 +149,8 @@ def pareto_frontier(model, budget=None, ind_budget=None):
     else:
         raise TypeError("Missing required budget or ind_budget")
 
+    step = max((1, math.ceil(total_ind_cost/1000)))
+
     px, py, pz, solution = [], [], [], []
     current_solution = (1, 0, [])
 
@@ -182,5 +184,5 @@ def pareto_frontier(model, budget=None, ind_budget=None):
                 py.append(sol[3])
                 pz.append(sol[4])
 
-        current_ind_budget = current_ind_budget + 1
+        current_ind_budget = current_ind_budget + step
     return px, py, pz, solution
