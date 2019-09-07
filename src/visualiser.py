@@ -75,7 +75,7 @@ def main(document):
 
     # Add colours and glyphs
     node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
-                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] == n - 1 else
+                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] in model.sink_nodes else
                    Spectral8[3] for i in range(n)]
 
     graph.node_renderer.data_source.add(node_colors, 'color')
@@ -397,6 +397,11 @@ def main(document):
 
         clear_callback()
 
+        def _update_progress(current, maximum):
+            def _callback():
+                calculate_button.label = f"Calculating… {current}/{maximum}"
+            document.add_next_tick_callback(_callback)
+
         def _update(px, py, pz, portfolios):
             new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
                                 y_axis_label="Security damage")
@@ -423,7 +428,8 @@ def main(document):
         def _thread():
             py, px, pz, portfolios = optimisation.pareto_frontier(model,
                                                                   slider1.value if constant_group.active == 0 else None,
-                                                                  slider2.value if constant_group.active == 1 else None)
+                                                                  slider2.value if constant_group.active == 1 else None,
+                                                                  _update_progress)
             document.add_next_tick_callback(partial(_update, px, py, pz, portfolios))
 
         thread = Thread(target=_thread)
@@ -439,7 +445,7 @@ def main(document):
 
     constant_group = RadioButtonGroup(labels=["Cost bound", "Indirect cost bound"], active=1)
     constant_group.on_click(constant_callback)
-    constant_row = row([slider1, constant_group], id="constant-row")
+    constant_row = row([slider2, constant_group], id="constant-row")
 
     pareto = figure(x_axis_label="Cost", y_axis_label="Security damage")
 

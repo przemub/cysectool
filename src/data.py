@@ -318,8 +318,9 @@ class JSONModel(Model, ABC):
                'n': len(d['vertices']),
                'vertices': d['vertices'],
                'edges': edges,
-               'sink_nodes': [len(d['vertices'])-1]
+               'sink_nodes': d.get('default_target', [len(d['vertices'])-1])
                }
+        print(obj)
 
         # Checking
         if max(chain((edge.source for edge in edges), (edge.target for edge in edges))) >= len(d['vertices']):

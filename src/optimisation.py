@@ -135,7 +135,7 @@ def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> 
     return result
 
 
-def pareto_frontier(model, budget=None, ind_budget=None):
+def pareto_frontier(model, budget, ind_budget, update_progress):
     """
     Return pareto frontier with constant budget for one of the parameters.
     """
@@ -155,6 +155,7 @@ def pareto_frontier(model, budget=None, ind_budget=None):
     current_solution = (1, 0, [])
 
     while current_ind_budget <= total_ind_cost:
+        update_progress(current_ind_budget, total_ind_cost+1)
         if budget is not None:
             sol = model_solve(model, budget, current_ind_budget)
 

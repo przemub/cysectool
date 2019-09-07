@@ -1,6 +1,33 @@
 {
   "name": "DVWA",
   "controls": {
+    "Au": {
+      "name": "Automated scanning",
+      "level_name": [
+        "OWASP ZAP (TP: 20%, FP: 0%, Y: 20%)",
+        "SonarQube (TP: 50%, FP: 17%, Y: 33%)",
+        "FBwFindSecBugs 1.4.4 (TP: 79%, FP: 45%, Y: 34%)",
+        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)"
+      ],
+      "cost": [
+        20,
+        67,
+        123,
+        155
+      ],
+      "ind_cost": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "flow": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
     "Pn": {
       "name": "Application pen-testing",
       "level_name": [
@@ -79,9 +106,9 @@
     "Ed": {
       "name": "User education",
       "level_name": [
-        "basic training",
-        "active simulated social engineering attacks",
-        "strongly monitored policies"
+        "Basic training",
+        "Administrator-monitored policies",
+        "Active simulated social engineering attacks"
       ],
       "cost": [
         30,
@@ -98,33 +125,6 @@
         0.3,
         0.25
       ]
-    },
-    "Au": {
-      "name": "Automated scanning",
-      "level_name": [
-        "OWASP ZAP (TP: 20%, FP: 0%, Y: 20%)",
-        "SonarQube (TP: 50%, FP: 17%, Y: 33%)",
-        "FBwFindSecBugs 1.4.4 (TP: 79%, FP: 45%, Y: 34%)",
-        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)"
-      ],
-      "cost": [
-        20,
-        67,
-        123,
-        155
-      ],
-      "ind_cost": [
-        10,
-        10,
-        10,
-        10
-      ],
-      "flow": [
-        1,
-        1,
-        1,
-        1
-      ]
     }
   },
   "vertices": [
@@ -137,6 +137,7 @@
     "root",
     "ddos"
   ],
+  "default_target": [3, 4],
   "edges": [
     {
       "source": 3,
