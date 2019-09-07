@@ -235,7 +235,7 @@ def main(document):
 
     def change_security(category: str):
         def _change(_attr, _old, new):
-            if new == "None":
+            if new == model.control_categories[category][2]:
                 control_levels[category] = 0
             else:
                 control_levels[category] = int(new[:new.find(")")])
@@ -250,7 +250,7 @@ def main(document):
     widgets = []
     selects = {}
     for category_id, category in model.control_categories.items():
-        select = Select(title=category[0], value="None", options=["None"] +
+        select = Select(title=category[0], value="None", options=[category[2]] +
                                                                  ["%d) " % level.level + level.level_name
                                                                   for level in
                                                                   model.control_subcategories[category_id]])
@@ -261,7 +261,7 @@ def main(document):
     def clear_callback():
         for key in control_levels.keys():
             control_levels[key] = 0
-            selects[key].value = "None"
+            selects[key].value = model.control_categories[key][2]
 
         model.reflow([])
         flow_to_bokeh([])

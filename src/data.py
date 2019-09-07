@@ -110,7 +110,8 @@ class Model(metaclass=abc.ABCMeta):
 
     Attributes (controls):
         control_categories: Mapping[str, Tuple[str, int] - specification of categories (mapping of category ids
-                                                           on category full name and number of levels)
+                                                           on category full name and number of levels
+                                                           and description of no control)
         control_subcategories: Mapping[str, Sequence[Control] - mapping of control ids to a sequence of their levels
         edges: Sequence[Edge] - all edges in the graph
     """
@@ -118,7 +119,7 @@ class Model(metaclass=abc.ABCMeta):
     name: str
 
     # Defining controls
-    control_categories: Mapping[str, Tuple[str, int]]
+    control_categories: Mapping[str, Tuple[str, int, str]]
     control_subcategories: Mapping[str, Sequence[Control]]
 
     # Defining a graph
@@ -269,7 +270,8 @@ class JSONModel(Model, ABC):
             d = json.loads(file)
 
         try:
-            control_categories = {control[0]: (control[1]['name'], len(control[1]['level_name']))
+            control_categories = {control[0]: (control[1]['name'], len(control[1]['level_name']),
+                                               control[1].get('no_control_name', 'None'))
                                   for control in d.get('controls', {}).items()}
             control_subcategories = {}
             for category_id, category in control_categories.items():

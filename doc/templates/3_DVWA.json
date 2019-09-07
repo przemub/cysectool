@@ -2,16 +2,16 @@
   "name": "DVWA",
   "controls": {
     "Pn": {
-      "name": "Pentesting",
+      "name": "Application pen-testing",
       "level_name": [
-        "Low",
-        "Medium",
-        "High"
+        "Individual pen-testing",
+        "Team pen-testing",
+        "Premium test pen-testing"
       ],
       "cost": [
-        100,
-        500,
-        2500
+        1000,
+        3000,
+        6000
       ],
       "ind_cost": [
         1,
@@ -25,44 +25,50 @@
       ]
     },
     "Sc": {
-      "name": "Secure configuration",
+      "name": "Network security",
+      "no_control_name": "Amateur administrator",
       "level_name": [
-        "Low",
-        "Medium",
-        "High"
+        "Qualified administrator",
+        "External individual pen-testing",
+        "External team pen-testing",
+        "External premium test pen-testing"
       ],
       "cost": [
-        400,
-        900,
-        1500
+        500,
+        1500,
+        3500,
+        6500
       ],
       "ind_cost": [
         1,
-        1,
-        2
+        10,
+        10,
+        10
       ],
       "flow": [
         0.3,
         0.1,
-        0.02
+        0.02,
+        0.01
       ]
     },
     "Pw": {
-      "name": "Password policy",
+      "name": "Access policy",
+      "no_control_name": "Basic password",
       "level_name": [
-        "Basic",
-        "Strong",
-        "2FA"
+        "Strong password policy",
+        "Two-factor authorisation",
+        "Virtual Private Network"
       ],
       "cost": [
-        1,
-        2,
-        3
+        50,
+        200,
+        500
       ],
       "ind_cost": [
-        2,
-        5,
-        10
+        10,
+        50,
+        100
       ],
       "flow": [
         0.6,
@@ -83,9 +89,9 @@
         100
       ],
       "ind_cost": [
-        2,
-        5,
-        10
+        10,
+        50,
+        100
       ],
       "flow": [
         0.5,
