@@ -23,7 +23,6 @@ from src.drawing import quadratic_bezier_curve, tree_layout, map_color, javascri
 
 env = Environment(loader=FileSystemLoader('templates'))
 
-
 CIRCLE_SIZE = 15
 ARROW_PADDING = CIRCLE_SIZE / 670
 BEZIER_CONTROL = 0.04
@@ -168,8 +167,8 @@ def main(document):
                         (1 if z % 2 else -1) * (z // 2 + 1)
 
                 # https://stackoverflow.com/questions/6711707/draw-a-quadratic-b%C3%A9zier-curve-through-three-given-points
-                control_x = 2 * mid_x - start_x/2 - end_x/2
-                control_y = 2 * mid_y - start_y/2 - end_y/2
+                control_x = 2 * mid_x - start_x / 2 - end_x / 2
+                control_y = 2 * mid_y - start_y / 2 - end_y / 2
 
                 cur_xs, cur_ys = quadratic_bezier_curve((start_x, start_y), (control_x, control_y), (end_x, end_y))
                 xs.append(cur_xs)
@@ -250,10 +249,10 @@ def main(document):
     widgets = []
     selects = {}
     for category_id, category in model.control_categories.items():
-        select = Select(title=category[0], value="None", options=[category[2]] +
-                                                                 ["%d) " % level.level + level.level_name
-                                                                  for level in
-                                                                  model.control_subcategories[category_id]])
+        select = Select(title=category[0], value=category[2], options=[category[2]] +
+                                                                      ["%d) " % level.level + level.level_name
+                                                                       for level in
+                                                                       model.control_subcategories[category_id]])
         select.on_change('value', change_security(category_id))
         selects[category_id] = select
         widgets.append(select)
@@ -297,7 +296,7 @@ def main(document):
     def set_controls(controls):
         for key in control_levels.keys():
             control_levels[key] = 0
-            selects[key].value = "None"
+            selects[key].value = model.control_categories[key][2]
         for control in controls:
             control_levels[control.id] = control.level
             selects[control.id].value = selects[control.id].options[control.level]
@@ -373,9 +372,8 @@ def main(document):
         flow_to_bokeh(controls)
 
     targets = [(str(i), model.vertices[i]) for i in range(n)]
-    target = MultiSelect(options=targets, value=[str(n-1)])
+    target = MultiSelect(options=targets, value=[str(i) for i in model.sink_nodes])
     target.on_change('value', target_callback)
-    model.sink_nodes = [n-1]
 
     target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl/Cmd to multi-select)"), target])
 
@@ -384,6 +382,9 @@ def main(document):
             if len(new) == 0:
                 return
 
+            print(portfolios)
+            print(portfolios[new[0]])
+            print(portfolios[new[0]][2])
             set_controls(portfolios[new[0]][2])
 
         return _callback
@@ -400,6 +401,7 @@ def main(document):
         def _update_progress(current, maximum):
             def _callback():
                 calculate_button.label = f"Calculating… {current}/{maximum}"
+
             document.add_next_tick_callback(_callback)
 
         def _update(px, py, pz, portfolios):
