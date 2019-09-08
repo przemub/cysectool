@@ -94,7 +94,7 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
         if control.id in edge.vulnerability.adjustment:
             adj = edge.vulnerability.adjustment[control.id]
             if math.isnan(adj[0]):
-                return adj.custom[control.level - 1]
+                return control.flow * adj.get_custom(control.level)
             else:
                 return min([control.flow * adj[0], adj[1]])
         else:

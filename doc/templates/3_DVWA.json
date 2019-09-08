@@ -2,52 +2,41 @@
   "name": "DVWA",
   "controls": {
     "Au": {
-      "name": "Automated scanning",
+      "name": "Automated scanning (+optional external pentesting)",
       "level_name": [
         "OWASP ZAP (TP: 20%, FP: 0%, Y: 20%)",
         "SonarQube (TP: 50%, FP: 17%, Y: 33%)",
         "FBwFindSecBugs 1.4.4 (TP: 79%, FP: 45%, Y: 34%)",
-        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)"
-      ],
-      "cost": [
-        20,
-        67,
-        123,
-        155
-      ],
-      "ind_cost": [
-        10,
-        10,
-        10,
-        10
-      ],
-      "flow": [
-        1,
-        1,
-        1,
-        1
-      ]
-    },
-    "Pn": {
-      "name": "Application pen-testing",
-      "level_name": [
-        "Individual pen-testing",
+        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)",
+        "Individual pen-testing (scanners included)",
         "Team pen-testing",
-        "Premium test pen-testing"
+        "Premium team pen-testing"
       ],
       "cost": [
-        1000,
-        3000,
-        6000
+        200,
+        670,
+        1230,
+        1550,
+        1980,
+        3990,
+        7000
       ],
       "ind_cost": [
-        1,
-        2,
-        4
+        10,
+        10,
+        10,
+        10,
+        30,
+        30,
+        30
       ],
       "flow": [
-        0.7,
-        0.4,
+        1,
+        1,
+        1,
+        1,
+        0.5,
+        0.2,
         0.1
       ]
     },
@@ -67,10 +56,10 @@
         6500
       ],
       "ind_cost": [
-        1,
         10,
-        10,
-        10
+        30,
+        30,
+        30
       ],
       "flow": [
         0.3,
@@ -146,7 +135,6 @@
       "vulnerability": {
         "name": "Command injection",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               0.68,
@@ -165,7 +153,6 @@
       "vulnerability": {
         "name": "Cross Site Request Forgery",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               0.71,
@@ -218,7 +205,6 @@
         "name": "File inclusion (PHP script injection)",
         "controls": {
           "Sc": {},
-          "Pn": {},
           "Au": {
             "custom": [
               1.0,
@@ -237,7 +223,6 @@
       "vulnerability": {
         "name": "Denial of Service",
         "controls": {
-          "Pn": {},
           "Sc": {}
         }
       }
@@ -249,7 +234,6 @@
       "vulnerability": {
         "name": "SQL injection",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               0.42,
@@ -268,8 +252,6 @@
       "vulnerability": {
         "name": "Weak session ID",
         "controls": {
-          "Pn": {},
-          "Sc": {},
           "Au": {
             "custom": [
               1.0,
@@ -288,7 +270,6 @@
       "vulnerability": {
         "name": "Non-DOM Cross Site Scripting",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               0.71,
@@ -326,9 +307,7 @@
       "vulnerability": {
         "name": "Web Server Vulnerabilities & Misconfigurations",
         "controls": {
-          "Sc": {},
-          "Pn": {},
-          "Au": {}
+          "Sc": {}
         }
       }
     },
@@ -339,7 +318,6 @@
       "vulnerability": {
         "name": "SSL and authentication vulnerabilities",
         "controls": {
-          "Pn": {},
           "Sc": {},
           "Au": {
             "custom": [
@@ -359,13 +337,12 @@
       "vulnerability": {
         "name": "Missing / invalid access control",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               1.0,
               1.0,
               1.0,
-              0.05
+              0.2
             ]
           }
         }
@@ -383,13 +360,23 @@
       }
     },
     {
+      "source": 5,
+      "target": 6,
+      "default_flow": 0.1,
+      "vulnerability": {
+        "name": "Weak admin password",
+        "controls": {
+          "Pw": {}
+        }
+      }
+    },
+    {
       "source": 1,
       "target": 2,
       "default_flow": 0.05,
       "vulnerability": {
         "name": "Unvalidated redirect / forward",
         "controls": {
-          "Pn": {},
           "Au": {
             "custom": [
               1.0,

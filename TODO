@@ -37,4 +37,4 @@ SB: iterative optimisation: turn off edges connected to the target keeping every
 before 09.09.2019
 iterative optimisation saga: talk through the new algorithm
     O(|E|) optimisations
-step added for pareto
+step added for pareto, progress bar, default target

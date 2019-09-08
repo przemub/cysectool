@@ -8,7 +8,7 @@ from typing import List, Dict
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models import Arrow, HoverTool, TapTool, BoxSelectTool, EdgesAndLinkedNodes, VeeHead, MultiLine, \
     Select, LogColorMapper, ColorBar, FixedTicker, Rect, Div, Button, Slider, ColumnDataSource, \
-    RadioButtonGroup, Dropdown, Panel, Tabs, MultiSelect
+    RadioButtonGroup, Dropdown, Panel, Tabs, MultiSelect, WheelZoomTool
 # noinspection PyProtectedMember
 from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
@@ -55,7 +55,7 @@ def main(document):
         uid = uuid.UUID(uid[0].decode('ascii'))
         try:
             model = Memory.get_instance().documents[uid]
-        except IndexError:
+        except KeyError:
             pass
 
     if model is None:
@@ -382,9 +382,6 @@ def main(document):
             if len(new) == 0:
                 return
 
-            print(portfolios)
-            print(portfolios[new[0]])
-            print(portfolios[new[0]][2])
             set_controls(portfolios[new[0]][2])
 
         return _callback
@@ -406,7 +403,7 @@ def main(document):
 
         def _update(px, py, pz, portfolios):
             new_pareto = figure(x_axis_label="Indirect cost" if constant_group.active == 0 else "Cost",
-                                y_axis_label="Security damage")
+                                y_axis_label="Security damage", active_scroll=WheelZoomTool())
             source = ColumnDataSource(data={'x': px, 'y': py, 'z': pz})
 
             new_pareto.circle('x', 'y', source=source, size=15)

@@ -58,6 +58,9 @@ class Vulnerability(NamedTuple):
         max_flow: float
         custom: List[float]
 
+        def get_custom(self, i):
+            return self.custom[min((i, len(self.custom)))-1]
+
     adjustment: MutableMapping[str, Adjustment]
 
     def controls_repr(self):
@@ -147,7 +150,7 @@ class Model(metaclass=abc.ABCMeta):
                 if control.id in edge.vulnerability.adjustment:
                     adj = edge.vulnerability.adjustment[control.id]
                     if math.isnan(adj[0]):
-                        flow *= adj.custom[control.level-1]
+                        flow *= control.flow * adj.get_custom(control.level)
                     else:
                         flow *= min([control.flow * adj[0], adj[1]])
                 else:
