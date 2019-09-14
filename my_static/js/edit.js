@@ -109,15 +109,19 @@ function save_edit() {
 
         let obj = {};
         const re = /^([a-zA-Z0-9]+)\(([0-9]+\.?[0-9]*),([0-9]+\.?[0-9]*)\)$/;
+        const re_custom = /^([a-zA-z0-9]+)\[([0-9.,]+)]$/;
         for (const control of controls) {
             if (!control)
                 continue;
 
-            const match = re.exec(control);
-            if (match === null)
-                obj[control] = {};
-            else
+            const match = re.exec(control),
+                  match_custom = re_custom.exec(control);
+            if (match !== null)
                 obj[match[1]] = {'flow': parseFloat([2]), 'max_flow': parseFloat(match[3])};
+            else if (match_custom !== null)
+                obj[match_custom[1]] = {'custom': match_custom[2].split(',').map(parseFloat)};
+            else
+                obj[control] = {};
         }
         return obj;
     }

@@ -66,11 +66,14 @@ class Vulnerability(NamedTuple):
     def controls_repr(self):
         controls = {}
         for control in self.controls:
-            result = "(%s,%s)" % (self.adjustment[control.id].flow,
-                                  self.adjustment[control.id].max_flow) \
-                if control.id in self.adjustment else ""
-            if self.adjustment[control.id].custom:
-                result = "[%s]" % ",".join(str(i) for i in self.adjustment[control.id].custom)
+            if control.id in self.adjustment:
+                result = "(%s,%s)" % (self.adjustment[control.id].flow,
+                                      self.adjustment[control.id].max_flow)
+                if self.adjustment[control.id].custom:
+                    result = "[%s]" % ",".join(str(i) for i in self.adjustment[control.id].custom)
+            else:
+                result = ""
+
             controls[control.id] = result
         return ";".join(key + value for key, value in controls.items())
 
