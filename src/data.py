@@ -132,12 +132,22 @@ class Model(metaclass=abc.ABCMeta):
     n: int
     edges: Sequence[Edge]
     vertices: Sequence[str]
-    sink_nodes: Sequence[int]
+    targets: Sequence[int]
+    targets_inclusion: Mapping[int, Sequence[int]]
 
     # Simulation results
     edge_flow: Mapping[Edge, float]
     vertex_flow: Mapping[int, float]
     tree_flow: Mapping[Edge, float]
+
+    def all_targets(self) -> Sequence[int]:
+        """Targets including another way to achieve the same.
+           For example, a DDOS could be always achieved by getting a shell access.
+           This way we don't clutter the graph with always-full-flow edges."""
+
+        result = [*self.targets,
+                  *set(chain.from_iterable(self.targets_inclusion.get(target, ()) for target in self.targets))]
+        return result
 
     def reflow(self, controls: Sequence[Control]) -> Mapping[Edge, float]:
         """
@@ -324,7 +334,8 @@ class JSONModel(Model, ABC):
                'n': len(d['vertices']),
                'vertices': d['vertices'],
                'edges': edges,
-               'sink_nodes': d.get('default_target', [len(d['vertices'])-1])
+               'targets': d.get('default_target', [len(d['vertices'])-1]),
+               'targets_inclusion': {int(key): value for key, value in d.get('targets_inclusion', {}).items()}
                }
         print(obj)
 

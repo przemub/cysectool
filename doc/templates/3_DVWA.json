@@ -44,28 +44,32 @@
       "name": "Network security",
       "no_control_name": "Average administrator",
       "level_name": [
-        "Qualified administrator",
-        "External individual pen-testing",
+        "AVDS (TP: 70%, FP: 0%, Y: 70%)",
+        "QualysGuard (TP: 87%, FP: 10%, Y: 77%)",
+        "External individual pen-testing (including scanners)",
         "External team pen-testing",
         "External premium test pen-testing"
       ],
       "cost": [
-        500,
-        1500,
-        3500,
-        6500
+        700,
+        1893,
+        2430,
+        4465,
+        7325
       ],
       "ind_cost": [
-        0,
-        20,
-        20,
-        20
+        10,
+        10,
+        30,
+        30,
+        30
       ],
       "flow": [
-        0.5,
-        0.25,
-        0.125,
-        0.0625
+        0.3,
+        0.13,
+        0.07,
+        0.035,
+        0.0175
       ]
     },
     "Pw": {
@@ -95,14 +99,14 @@
     "Ed": {
       "name": "User education",
       "level_name": [
-        "Basic training",
+        "Online courses",
         "Administrator-monitored policies",
         "Active simulated social engineering attacks"
       ],
       "cost": [
-        30,
         50,
-        100
+        500,
+        3900
       ],
       "ind_cost": [
         10,
@@ -126,6 +130,10 @@
     "root",
     "ddos"
   ],
+  "targets_inclusion": {
+    "7": [3, 4, 5],
+    "4": [5]
+  },
   "default_target": [3, 4],
   "edges": [
     {
@@ -385,15 +393,6 @@
             ]
           }
         }
-      }
-    },
-    {
-      "source": 5,
-      "target": 4,
-      "default_flow": 1,
-      "vulnerability": {
-        "name": "Access the database",
-        "controls": {}
       }
     }
   ]

@@ -5,7 +5,7 @@ from typing import Sequence, Mapping, Callable, Tuple
 from pulp import *
 import math
 
-from src.data import Model, Control, Edge
+from src.data import Model, Control, Edge, Vulnerability
 
 
 def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: Sequence[Integral],
@@ -82,12 +82,15 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
     if turned_off is None:
         turned_off = []
 
-    nodes = list(range(model.n))
-
     controls = []
     controls.extend(sum((level for level in model.control_subcategories.values()), []))
 
-    control_ind = {edge: edge.vulnerability.controls for edge in model.edges}
+    nodes = list(range(model.n+1))
+    sink = model.n
+    edges = list(model.edges) + [Edge(target, sink, 0, 1.0, Vulnerability("", set(), {}))
+                                 for target in model.all_targets()]
+
+    control_ind = {edge: edge.vulnerability.controls for edge in edges}
     pi = lambda edge: 0.00001 if edge in turned_off else edge.default_flow
 
     def p(control, edge):
@@ -103,7 +106,7 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
     cost = lambda control: control.cost
     ind_cost = lambda control: control.ind_cost
 
-    result = _optimal_solve(model.edges, nodes, model.sink_nodes, controls, control_ind, budget,
+    result = _optimal_solve(edges, nodes, [sink], controls, control_ind, budget,
                             indirect_budget, pi, p, cost, ind_cost, 0.00001, selected)
     return result
 
@@ -115,18 +118,18 @@ def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> 
     turned_off = set()
     turned_off_nodes = set()
 
-    while model_tmp.sink_nodes:
-        final_edges = (edge for edge in model_tmp.edges if edge.target in model_tmp.sink_nodes
+    while model_tmp.targets:
+        final_edges = (edge for edge in model_tmp.edges if edge.target in model_tmp.targets
                        and edge not in turned_off)
 
         try:
             turn_off = max(final_edges, key=lambda edge: model_tmp.tree_flow[edge])
         except ValueError:
-            for sink in model_tmp.sink_nodes:
+            for sink in model_tmp.targets:
                 turned_off_nodes.add(sink)
             # Breadth-first search
-            model_tmp.sink_nodes = [edge.source for edge in model_tmp.edges if edge.target in model_tmp.sink_nodes
-                                    and edge.source not in turned_off_nodes]
+            model_tmp.targets = [edge.source for edge in model_tmp.edges if edge.target in model_tmp.targets
+                                 and edge.source not in turned_off_nodes]
             continue
 
         turned_off.add(turn_off)
@@ -155,7 +158,7 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
     current_solution = (1, 0, [])
 
     while current_ind_budget <= total_ind_cost:
-        update_progress(current_ind_budget, total_ind_cost+1)
+        update_progress(current_ind_budget, total_ind_cost + 1)
         if budget is not None:
             sol = model_solve(model, budget, current_ind_budget)
 

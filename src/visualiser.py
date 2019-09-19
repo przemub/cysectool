@@ -74,8 +74,10 @@ def main(document):
 
     # Add colours and glyphs
     node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
-                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] in model.sink_nodes else
-                   Spectral8[3] for i in range(n)]
+                   Spectral8[7] if graph.node_renderer.data_source.data['index'][i] in model.targets else
+                   Spectral8[5] if graph.node_renderer.data_source.data['index'][i] in model.all_targets() else
+                   Spectral8[3]
+                   for i in range(n)]
 
     graph.node_renderer.data_source.add(node_colors, 'color')
     graph.node_renderer.glyph = Rect(height=GLYPH_HEIGHT, width=GLYPH_WIDTH, fill_color='color')
@@ -222,7 +224,7 @@ def main(document):
                                            "%s (%s)" % (model.control_categories[control.id][0], control.level_name) for
                                            control in controls)
 
-        max_flow = max(model.vertex_flow[i] for i in model.sink_nodes)
+        max_flow = max(model.vertex_flow[i] for i in model.all_targets())
         max_flow_p.text = "Max flow to the target(s): <strong>%.5g</strong>" % max_flow
 
     total_cost_p = Div(text="Total costs: <strong>0</strong>")
@@ -230,6 +232,7 @@ def main(document):
     max_flow_p = Div(text="Max flow to the target(s): <strong>1</strong>")
     pareto_current_controls = Div()
 
+    model.reflow([])
     flow_to_bokeh([])
 
     def change_security(category: str):
@@ -356,11 +359,12 @@ def main(document):
 
     def target_callback(_attr, _old, new_targets: List[str]):
         nonlocal node_colors
+        model.targets = [int(i) for i in new_targets]
         node_colors = [Spectral8[0] if graph.node_renderer.data_source.data['index'][i] == 0 else
-                       Spectral8[7] if str(graph.node_renderer.data_source.data['index'][i]) in new_targets else
-                       Spectral8[3] for i in range(n)]
-
-        model.sink_nodes = [int(i) for i in new_targets]
+                       Spectral8[7] if graph.node_renderer.data_source.data['index'][i] in model.targets else
+                       Spectral8[5] if graph.node_renderer.data_source.data['index'][i] in model.all_targets() else
+                       Spectral8[3]
+                       for i in range(n)]
 
         graph.node_renderer.data_source.data = {
             'index': graph.node_renderer.data_source.data['index'],
@@ -369,10 +373,11 @@ def main(document):
 
         controls = [model.control_subcategories[item[0]][item[1] - 1]
                     for item in control_levels.items() if item[1] > 0]
+        model.reflow(controls)
         flow_to_bokeh(controls)
 
     targets = [(str(i), model.vertices[i]) for i in range(n)]
-    target = MultiSelect(options=targets, value=[str(i) for i in model.sink_nodes])
+    target = MultiSelect(options=targets, value=[str(i) for i in model.targets])
     target.on_change('value', target_callback)
 
     target_box = widgetbox([Div(text="<b>Targets</b> (Ctrl/Cmd to multi-select)"), target])
