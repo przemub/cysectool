@@ -44,6 +44,8 @@
       "name": "Network security",
       "no_control_name": "Average administrator",
       "level_name": [
+        "Patchlink Scan (TP: 45%, FP: 6%, Y: 39%)",
+        "McAfee VM (TP: 53%, FP: 3%, Y: 50%)",
         "AVDS (TP: 70%, FP: 0%, Y: 70%)",
         "QualysGuard (TP: 87%, FP: 10%, Y: 77%)",
         "External individual pen-testing (including scanners)",
@@ -51,6 +53,8 @@
         "External premium test pen-testing"
       ],
       "cost": [
+        510,
+        560,
         700,
         1893,
         2430,
@@ -60,11 +64,15 @@
       "ind_cost": [
         10,
         10,
+        10,
+        10,
         30,
         30,
         30
       ],
       "flow": [
+        0.55,
+        0.47,
         0.3,
         0.13,
         0.07,
