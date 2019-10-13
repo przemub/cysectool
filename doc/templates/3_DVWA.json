@@ -85,23 +85,19 @@
       "no_control_name": "Basic password",
       "level_name": [
         "Strong password policy",
-        "Two-factor authorisation",
-        "Virtual Private Network"
+        "Two-factor authorisation"
       ],
       "cost": [
         50,
-        200,
         500
       ],
       "ind_cost": [
         10,
-        50,
         100
       ],
       "flow": [
         0.6,
-        0.3,
-        0.1
+        0.03
       ]
     },
     "Ed": {
