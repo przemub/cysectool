@@ -31,6 +31,8 @@ class Memory:
         # Load templates
         self.templates = []
         for file in sorted(os.listdir('doc/templates/')):
+            if not file.endswith('.json'):
+                continue
             with open(os.path.join('doc/templates/', file), 'r') as f:
                 uid = self.add_document(f.read())
                 self.templates.append(uid)
