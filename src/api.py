@@ -5,7 +5,7 @@ import tornado.web
 import json
 import uuid
 
-from src.data import Model, JSONModel
+from src.data import Model, JSONModel, GraphError
 
 
 class Memory:
@@ -74,6 +74,9 @@ class ApiHandler(tornado.web.RequestHandler):
             except JSONModel.JSONError as jsone:
                 self.set_status(400)
                 self.finish('400:\n%s' % jsone.args)
+            except GraphError as ge:
+                self.set_status(400)
+                self.finish('400:\n%s' % ge.args)
             else:
                 self.finish(json.dumps({'uid': str(uid)}))
         elif request['cmd'] == 'save':
