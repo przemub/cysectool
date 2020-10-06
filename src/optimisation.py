@@ -1,44 +1,64 @@
 import copy
+import math
 from numbers import Real, Integral
-from typing import Sequence, Mapping, Callable, Tuple
+from typing import Sequence, Mapping, Callable
 
 from pulp import *
-import math
 
 from src.data import Model, Control, Edge, Vulnerability
 
 
-def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: Sequence[Integral],
-                   controls: Sequence[Control], control_ind: Mapping[Edge, Sequence[Control]],
-                   budget: Real, budget_indirect: Real,
-                   pi: Callable[[Edge], Real], p: Callable[[Edge], Real],
-                   cost: Callable[[Control], Real], ind_cost: Callable[[Control], Real], eps: Real,
-                   selected=None):
+def _optimal_solve(
+    arcs: Sequence[Edge],
+    nodes: Sequence[Integral],
+    sink_nodes: Sequence[Integral],
+    controls: Sequence[Control],
+    control_ind: Mapping[Edge, Sequence[Control]],
+    budget: Real,
+    budget_indirect: Real,
+    pi: Callable[[Edge], Real],
+    p: Callable[[Control, Edge], Real],
+    cost: Callable[[Control], Real],
+    ind_cost: Callable[[Control], Real],
+    eps: Real,
+    selected=None,
+):
     if selected is None:
         selected = []
 
     model = LpProblem("simple", pulp.LpMinimize)
 
     # set up optimization variables
-    x = LpVariable.dicts("x", controls, lowBound=0, upBound=1, cat=pulp.LpInteger)
+    x = LpVariable.dicts(
+        "x", controls, lowBound=0, upBound=1, cat=pulp.LpInteger
+    )
     lam = LpVariable.dicts("lam", nodes)
 
     # eps>0 to impose minimize costs of portfolio
     # ============  OBJECTIVE function: ====== ======
-    model += lpSum(-lam[s] + lam[0] for s in sink_nodes) + eps * lpSum(x[c] * cost(c) for c in controls) + eps * lpSum(
-        x[c] * ind_cost(c) for c in controls)
+    model += (
+        lpSum(-lam[s] + lam[0] for s in sink_nodes)
+        + eps * lpSum(x[c] * cost(c) for c in controls)
+        + eps * lpSum(x[c] * ind_cost(c) for c in controls)
+    )
 
     # ===============   CONSTRAINTS  ========
     # Budget CONSTRAINTS:
     model += lpSum(cost(c) * x[c] for c in controls) <= budget  # , 'Budget'
-    model += lpSum(ind_cost(c) * x[c] for c in controls) <= budget_indirect  # , 'indirect costs budget'
+    model += (
+        lpSum(ind_cost(c) * x[c] for c in controls) <= budget_indirect
+    )  # , 'indirect costs budget'
 
     for c in controls:  # CONSTRAINTS: select at most one level per control
-        if Control(c[0], 2) in controls:  # if the control has more than 1 level
+        if (
+            Control(c[0], 2) in controls
+        ):  # if the control has more than 1 level
             model += lpSum([x[c1] for c1 in controls if c[0] == c1[0]]) <= 1
 
     for e in arcs:  # CONSTRAINTS: duality lagrangian
-        model += lam[e[0]] - lam[e[1]] >= math.log(pi(e)) + lpSum(x[c] * math.log(p(c, e)) for c in control_ind[e])
+        model += lam[e[0]] - lam[e[1]] >= math.log(pi(e)) + lpSum(
+            x[c] * math.log(p(c, e)) for c in control_ind[e]
+        )
 
     for c in selected:  # CONSTRAINTS: select the selected or higher level
         category = x[c]  # Magical OR implementation in LP
@@ -52,7 +72,7 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
     #     model.solve(GUROBI_CMD())
     model.solve()
     if not model.status == 1:
-        print('STATUS: unsatisfiable, status= ', model.status)
+        print("STATUS: unsatisfiable, status= ", model.status)
     # print('model.status:', model.status,'\nobjective value',math.exp(model.objective.value()),'\nSolution:\n')
     total_cost, total_ind_cost = 0, 0
     if not model.status == 1:
@@ -66,15 +86,23 @@ def _optimal_solve(arcs: Sequence[Edge], nodes: Sequence[Integral], sink_nodes: 
     # print('\ntotal_cost= ',total_cost,'   total Indirect costs=',total_ind_cost )
     # print((lam[0].name,lam[0].varValue),[(lam[s].name,lam[s].varValue) for s in SINK_NODES])
     return (
-        model.status, math.exp(model.objective.value()), [i for i in controls if x[i].varValue != 0],
+        model.status,
+        math.exp(model.objective.value()),
+        [i for i in controls if x[i].varValue != 0],
         total_cost,
-        total_ind_cost)
+        total_ind_cost,
+    )
 
 
-def model_solve(model: Model, budget: float, indirect_budget: float,
-                selected=None, turned_off=None) -> Sequence[Control]:
+def model_solve(
+    model: Model,
+    budget: float,
+    indirect_budget: float,
+    selected=None,
+    turned_off=None,
+) -> Sequence[Control]:
     """
-    Passes model to  the original optimisation function.
+    Passes model to the original optimisation function.
     Returns a sequence of controls to turn on.
     """
     if selected is None:
@@ -83,12 +111,16 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
         turned_off = []
 
     controls = []
-    controls.extend(sum((level for level in model.control_subcategories.values()), []))
+    controls.extend(
+        sum((level for level in model.control_subcategories.values()), [])
+    )
 
-    nodes = list(range(model.n+1))
+    nodes = list(range(model.n + 1))
     sink = model.n
-    edges = list(model.edges) + [Edge(target, sink, 0, 1.0, Vulnerability("", set(), {}))
-                                 for target in model.all_targets()]
+    edges = list(model.edges) + [
+        Edge(target, sink, 0, 1.0, Vulnerability("", set(), {}))
+        for target in model.all_targets()
+    ]
 
     control_ind = {edge: edge.vulnerability.controls for edge in edges}
     pi = lambda edge: 0.00001 if edge in turned_off else edge.default_flow
@@ -106,12 +138,27 @@ def model_solve(model: Model, budget: float, indirect_budget: float,
     cost = lambda control: control.cost
     ind_cost = lambda control: control.ind_cost
 
-    result = _optimal_solve(edges, nodes, [sink], controls, control_ind, budget,
-                            indirect_budget, pi, p, cost, ind_cost, 0.00001, selected)
+    result = _optimal_solve(
+        edges,
+        nodes,
+        [sink],
+        controls,
+        control_ind,
+        budget,
+        indirect_budget,
+        pi,
+        p,
+        cost,
+        ind_cost,
+        0.00001,
+        selected,
+    )
     return result
 
 
-def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> Sequence[Control]:
+def model_solve_iterate(
+    model: Model, budget: float, indirect_budget: float
+) -> Sequence[Control]:
     """Iterates over model_solve to spend all the budget."""
     result = (0, 0, [], 0, 0)
     model_tmp = copy.deepcopy(model)
@@ -119,21 +166,32 @@ def model_solve_iterate(model: Model, budget: float, indirect_budget: float) -> 
     turned_off_nodes = set()
 
     while model_tmp.targets:
-        final_edges = (edge for edge in model_tmp.edges if edge.target in model_tmp.targets
-                       and edge not in turned_off)
+        final_edges = (
+            edge
+            for edge in model_tmp.edges
+            if edge.target in model_tmp.targets and edge not in turned_off
+        )
 
         try:
-            turn_off = max(final_edges, key=lambda edge: model_tmp.tree_flow[edge])
+            turn_off = max(
+                final_edges, key=lambda edge: model_tmp.tree_flow[edge]
+            )
         except ValueError:
             for sink in model_tmp.targets:
                 turned_off_nodes.add(sink)
             # Breadth-first search
-            model_tmp.targets = [edge.source for edge in model_tmp.edges if edge.target in model_tmp.targets
-                                 and edge.source not in turned_off_nodes]
+            model_tmp.targets = [
+                edge.source
+                for edge in model_tmp.edges
+                if edge.target in model_tmp.targets
+                and edge.source not in turned_off_nodes
+            ]
             continue
 
         turned_off.add(turn_off)
-        result = model_solve(model_tmp, budget, indirect_budget, result[2], turned_off)
+        result = model_solve(
+            model_tmp, budget, indirect_budget, result[2], turned_off
+        )
 
     return result
 
@@ -142,11 +200,15 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
     """
     Return pareto frontier with constant budget for one of the parameters.
     """
-    max_level_controls = [group[-1] for group in model.control_subcategories.values()]
+    max_level_controls = [
+        group[-1] for group in model.control_subcategories.values()
+    ]
 
     current_ind_budget = 0
     if budget is not None:
-        total_ind_cost = sum(control.ind_cost for control in max_level_controls)
+        total_ind_cost = sum(
+            control.ind_cost for control in max_level_controls
+        )
     elif ind_budget is not None:
         total_ind_cost = sum(control.cost for control in max_level_controls)
     else:
@@ -163,11 +225,18 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
             sol = model_solve(model, budget, current_ind_budget)
 
             if sol[0] != 1:
-                print('SOLUTION INFEASIBLE')
+                print("SOLUTION INFEASIBLE")
 
-            if ((sol[1] < current_solution[0] and sol[4] >= current_solution[1]) or (
-                    sol[1] <= current_solution[0] and sol[4] > current_solution[1])) \
-                    and sol[2] != current_solution[2]:  # Necessary due to floating-point inaccuracy
+            if (
+                (
+                    sol[1] < current_solution[0]
+                    and sol[4] >= current_solution[1]
+                )
+                or (
+                    sol[1] <= current_solution[0]
+                    and sol[4] > current_solution[1]
+                )
+            ) and sol[2] != current_solution[2]:
                 solution.append(sol)
                 current_solution = (sol[1], sol[4], sol[2])
                 px.append(sol[1])
@@ -177,11 +246,18 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
             sol = model_solve(model, current_ind_budget, ind_budget)
 
             if sol[0] != 1:
-                print('SOLUTION INFEASIBLE')
+                print("SOLUTION INFEASIBLE")
 
-            if ((sol[1] < current_solution[0] and sol[3] >= current_solution[1]) or (
-                    sol[1] <= current_solution[0] and sol[3] > current_solution[1])) \
-                    and sol[2] != current_solution[2]:  # See the alternative flow
+            if (
+                (
+                    sol[1] < current_solution[0]
+                    and sol[3] >= current_solution[1]
+                )
+                or (
+                    sol[1] <= current_solution[0]
+                    and sol[3] > current_solution[1]
+                )
+            ) and sol[2] != current_solution[2]:  # See the alternative flow
                 solution.append(sol)
                 current_solution = (sol[1], sol[3], sol[2])
                 px.append(sol[1])

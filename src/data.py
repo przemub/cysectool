@@ -2,13 +2,14 @@ import abc
 import heapq
 import json
 import math
+from abc import ABC
 from collections import defaultdict
 from io import IOBase
 from itertools import chain
+from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, \
+    List
 
 import networkx
-from abc import ABC
-from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, List, Optional
 
 
 class Control(NamedTuple):
@@ -48,7 +49,8 @@ class Vulnerability(NamedTuple):
     Represents a vulnerability resulting in changing state.
     Attributes:
         name - human-readable name of the attack
-        controls - set of controls that change the probability of exploiting the vulnerability
+        controls - set of controls that change the probability of
+        exploiting the vulnerability
     """
     name: str
     controls: Set[Control]

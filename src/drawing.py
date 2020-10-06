@@ -12,12 +12,19 @@ GLYPH_HEIGHT: float = 0.05  # in axis units
 PALETTE: List[str] = colorcet.b_diverging_gkr_60_10_c40
 
 
-def quadratic_bezier_curve(p0: Tuple[float, float], p1: Tuple[float, float],
-                           p2: Tuple[float, float]) -> Tuple[List[float], List[float]]:
+def quadratic_bezier_curve(
+    p0: Tuple[float, float], p1: Tuple[float, float], p2: Tuple[float, float]
+) -> Tuple[List[float], List[float]]:
     def quadratic_bezier_step(step: float) -> Tuple[float, float]:
         # https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves
-        tx = (1 - step) * ((1 - step) * p0[0] + step * p1[0]) + step * ((1 - step) * p1[0] + step * p2[0])
-        ty = (1 - step) * ((1 - step) * p0[1] + step * p1[1]) + step * ((1 - step) * p1[1] + step * p2[1])
+        tx = (
+            (1 - step) * ((1 - step) * p0[0] + step * p1[0]) +
+            step * ((1 - step) * p1[0] + step * p2[0])
+        )
+        ty = (
+                (1 - step) * ((1 - step) * p0[1] + step * p1[1]) +
+                step * ((1 - step) * p1[1] + step * p2[1])
+        )
         return tx, ty
 
     curve_xs, curve_ys = [], []
@@ -31,20 +38,33 @@ def quadratic_bezier_curve(p0: Tuple[float, float], p1: Tuple[float, float],
     return curve_xs, curve_ys
 
 
-def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width: float = 1.5, vert_gap: float = 0.5,
-                vert_loc: float = 0, x_center: float = 0):
+def tree_layout(
+    graph_data: networkx.DiGraph,
+    root: int,
+    depth: List[int],
+    width: float = 1.5,
+    vert_gap: float = 0.5,
+    vert_loc: float = 0,
+    x_center: float = 0,
+):
     """graph_data: the networkx graph
-       root: the root node of current branch
-       depth: tree layers
-       width: horizontal space allocated for this branch - avoids overlap with other branches
-       vert_gap: gap between levels of hierarchy
-       vert_loc: vertical location of root
-       x_center: horizontal location of root
+    root: the root node of current branch
+    depth: tree layers
+    width: horizontal space allocated for this branch - avoids overlap with other branches
+    vert_gap: gap between levels of hierarchy
+    vert_loc: vertical location of root
+    x_center: horizontal location of root
     """
 
-    def h_recur(local_root, local_width, local_vert_loc, local_x_center,
-                pos=None, parsed=None, level=0):
-
+    def h_recur(
+        local_root,
+        local_width,
+        local_vert_loc,
+        local_x_center,
+        pos=None,
+        parsed=None,
+        level=0,
+    ):
         if parsed is None:
             parsed = []
         if local_root not in parsed:
@@ -55,19 +75,35 @@ def tree_layout(graph_data: networkx.DiGraph, root: int, depth: List[int], width
                 pos[local_root] = (local_x_center, local_vert_loc)
 
             neighbors = graph_data.neighbors(local_root)
-            neighbors = list(filter(lambda x: depth[x] == level + 1, neighbors))
-            root_local_width = max((local_width, (len(neighbors) + 1) * GLYPH_WIDTH))
+            neighbors = list(
+                filter(lambda x: depth[x] == level + 1, neighbors)
+            )
+            root_local_width = max(
+                local_width, (len(neighbors) + 1) * GLYPH_WIDTH
+            )
 
             if len(neighbors) != 0:
                 dx = root_local_width / len(neighbors)
                 next_x = local_x_center - root_local_width / 2 - dx / 2
                 for neighbor in neighbors:
                     next_x += dx
-                    pos = h_recur(neighbor, local_width=dx, local_vert_loc=local_vert_loc - vert_gap,
-                                  local_x_center=next_x, pos=pos, parsed=parsed, level=level + 1)
+                    pos = h_recur(
+                        neighbor,
+                        local_width=dx,
+                        local_vert_loc=local_vert_loc - vert_gap,
+                        local_x_center=next_x,
+                        pos=pos,
+                        parsed=parsed,
+                        level=level + 1,
+                    )
         return pos
 
-    return h_recur(root, local_width=width, local_vert_loc=vert_loc, local_x_center=x_center)
+    return h_recur(
+        root,
+        local_width=width,
+        local_vert_loc=vert_loc,
+        local_x_center=x_center,
+    )
 
 
 def map_color(value: float) -> str:
