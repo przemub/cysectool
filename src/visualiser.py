@@ -308,12 +308,10 @@ def main(document):
         graph.edge_renderer.data_source.data["edge_flow"] = edge_flow
         graph.edge_renderer.data_source.data["color"] = color
 
-        total_cost_p.text = "Total costs: <strong>%d</strong>" % sum(
-            control.cost for control in controls
-        )
+        total_cost_p.text = "Total costs: <strong>%d</strong>" % model.direct_cost
         total_ind_cost_p.text = (
             "Total indirect costs: <strong>%d</strong>"
-            % sum(control.ind_cost for control in controls)
+            % model.indirect_cost
         )
         pareto_current_controls.text = (
             "<strong>Current controls</strong>: %s"
@@ -324,9 +322,8 @@ def main(document):
             )
         )
 
-        max_flow = max(model.vertex_flow[i] for i in model.all_targets())
         max_flow_p.text = (
-            "Max flow to the target(s): <strong>%.5g</strong>" % max_flow
+            "Max flow to the target(s): <strong>%.5g</strong>" % model.max_flow
         )
 
     total_cost_p = Div(text="Total costs: <strong>0</strong>")

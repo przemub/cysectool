@@ -141,6 +141,9 @@ class Model(metaclass=abc.ABCMeta):
     edge_flow: Mapping[Edge, float]
     vertex_flow: Mapping[int, float]
     tree_flow: Mapping[Edge, float]
+    max_flow: float
+    direct_cost: int
+    indirect_cost: int
 
     def all_targets(self) -> Sequence[int]:
         """Targets including another way to achieve the same.
@@ -151,9 +154,11 @@ class Model(metaclass=abc.ABCMeta):
                   *set(chain.from_iterable(self.targets_inclusion.get(target, ()) for target in self.targets))]
         return result
 
-    def reflow(self, controls: Sequence[Control]) -> Mapping[Edge, float]:
+    def reflow(self, controls: Sequence[Control]):
         """
-        Recalculates the flow, saves it in cached_flow and returns it.
+        Recalculates the flows in the graph and the costs.
+        See: edge_flow, vertex_flow, tree_flow, max_flow,
+             direct_cost, indirect_cost.
         Assumes that flows exist in <0; 1> and uses modified Dijkstra algorithm.
         """
         edge_flow = {}
@@ -192,7 +197,9 @@ class Model(metaclass=abc.ABCMeta):
             tree_flow[edge] = vertex_flow[edge[0]] * edge_flow[edge]
         self.tree_flow = tree_flow
 
-        return tree_flow
+        self.direct_cost = sum(control.cost for control in controls)
+        self.indirect_cost = sum(control.ind_cost for control in controls)
+        self.max_flow = max(vertex_flow[i] for i in self.all_targets())
 
     def to_networkx(self) -> networkx.MultiDiGraph:
         g = networkx.MultiDiGraph()
@@ -281,7 +288,7 @@ class JSONModel(Model, ABC):
         pass
 
     @classmethod
-    def create(cls, file):
+    def create(cls, file) -> "JSONModel":
         if isinstance(file, IOBase):
             d = json.load(file)
         else:
@@ -339,7 +346,8 @@ class JSONModel(Model, ABC):
                'targets': d.get('default_target', [len(d['vertices'])-1]),
                'targets_inclusion': {int(key): value for key, value in d.get('targets_inclusion', {}).items()}
                }
-        print(obj)
+        if __debug__:
+            print(obj)
 
         # Checking
         if max(chain((edge.source for edge in edges), (edge.target for edge in edges))) >= len(d['vertices']):

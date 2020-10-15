@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/visualiser" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6 (security-graph-visualiser)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (visualiser-env)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jsgrid" level="application" />
     <orderEntry type="library" name="jquery-3.3.1.slim" level="application" />
@@ -13,8 +13,5 @@
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
-  </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
   </component>
 </module>

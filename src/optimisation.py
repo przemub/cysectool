@@ -3,7 +3,7 @@ import math
 from numbers import Real, Integral
 from typing import Sequence, Mapping, Callable
 
-from pulp import *
+from pulp import LpProblem, LpVariable, LpMinimize, LpInteger, lpSum
 
 from src.data import Model, Control, Edge, Vulnerability
 
@@ -26,11 +26,11 @@ def _optimal_solve(
     if selected is None:
         selected = []
 
-    model = LpProblem("simple", pulp.LpMinimize)
+    model = LpProblem("simple", LpMinimize)
 
     # set up optimization variables
     x = LpVariable.dicts(
-        "x", controls, lowBound=0, upBound=1, cat=pulp.LpInteger
+        "x", controls, lowBound=0, upBound=1, cat=LpInteger
     )
     lam = LpVariable.dicts("lam", nodes)
 
