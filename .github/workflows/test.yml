@@ -1,0 +1,30 @@
+on: push
+jobs:
+  test-ubuntu:
+    name: "Test the visualiser on Ubuntu"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Install numpy build requirements
+        run: sudo apt-get update && sudo apt-get install -y gfortran build-essential
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          miniconda-version: "latest"
+          environment-file: "environment.yml"
+          activate-environment: visualiser-env
+      - name: Run Python tests
+        shell: bash -l {0}
+        run: python -m unittest
+  test-mac:
+    name: "Test the visualiser on macOS"
+    runs-on: "macos-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          miniconda-version: "latest"
+          environment-file: "environment.yml"
+          activate-environment: visualiser-env
+      - name: Run Python tests
+        shell: bash -l {0}
+        run: python -m unittest
