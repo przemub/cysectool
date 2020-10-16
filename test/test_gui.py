@@ -7,6 +7,7 @@ from multiprocessing import Process
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
 
 from main import run_server
 
@@ -66,15 +67,11 @@ class GUITest(unittest.TestCase):
         button = self.driver.find_element_by_xpath('//button[.="Optimise"]')
         button.click()
 
-        watchdog = 0
-        while not self.driver.find_elements_by_xpath('//button[.="Optimise"]'):
-            time.sleep(0.1)
+        WebDriverWait(self.driver, 5).until(
+            lambda driver: driver.find_elements_by_xpath('//button[.="Optimise"]'),
+            "Failed to optimise in 5 secs"
+        )
 
-            watchdog += 1
-            if watchdog == 100:
-                raise TimeoutError("Optimisation timed out")
-
-        self.driver.find_element_by_xpath('//div[.="Total costs: 22"]')
         self.driver.find_element_by_xpath(
             '//div[.="Total indirect costs: 25"]'
         )
