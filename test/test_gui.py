@@ -7,6 +7,7 @@ from multiprocessing import Process
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -61,7 +62,9 @@ class GUITest(unittest.TestCase):
             '//div[.="Max flow to the target(s): 1"]'
         )
         option.click()
-        self.driver.find_element_by_xpath('//div[.="Total costs: 4"]')
+        WebDriverWait(self.driver, 5).until(
+            lambda d: d.find_element_by_xpath('//div[.="Total costs: 4"]')
+        )
         self.driver.find_element_by_xpath('//div[.="Total indirect costs: 6"]')
         self.driver.find_element_by_xpath(
             '//div[.="Max flow to the target(s): 0.1"]'
@@ -73,12 +76,12 @@ class GUITest(unittest.TestCase):
         button.click()
 
         WebDriverWait(self.driver, 5).until(
-            lambda driver: driver.find_elements_by_xpath('//button[.="Optimise"]'),
+            lambda d: d.find_elements_by_xpath('//button[.="Optimise"]'),
             "Failed to optimise in 5 secs"
         )
 
-        self.driver.find_element_by_xpath(
-            '//div[.="Total indirect costs: 25"]'
+        WebDriverWait(self.driver, 5).until(
+            lambda d: d.find_element_by_xpath('//div[.="Total indirect costs: 25"]')
         )
         self.driver.find_element_by_xpath(
             '//div[.="Max flow to the target(s): 0.00012"]'
@@ -144,6 +147,26 @@ class GUITest(unittest.TestCase):
             WebDriverWait(self.driver, 5).until(
                 lambda d: d.find_elements_by_xpath('//label[.="Encryption"]')
             )
+
+
+class GUITestChrome(GUITest):
+    @classmethod
+    def setUpClass(cls):
+        options = ChromeOptions()
+        if cls.headless:
+            options.add_argument("--headless")
+
+        try:
+            cls.driver = webdriver.Chrome(options=options)
+        except WebDriverException as wde:
+            # Skip when Selenium not available
+            raise unittest.SkipTest(str(wde))
+
+        cls.server = Process(target=run_server)
+        cls.server.start()
+        time.sleep(0.5)  # Wait for the server start
+        cls._get("")
+        time.sleep(0.5)  # Wait for the page to load
 
 
 if __name__ == "__main__":
