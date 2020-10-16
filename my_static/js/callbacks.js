@@ -110,5 +110,5 @@ function template_change(value) {
     let url = "/visualiser";
     url += "?id=" + value;
 
-    window.open(url, "_blank");
+    window.location.href = url;
 }

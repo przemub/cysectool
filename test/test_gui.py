@@ -7,6 +7,7 @@ from multiprocessing import Process
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 
 from main import run_server
@@ -14,6 +15,10 @@ from main import run_server
 
 class GUITest(unittest.TestCase):
     url = "http://localhost:5006"
+    driver: WebDriver = None
+    server: Process = None
+
+    headless = True
 
     @classmethod
     def _get(cls, link):
@@ -22,7 +27,7 @@ class GUITest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
-        options.headless = True
+        options.headless = cls.headless
 
         try:
             cls.driver = webdriver.Firefox(options=options)
@@ -32,9 +37,9 @@ class GUITest(unittest.TestCase):
 
         cls.server = Process(target=run_server)
         cls.server.start()
-        time.sleep(0.1)  # Wait for the server start
+        time.sleep(0.5)  # Wait for the server start
         cls._get("")
-        time.sleep(0.1)  # Wait for the page to load
+        time.sleep(0.5)  # Wait for the page to load
 
     @classmethod
     def tearDownClass(cls):
@@ -102,6 +107,43 @@ class GUITest(unittest.TestCase):
         )
 
         self.assertEqual(len(not_selected), 4)
+
+    def test_upload_model(self):
+        path = os.path.abspath("doc/templates/1_NIST.json")
+        upload = self.driver.find_element_by_id("load")
+
+        try:
+            upload.send_keys(path)
+
+            # Check that control from the other model is present
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_elements_by_xpath('//label[.="ScW"]')
+            )
+        finally:
+            # Go back to the main page
+            self._get("")
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_elements_by_xpath('//label[.="Encryption"]')
+            )
+
+    def test_load_template(self):
+        templates = self.driver.find_element_by_xpath('//button[.="Load Template"]')
+        templates.click()
+        load_template = self.driver.find_element_by_xpath('//div[.="NIST"]')
+
+        try:
+            load_template.click()
+
+            # Check that control from the other model is present
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_elements_by_xpath('//label[.="ScW"]')
+            )
+        finally:
+            # Go back to the main page
+            self._get("")
+            WebDriverWait(self.driver, 5).until(
+                lambda d: d.find_elements_by_xpath('//label[.="Encryption"]')
+            )
 
 
 if __name__ == "__main__":
