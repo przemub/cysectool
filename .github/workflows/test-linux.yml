@@ -1,0 +1,18 @@
+on: push
+jobs:
+  test:
+    name: "Test the visualiser on ${{ matrix.os }}"
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          miniconda-version: "latest"
+          environment-file: "environment.yml"
+          activate-environment: visualiser-env
+      - name: Run Python tests
+        shell: bash -l {0}
+        run: python -m unittest
