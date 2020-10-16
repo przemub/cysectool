@@ -3,7 +3,7 @@ let our_tooltip;
 // noinspection JSUnusedGlobalSymbols
 function on_tap() {
     // Find the tooltip
-    const tooltip = $('div.bk-tooltip');
+    const tooltip = document.querySelector('div.bk-tooltip');
     if (!tooltip)
         return;
 
@@ -21,7 +21,7 @@ function on_tap() {
 
 // noinspection JSUnusedGlobalSymbols
 function load_model() {
-    const file_list = $("input#load").files;
+    const file_list = document.querySelector("input#load").files;
 
     if (!file_list)
         return;
