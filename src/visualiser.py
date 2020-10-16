@@ -5,7 +5,8 @@ from functools import partial
 from threading import Thread
 from typing import List, Dict
 
-from bokeh.layouts import widgetbox, row, column
+from bokeh import events
+from bokeh.layouts import row, column
 from bokeh.models import (
     Arrow,
     HoverTool,
@@ -28,13 +29,12 @@ from bokeh.models import (
     Panel,
     Tabs,
     MultiSelect,
-    WheelZoomTool,
+    WheelZoomTool, CustomJS,
 )
 
 # noinspection PyProtectedMember
-from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral8
-from bokeh.plotting import figure
+from bokeh.plotting import figure, from_networkx
 from jinja2 import FileSystemLoader, Environment
 
 from src import optimisation
@@ -379,7 +379,7 @@ def main(document):
     clear.on_click(clear_callback)
 
     widgets.extend([total_cost_p, total_ind_cost_p, max_flow_p, clear])
-    box = widgetbox(widgets, width=400)
+    box = column(widgets, width=400)
 
     color_bar = ColorBar(
         color_mapper=mapper,
@@ -473,7 +473,7 @@ def main(document):
     optimise_iterative = Button(label="Optimise (iterative)")
     optimise_iterative.on_click(partial(optimise_callback, True))
 
-    optimisation_box = widgetbox(
+    optimisation_box = column(
         [slider1, slider2, optimise, optimise_iterative]
     )
 
@@ -482,20 +482,24 @@ def main(document):
         text='<label for="load">Load Model</label>'
         '<input type="file" onchange="load_model();" id="load" accept=".json">'
     )
-    new_button = Button(label="New Model", callback=javascript("new_model"))
-    edit_button = Button(label="Edit Model", callback=javascript("edit_model"))
-    save_button = Button(label="Save Model", callback=javascript("save_model"))
+    new_button = Button(label="New Model")
+    new_button.js_on_click(javascript("new_model"))
+    edit_button = Button(label="Edit Model")
+    edit_button.js_on_click(javascript("edit_model"))
+    save_button = Button(label="Save Model")
+    save_button.js_on_click(javascript("save_model"))
 
     menu = []
     for template in memory.templates:
         template_model = memory.documents[template]
         menu.append((template_model.name, str(template)))
     templates_drop = Dropdown(label="Load Template", menu=menu)
-    templates_drop.js_on_change(
-        "value", javascript("template_change", code_args="this.value")
+    templates_drop.js_on_event(
+        events.MenuItemClick,
+        javascript("template_change", code_args="this.item")
     )
 
-    button_box = widgetbox(
+    button_box = column(
         [templates_drop, new_button, edit_button, save_button, div]
     )
 
@@ -534,7 +538,7 @@ def main(document):
     )
     target.on_change("value", target_callback)
 
-    target_box = widgetbox(
+    target_box = column(
         [Div(text="<b>Targets</b> (Ctrl/Cmd to multi-select)"), target]
     )
 

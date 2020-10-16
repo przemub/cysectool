@@ -346,8 +346,8 @@ class JSONModel(Model, ABC):
                'targets': d.get('default_target', [len(d['vertices'])-1]),
                'targets_inclusion': {int(key): value for key, value in d.get('targets_inclusion', {}).items()}
                }
-        if __debug__:
-            print(obj)
+        #if __debug__:
+        #    print(obj)
 
         # Checking
         if max(chain((edge.source for edge in edges), (edge.target for edge in edges))) >= len(d['vertices']):
