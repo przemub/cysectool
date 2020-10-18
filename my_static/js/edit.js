@@ -155,7 +155,7 @@ function model_to_json() {
         });
 
     let obj = {
-        'name': "edit",
+        'name': $("#graph_title").val(),
         'controls': controls,
         'vertices': vertices_obj,
         'edges': edges_obj

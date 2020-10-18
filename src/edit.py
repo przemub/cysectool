@@ -58,6 +58,7 @@ class EditHandler(tornado.web.RequestHandler):
             for edge in model.edges
         ]
         dictionary = {
+            "name": model.name or "Model",
             "vertices": json.dumps(vertices),
             "groups": json.dumps(groups),
             "levels": json.dumps(levels),

@@ -79,6 +79,8 @@ div.buttons {
   -webkit-align-items: center;
   flex-direction: row;
   -webkit-flex-direction: row;
+
+  margin: 2em;
 }
 div.buttons > button {
   flex-grow: 1;
@@ -97,4 +99,9 @@ div.buttons > button:not(:first-child):last-child {
 }
 div.buttons > button:not(:first-child):not(:last-child) {
   border-radius: 0;
+}
+
+label[for=graph_title] {
+  margin-left: 2em;
+  font-weight: bold;
 }
