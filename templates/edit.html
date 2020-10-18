@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit</title>
+    <title>Security Graph Editor</title>
 
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
@@ -44,7 +44,10 @@
         <tt>Control(flow,max_flow)</tt>, ie. <tt>Sc(2,1)</tt> for flow increased up to 1.</p>
 
     <div class="buttons">
+        <input type="file" id="file" style="display: none;" onchange="open_edit()">
+
         <button onclick="view_edit();">View</button>
+        <button onclick="document.getElementById('file').click();">Open</button>
         <button onclick="save_edit();">Save</button>
         <button onclick="clear_edit();">Clear</button>
     </div>

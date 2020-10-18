@@ -1,10 +1,10 @@
-const verticesGrid = $("#verticesGrid");
-const groupsGrid = $("#groupsGrid");
-const levelsGrid = $("#levelsGrid");
-const edgesGrid = $("#edgesGrid");
+const vertices_grid = $("#verticesGrid");
+const groups_grid = $("#groupsGrid");
+const levels_grid = $("#levelsGrid");
+const edges_grid = $("#edgesGrid");
 
-function updateGrid(grid, item) {
-    const groups = groupsGrid.jsGrid("option", "data");
+function update_grid(_grid, _item) {
+    const groups = groups_grid.jsGrid("option", "data");
 
     let new_levels = [];
     for (const group of groups) {
@@ -19,7 +19,7 @@ function updateGrid(grid, item) {
             });
     }
 
-    const levels = levelsGrid.jsGrid("option", "data");
+    const levels = levels_grid.jsGrid("option", "data");
     // TODO: Do it more efficiently
     for (const level of levels) {
         for (const i in new_levels)
@@ -29,20 +29,22 @@ function updateGrid(grid, item) {
     console.log(new_levels);
     console.log(levels);
 
-    levelsGrid.jsGrid("option", "data", new_levels);
+    levels_grid.jsGrid("option", "data", new_levels);
 }
 
-function setVertexId(grid, item) {
-    const vertices = verticesGrid.jsGrid("option", "data");
+function update_vertices(_grid, _item) {
+    const vertices = vertices_grid.jsGrid("option", "data");
     for (const i in vertices)
         vertices[i].id = i;
-    verticesGrid.jsGrid("option", "data", vertices);
+    vertices_grid.jsGrid("option", "data", vertices);
 
     // Fill the vertex select with the changed vertices
-    const vertex_fields = edgesGrid.jsGrid("option", "fields");
-    vertex_fields[0].items = vertices.map((v) => v.name);
-    vertex_fields[1].items = vertices.map((v) => v.name);
-    edgesGrid.jsGrid("option", "fields", vertex_fields);
+    const vertex_fields = edges_grid.jsGrid("option", "fields");
+    const vertex_names = vertices.map((v) => v.name)
+
+    vertex_fields[0].items = vertex_names;
+    vertex_fields[1].items = vertex_names;
+    edges_grid.jsGrid("option", "fields", vertex_fields);
 }
 
 (function(jsGrid, $) {
@@ -79,17 +81,17 @@ function setVertexId(grid, item) {
 }(jsGrid, jQuery));
 
 function clear_edit() {
-    verticesGrid.jsGrid("option", "data", []);
-    levelsGrid.jsGrid("option", "data", []);
-    edgesGrid.jsGrid("option", "data", []);
-    groupsGrid.jsGrid("option", "data", []);
+    vertices_grid.jsGrid("option", "data", []);
+    levels_grid.jsGrid("option", "data", []);
+    edges_grid.jsGrid("option", "data", []);
+    groups_grid.jsGrid("option", "data", []);
 }
 
 function model_to_json() {
-    const groupsData = groupsGrid.jsGrid("option", "data");
-    const levelsData = levelsGrid.jsGrid("option", "data");
-    const verticesData = verticesGrid.jsGrid("option", "data");
-    const edgesData = edgesGrid.jsGrid("option", "data");
+    const groupsData = groups_grid.jsGrid("option", "data");
+    const levelsData = levels_grid.jsGrid("option", "data");
+    const verticesData = vertices_grid.jsGrid("option", "data");
+    const edgesData = edges_grid.jsGrid("option", "data");
 
     let controls = {};
     // TODO: Again, efficiency…
@@ -159,8 +161,7 @@ function model_to_json() {
         'edges': edges_obj
     };
 
-    const json = JSON.stringify(obj, null, 2);
-    return json;
+    return JSON.stringify(obj, null, 2);
 }
 
 function save_edit() {
@@ -196,7 +197,7 @@ function view_edit() {
 }
 
 function main() {
-    verticesGrid.jsGrid({
+    vertices_grid.jsGrid({
         width: "100%",
         height: "400px",
 
@@ -207,8 +208,8 @@ function main() {
 
         data: vertices,
 
-        onItemInserted: setVertexId,
-        onItemDeleted: setVertexId,
+        onItemInserted: update_vertices,
+        onItemDeleted: update_vertices,
 
         fields: [
             {name: "id", title: "ID", type: "text", width: 50, readOnly: true},
@@ -218,7 +219,7 @@ function main() {
     });
 
 
-    groupsGrid.jsGrid({
+    groups_grid.jsGrid({
         width: "100%",
         height: "400px",
 
@@ -229,8 +230,8 @@ function main() {
 
         data: groups,
 
-        onItemInserted: updateGrid,
-        onItemUpdated: updateGrid,
+        onItemInserted: update_grid,
+        onItemUpdated: update_grid,
 
         fields: [
             {name: "id", title: "ID", type: "text", width: 50, validate: "required"},
@@ -241,7 +242,7 @@ function main() {
     });
 
 
-    levelsGrid.jsGrid({
+    levels_grid.jsGrid({
         width: "100%",
         height: "400px",
 
@@ -264,7 +265,7 @@ function main() {
     });
 
 
-    edgesGrid.jsGrid({
+    edges_grid.jsGrid({
         width: "100%",
         height: "400px",
 
@@ -276,8 +277,8 @@ function main() {
         data: edges,
 
         fields: [
-            {name: "source", title: "Source", type: "select", width: 50, validate: "required"},
-            {name: "target", title: "Target", type: "select", width: 50, validate: "required"},
+            {name: "source", title: "Source", type: "select", width: 80, validate: "required"},
+            {name: "target", title: "Target", type: "select", width: 80, validate: "required"},
             {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: "required"},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
             {name: "controls", title: "Valid controls", type: "text", width: 100},
@@ -286,7 +287,7 @@ function main() {
     });
 
 
-    setVertexId();
+    update_vertices();
 }
 
 main();
