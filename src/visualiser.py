@@ -216,11 +216,11 @@ def main(document):
                 else:
                     if start_x > start_y:
                         if z % 2:
-                            start_y -= GLYPH_HEIGHT / 2
-                            end_y -= GLYPH_HEIGHT / 2
-                        else:
                             start_y += GLYPH_HEIGHT / 2
                             end_y += GLYPH_HEIGHT / 2
+                        else:
+                            start_y -= GLYPH_HEIGHT / 2
+                            end_y -= GLYPH_HEIGHT / 2
                     else:
                         if z % 2:
                             start_y += GLYPH_HEIGHT / 2

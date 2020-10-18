@@ -7,7 +7,7 @@ from collections import defaultdict
 from io import IOBase
 from itertools import chain
 from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, \
-    List
+    List, Type
 
 import networkx
 
@@ -237,10 +237,11 @@ class Model(metaclass=abc.ABCMeta):
 
         return result, depth
 
-    def __init__(self):
+    def __init__(self, process=True):
         self.graph: networkx.MultiDiGraph = self.to_networkx()
-        self.levels, self.depth = self.bfs(0)
-        self.reflow([])
+        if process:
+            self.levels, self.depth = self.bfs(0)
+            self.reflow([])
 
     @classmethod
     def save(cls) -> str:
@@ -288,7 +289,12 @@ class JSONModel(Model, ABC):
         pass
 
     @classmethod
-    def create(cls, file) -> "JSONModel":
+    def create(cls, file) -> "Type[JSONModel]":
+        """
+        Create a model.
+        :param file: File object or a string.
+        :return: A new subclass of Model.
+        """
         if isinstance(file, IOBase):
             d = json.load(file)
         else:

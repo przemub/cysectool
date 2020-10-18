@@ -1,0 +1,200 @@
+{
+  "name": "ClearSCADA",
+  "controls": {
+    "d": {
+      "name": "dummy",
+      "level_name": [
+        "d 1"
+      ],
+      "cost": [
+        1
+      ],
+      "ind_cost": [
+        1
+      ],
+      "flow": [
+        1
+      ]
+    }
+  },
+  "vertices": [
+    "Internet",
+    "Thin client",
+    "ViewX",
+    "Operational AD",
+    "Thick client",
+    "Malicious file in OT",
+    "Mobile",
+    "WebX",
+    "Malicious USB",
+    "Vendor",
+    "Config changed"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Phishing client",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 6,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Phishing mobile",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 6,
+      "target": 7,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Hijack WebX",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 7,
+      "target": 10,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Malicious config from WebX",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 3,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Privilege escalation",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Enable ViewX access",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 3,
+      "target": 7,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Enable admin access",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 4,
+      "target": 10,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Change config",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 5,
+      "target": 10,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Change config",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Identify a thick client",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 1,
+      "target": 5,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Upload a malicious file",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 8,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Knowledge of the system",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 8,
+      "target": 5,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Social engineering",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 0,
+      "target": 9,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "3rd-party vulnerability",
+        "controls": {
+          "d": {}
+        }
+      }
+    },
+    {
+      "source": 9,
+      "target": 5,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Malicious release",
+        "controls": {
+          "d": {}
+        }
+      }
+    }
+  ]
+}

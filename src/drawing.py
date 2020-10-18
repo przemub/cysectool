@@ -68,24 +68,34 @@ def tree_layout(
         if parsed is None:
             parsed = []
         if local_root not in parsed:
+            if pos is not None:
+                # Keep minimum distance between vertices on the same level.
+                level_max = max(
+                    [-1000] + [
+                        pos[x][0] for x in range(len(graph_data))
+                        if depth[x] == depth[local_root] and x in pos
+                    ])
+                local_x_center = max(level_max + 1.1*GLYPH_WIDTH, local_x_center)
+
             parsed.append(local_root)
             if pos is None:
                 pos = {local_root: (local_x_center, local_vert_loc)}
             else:
                 pos[local_root] = (local_x_center, local_vert_loc)
 
-            neighbors = graph_data.neighbors(local_root)
-            neighbors = list(
-                filter(lambda x: depth[x] == level + 1, neighbors)
+            successors = graph_data.successors(local_root)
+            successors = list(
+                filter(lambda x: depth[x] == level + 1, successors)
             )
             root_local_width = max(
-                local_width, (len(neighbors) + 1) * GLYPH_WIDTH
+                local_width, (len(successors) + 1) * GLYPH_WIDTH
             )
 
-            if len(neighbors) != 0:
-                dx = root_local_width / len(neighbors)
+
+            if len(successors) != 0:
+                dx = root_local_width / len(successors)
                 next_x = local_x_center - root_local_width / 2 - dx / 2
-                for neighbor in neighbors:
+                for neighbor in successors:
                     next_x += dx
                     pos = h_recur(
                         neighbor,
