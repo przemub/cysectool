@@ -10,6 +10,8 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
 
+    <link href="/my_static/css/edit.css" rel="stylesheet">
+
     <!--suppress JSUnusedLocalSymbols -->
     <script type="text/javascript">
         let vertices, groups, levels, edges;
@@ -41,8 +43,13 @@
     <p>Controls specification: semicolon-separated list of restricting controls. Adjusted flow can be given using syntax
         <tt>Control(flow,max_flow)</tt>, ie. <tt>Sc(2,1)</tt> for flow increased up to 1.</p>
 
-    <button onclick="save_edit();">Save</button>
-    <button onclick="clear_edit();">Clear</button>
+    <div class="buttons">
+        <button onclick="view_edit();">View</button>
+        <button onclick="save_edit();">Save</button>
+        <button onclick="clear_edit();">Clear</button>
+    </div>
+
+    <div style="height: 4em"></div>
 
     <script type="text/javascript" src="/my_static/js/edit.js"></script>
 </body>

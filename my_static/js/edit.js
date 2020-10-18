@@ -37,6 +37,12 @@ function setVertexId(grid, item) {
     for (const i in vertices)
         vertices[i].id = i;
     verticesGrid.jsGrid("option", "data", vertices);
+
+    // Fill the vertex select with the changed vertices
+    const vertex_fields = edgesGrid.jsGrid("option", "fields");
+    vertex_fields[0].items = vertices.map((v) => v.name);
+    vertex_fields[1].items = vertices.map((v) => v.name);
+    edgesGrid.jsGrid("option", "fields", vertex_fields);
 }
 
 (function(jsGrid, $) {
@@ -79,7 +85,7 @@ function clear_edit() {
     groupsGrid.jsGrid("option", "data", []);
 }
 
-function save_edit() {
+function model_to_json() {
     const groupsData = groupsGrid.jsGrid("option", "data");
     const levelsData = levelsGrid.jsGrid("option", "data");
     const verticesData = verticesGrid.jsGrid("option", "data");
@@ -88,7 +94,13 @@ function save_edit() {
     let controls = {};
     // TODO: Again, efficiency…
     for (const group of groupsData) {
-        let group_obj = {'name': group.name, 'level_name': [], 'cost': [], 'ind_cost': [], 'flow': []};
+        let group_obj = {
+            'name': group.name,
+            'level_name': [],
+            'cost': [],
+            'ind_cost': [],
+            'flow': []
+        };
         for (const level of levelsData) {
             if (level.gid === group.id) {
                 group_obj.level_name.push(level.name);
@@ -115,9 +127,12 @@ function save_edit() {
                 continue;
 
             const match = re.exec(control),
-                  match_custom = re_custom.exec(control);
+                match_custom = re_custom.exec(control);
             if (match !== null)
-                obj[match[1]] = {'flow': parseFloat([2]), 'max_flow': parseFloat(match[3])};
+                obj[match[1]] = {
+                    'flow': parseFloat([2]),
+                    'max_flow': parseFloat(match[3])
+                };
             else if (match_custom !== null)
                 obj[match_custom[1]] = {'custom': match_custom[2].split(',').map(parseFloat)};
             else
@@ -128,12 +143,14 @@ function save_edit() {
 
     let edges_obj = [];
     for (const edge of edgesData)
-        edges_obj.push({'source': edge.source, 'target': edge.target,
-			'default_flow': edge.default_flow,
+        edges_obj.push({
+            'source': edge.source, 'target': edge.target,
+            'default_flow': edge.default_flow,
             'vulnerability': {
                 'name': edge.name,
                 'controls': controlsReprToObj(edge.controls)
-            }});
+            }
+        });
 
     let obj = {
         'name': "edit",
@@ -143,6 +160,11 @@ function save_edit() {
     };
 
     const json = JSON.stringify(obj, null, 2);
+    return json;
+}
+
+function save_edit() {
+    const json = model_to_json();
 
     let blob = new Blob([json]);
     let link = document.createElement('a');
@@ -152,6 +174,25 @@ function save_edit() {
     link.click();
     window.URL.revokeObjectURL(link.href);
     link.remove();
+}
+
+function view_edit() {
+    const json = model_to_json();
+
+    let http = new XMLHttpRequest();
+    http.open('POST', "/api", true);
+    http.setRequestHeader('Content-Type', 'application/json');
+
+    http.onload = function () {
+        try {
+            let response = JSON.parse(this.responseText);
+            window.open("/visualiser?id=" + response['uid'], "_blank");
+        } catch (e) {
+            alert(this.responseText);
+        }
+    };
+
+    http.send(JSON.stringify({'cmd': 'load', 'file': json}))
 }
 
 function main() {
@@ -235,8 +276,8 @@ function main() {
         data: edges,
 
         fields: [
-            {name: "source", title: "Source", type: "number", width: 50, validate: "required"},
-            {name: "target", title: "Target", type: "number", width: 50, validate: "required"},
+            {name: "source", title: "Source", type: "select", width: 50, validate: "required"},
+            {name: "target", title: "Target", type: "select", width: 50, validate: "required"},
             {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: "required"},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
             {name: "controls", title: "Valid controls", type: "text", width: 100},
