@@ -13,6 +13,33 @@ async function arrow() {
 }
 
 
+/**
+ * Make sure that the server has not been restarted (and the view invalidated)
+ * in the meantime.
+ */
+async function check_connection() {
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", "/ping", true);
+
+    function failed() {
+        alert("Lost connection with the server. Press OK to refresh.");
+        window.location.href = "/";
+    }
+
+    xhr.onload = async function () {
+        if (this.responseText === "PONG") {
+            await new Promise(r => setTimeout(r, 1000));
+            await check_connection();
+        }
+        else
+            failed();
+    }
+    xhr.onerror = failed;
+
+    xhr.send();
+}
+
+
 function main() {
     // Resizing plot
     let plotWrapper = $("div#plot-my-wrapper");
@@ -26,8 +53,8 @@ function main() {
             Bokeh.index["attack-figure"].resize_layout(); // Bokeh >= 1.1
     }, false);
 
-    // Disable for now
     arrow().then();
+    check_connection().then();
 }
 
 window.onload = main;

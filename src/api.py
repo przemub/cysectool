@@ -92,3 +92,8 @@ class ApiHandler(tornado.web.RequestHandler):
                 'attachment; filename="%s.json"' % model.name,
             )
             self.finish(model.save())
+
+
+class PingHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.finish("PONG")

@@ -13,6 +13,7 @@ def run_server():
         extra_patterns=[
             ("/api", api.ApiHandler),
             ("/edit", edit.EditHandler),
+            ("/ping", api.PingHandler),
             (r"/my_static/(.*)", tornado.web.StaticFileHandler, {"path": "my_static/"}),
         ],
         allow_websocket_origin=[
