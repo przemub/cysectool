@@ -1,19 +1,147 @@
 {
   "name": "ClearSCADA",
   "controls": {
-    "d": {
-      "name": "dummy",
+    "Au": {
+      "name": "Application security",
       "level_name": [
-        "d 1"
+        "OWASP ZAP (TP: 20%, FP: 0%, Y: 20%)",
+        "SonarQube (TP: 50%, FP: 17%, Y: 33%)",
+        "FBwFindSecBugs 1.4.4 (TP: 79%, FP: 45%, Y: 34%)",
+        "FBwFindSecBugs 1.4.6 (TP: 97%, FP: 58%, Y: 39%)",
+        "Individual pen-testing (scanners included)",
+        "Team pen-testing",
+        "Premium team pen-testing"
       ],
       "cost": [
-        1
+        200,
+        670,
+        1230,
+        1550,
+        1980,
+        3990,
+        7000
       ],
       "ind_cost": [
+        10,
+        10,
+        10,
+        10,
+        30,
+        30,
+        30
+      ],
+      "flow": [
+        1,
+        1,
+        1,
+        1,
+        0.5,
+        0.2,
+        0.1
+      ]
+    },
+    "Sc": {
+      "name": "Network security",
+      "level_name": [
+        "Patchlink Scan (TP: 45%, FP: 6%, Y: 39%)",
+        "McAfee VM (TP: 53%, FP: 3%, Y: 50%)",
+        "AVDS (TP: 70%, FP: 0%, Y: 70%)",
+        "QualysGuard (TP: 87%, FP: 10%, Y: 77%)",
+        "External individual pen-testing (including scanners)",
+        "External team pen-testing",
+        "External premium test pen-testing"
+      ],
+      "cost": [
+        510,
+        560,
+        700,
+        1893,
+        2430,
+        4465,
+        7325
+      ],
+      "ind_cost": [
+        10,
+        10,
+        10,
+        10,
+        30,
+        30,
+        30
+      ],
+      "flow": [
+        0.55,
+        0.47,
+        0.3,
+        0.13,
+        0.07,
+        0.035,
+        0.0175
+      ]
+    },
+    "Pw": {
+      "name": "Access policy",
+      "level_name": [
+        "Strong password policy",
+        "Two-factor authorisation"
+      ],
+      "cost": [
+        50,
+        500
+      ],
+      "ind_cost": [
+        10,
+        100
+      ],
+      "flow": [
+        0.45,
+        0.05
+      ]
+    },
+    "Ed": {
+      "name": "Security policy compliance",
+      "level_name": [
+        "Online courses",
+        "Violation monitoring",
+        "Simulated social engineering attacks"
+      ],
+      "cost": [
+        50,
+        500,
+        3900
+      ],
+      "ind_cost": [
+        10,
+        25,
+        50
+      ],
+      "flow": [
+        0.777,
+        0.517,
+        0.122
+      ]
+    },
+    "3rd": {
+      "name": "3rd party security",
+      "level_name": [
+        "Basic code review",
+        "Certified audited software",
+        "Most of the software in-house"
+      ],
+      "cost": [
+        5,
+        10,
+        100
+      ],
+      "ind_cost": [
+        1,
+        1,
         1
       ],
       "flow": [
-        1
+        0.7,
+        0.5,
+        0.1
       ]
     }
   },
@@ -38,7 +166,8 @@
       "vulnerability": {
         "name": "Phishing client",
         "controls": {
-          "d": {}
+          "Pw": {},
+          "Ed": {}
         }
       }
     },
@@ -49,7 +178,8 @@
       "vulnerability": {
         "name": "Phishing mobile",
         "controls": {
-          "d": {}
+          "Pw": {},
+          "Ed": {}
         }
       }
     },
@@ -60,7 +190,8 @@
       "vulnerability": {
         "name": "Hijack WebX",
         "controls": {
-          "d": {}
+          "Au": {},
+          "Pw": {}
         }
       }
     },
@@ -71,7 +202,7 @@
       "vulnerability": {
         "name": "Malicious config from WebX",
         "controls": {
-          "d": {}
+          "Au": {}
         }
       }
     },
@@ -82,7 +213,7 @@
       "vulnerability": {
         "name": "Privilege escalation",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -93,7 +224,7 @@
       "vulnerability": {
         "name": "Enable ViewX access",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -104,7 +235,7 @@
       "vulnerability": {
         "name": "Enable admin access",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -115,7 +246,7 @@
       "vulnerability": {
         "name": "Change config",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -126,7 +257,7 @@
       "vulnerability": {
         "name": "Change config",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -137,7 +268,7 @@
       "vulnerability": {
         "name": "Identify a thick client",
         "controls": {
-          "d": {}
+          "Sc": {}
         }
       }
     },
@@ -148,7 +279,7 @@
       "vulnerability": {
         "name": "Upload a malicious file",
         "controls": {
-          "d": {}
+          "Au": {}
         }
       }
     },
@@ -159,7 +290,11 @@
       "vulnerability": {
         "name": "Knowledge of the system",
         "controls": {
-          "d": {}
+          "3rd": {
+            "flow": 2,
+            "max_flow": 1
+          },
+          "Au": {}
         }
       }
     },
@@ -170,7 +305,7 @@
       "vulnerability": {
         "name": "Social engineering",
         "controls": {
-          "d": {}
+          "Ed": {}
         }
       }
     },
@@ -181,7 +316,7 @@
       "vulnerability": {
         "name": "3rd-party vulnerability",
         "controls": {
-          "d": {}
+          "3rd": {}
         }
       }
     },
@@ -192,7 +327,8 @@
       "vulnerability": {
         "name": "Malicious release",
         "controls": {
-          "d": {}
+          "3rd": {},
+          "Au": {}
         }
       }
     }
