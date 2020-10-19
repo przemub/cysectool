@@ -10,7 +10,7 @@ State before the meeting with Pasquale before the meeting with NCSC.
 * Tests run automatically on GitHub after each commit. macOS tests can be trigerred manually.
 * Updated to Bokeh 2.0 series and PuLP 2.3 series. Minor dependencies updated to the latest versions.
 
-### v1.0 - 16th of November, 2020
+### v1.0 - 16th of November, 2019
 
 State of the project as after finishing my employment at QMUL.
 All basic stuff envisioned in the project was added - model editor,
