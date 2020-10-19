@@ -2,6 +2,7 @@ import abc
 import heapq
 import json
 import math
+import uuid
 from abc import ABC
 from collections import defaultdict
 from io import IOBase
@@ -384,7 +385,8 @@ class JSONModel(Model, ABC):
                      (edge.target for edge in edges))) >= len(d['vertices']):
             raise cls.JSONError("An edge exists from/to a non-existent vertex.")
 
-        result = type(d['name'], (JSONModel,), obj)
-        globals()[d['name']] = result  # So it's available for multiprocessing
+        class_name = str(uuid.uuid4())
+        result = type(class_name, (JSONModel,), obj)
+        globals()[class_name] = result  # So it's available for multiprocessing
 
         return result
