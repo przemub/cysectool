@@ -6,7 +6,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 15  # Allow extra time for macOS
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v1
