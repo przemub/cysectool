@@ -3,6 +3,7 @@ colorcet==2.0.2
 decorator==4.4.2
 Jinja2==2.11.2
 MarkupSafe==1.1.1
+multiprocess==0.70.10
 networkx==2.5
 numpy==1.19.2
 packaging==20.4

@@ -1,8 +1,10 @@
 import copy
 import math
+import time
 from numbers import Real, Integral
 from typing import Sequence, Mapping, Callable
 
+from multiprocess.pool import Pool
 from pulp import LpProblem, LpVariable, LpMinimize, LpInteger, lpSum
 
 from src.data import Model, Control, Edge, Vulnerability
@@ -200,11 +202,12 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
     """
     Return pareto frontier with constant budget for one of the parameters.
     """
+    start_time = time.time()
+
     max_level_controls = [
         group[-1] for group in model.control_subcategories.values()
     ]
 
-    current_ind_budget = 0
     if budget is not None:
         total_ind_cost = sum(
             control.ind_cost for control in max_level_controls
@@ -215,54 +218,69 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
         raise TypeError("Missing required budget or ind_budget")
 
     step = max((1, math.ceil(total_ind_cost / 1000)))
+    tasks_to_run = math.ceil(total_ind_cost / step) + 1
 
     px, py, pz, solution = [], [], [], []
     current_solution = (1, 0, [])
 
-    while current_ind_budget <= total_ind_cost:
-        update_progress(current_ind_budget, total_ind_cost + 1)
+    with Pool() as pool:
+        # Chunksize heuristic stolen from cpython/pool.py
+        chunksize, extra = divmod(tasks_to_run, pool._processes * 4)
+        if extra:
+            chunksize += 1
+
         if budget is not None:
-            sol = model_solve(model, budget, current_ind_budget)
-
-            if sol[0] != 1:
-                print("SOLUTION INFEASIBLE")
-
-            if (
-                (
-                    sol[1] < current_solution[0]
-                    and sol[4] >= current_solution[1]
-                )
-                or (
-                    sol[1] <= current_solution[0]
-                    and sol[4] > current_solution[1]
-                )
-            ) and sol[2] != current_solution[2]:
-                solution.append(sol)
-                current_solution = (sol[1], sol[4], sol[2])
-                px.append(sol[1])
-                py.append(sol[4])
-                pz.append(sol[3])
+            mapping = pool.imap_unordered(
+                lambda indirect: (indirect, model_solve(model, budget, indirect)),
+                range(0, total_ind_cost+1, step),
+                chunksize=chunksize
+            )
         else:
-            sol = model_solve(model, current_ind_budget, ind_budget)
+            mapping = pool.imap_unordered(
+                lambda cur_budget: (cur_budget, model_solve(model, cur_budget, ind_budget)),
+                range(0, total_ind_cost+1, step),
+                chunksize=chunksize
+            )
 
-            if sol[0] != 1:
-                print("SOLUTION INFEASIBLE")
+        all_solutions = []
+        for i, result in enumerate(mapping):
+            update_progress(
+                i,
+                tasks_to_run
+            )
+            all_solutions += [result]
 
-            if (
-                (
-                    sol[1] < current_solution[0]
-                    and sol[3] >= current_solution[1]
-                )
-                or (
-                    sol[1] <= current_solution[0]
-                    and sol[3] > current_solution[1]
-                )
-            ) and sol[2] != current_solution[2]:  # See the alternative flow
-                solution.append(sol)
-                current_solution = (sol[1], sol[3], sol[2])
-                px.append(sol[1])
-                py.append(sol[3])
-                pz.append(sol[4])
+        all_solutions.sort()
+        all_solutions = [solution[1] for solution in all_solutions]
 
-        current_ind_budget = current_ind_budget + step
-    return px, py, pz, solution
+        print(len(all_solutions))
+        print(time.time() - start_time)
+
+    if budget is not None:
+        dependent, independent = 4, 3
+    else:
+        independent, dependent = 4, 3
+
+    for sol in all_solutions:
+        if sol[0] != 1:
+            print("SOLUTION INFEASIBLE")
+
+        if (
+            (
+                sol[1] < current_solution[0]
+                and sol[dependent] >= current_solution[1]
+            )
+            or (
+                sol[1] <= current_solution[0]
+                and sol[dependent] > current_solution[1]
+            )
+        ) and sol[2] != current_solution[2]:
+            solution.append(sol)
+            current_solution = (sol[1], sol[dependent], sol[2])
+            px.append(sol[1])
+            py.append(sol[dependent])
+            pz.append(sol[independent])
+
+    count_time = time.time() - start_time
+
+    return px, py, pz, solution, count_time

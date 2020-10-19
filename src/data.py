@@ -44,6 +44,15 @@ class Control(NamedTuple):
         return not self.__eq__(other)
 
 
+class Adjustment(NamedTuple):
+    flow: float
+    max_flow: float
+    custom: List[float]
+
+    def get_custom(self, i):
+        return self.custom[min((i, len(self.custom))) - 1]
+
+
 class Vulnerability(NamedTuple):
     """
     Represents a vulnerability resulting in changing state.
@@ -54,15 +63,6 @@ class Vulnerability(NamedTuple):
     """
     name: str
     controls: Set[Control]
-
-    class Adjustment(NamedTuple):
-        flow: float
-        max_flow: float
-        custom: List[float]
-
-        def get_custom(self, i):
-            return self.custom[min((i, len(self.custom)))-1]
-
     adjustment: MutableMapping[str, Adjustment]
 
     def controls_repr(self):
@@ -72,15 +72,13 @@ class Vulnerability(NamedTuple):
                 result = "(%s,%s)" % (self.adjustment[control.id].flow,
                                       self.adjustment[control.id].max_flow)
                 if self.adjustment[control.id].custom:
-                    result = "[%s]" % ",".join(str(i) for i in self.adjustment[control.id].custom)
+                    result = "[%s]" % ",".join(
+                        str(i) for i in self.adjustment[control.id].custom)
             else:
                 result = ""
 
             controls[control.id] = result
         return ";".join(key + value for key, value in controls.items())
-
-
-Adjustment = Vulnerability.Adjustment
 
 
 class Edge(NamedTuple):
@@ -98,7 +96,8 @@ class Edge(NamedTuple):
     vulnerability: Vulnerability = None
 
     def __hash__(self):
-        val = hash(pow(self.source + 1, 1.3) * pow(self.target + 1, 1.8) * pow(self.multiplicity + 1, 2.57))
+        val = hash(pow(self.source + 1, 1.3) * pow(self.target + 1, 1.8) * pow(
+            self.multiplicity + 1, 2.57))
         return val
 
     def __eq__(self, other):
@@ -151,7 +150,9 @@ class Model(metaclass=abc.ABCMeta):
            This way we don't clutter the graph with always-full-flow edges."""
 
         result = [*self.targets,
-                  *set(chain.from_iterable(self.targets_inclusion.get(target, ()) for target in self.targets))]
+                  *set(chain.from_iterable(
+                      self.targets_inclusion.get(target, ()) for target in
+                      self.targets))]
         return result
 
     def reflow(self, controls: Sequence[Control]):
@@ -188,7 +189,8 @@ class Model(metaclass=abc.ABCMeta):
             vertex_flow[vertex] = -flow
 
             for other in self.graph.out_edges(vertex, data="multiplicity"):
-                heapq.heappush(heap, (other[1], flow*self.edge_flow[Edge(*other)]))
+                heapq.heappush(heap,
+                               (other[1], flow * self.edge_flow[Edge(*other)]))
 
         self.vertex_flow = vertex_flow
 
@@ -205,10 +207,12 @@ class Model(metaclass=abc.ABCMeta):
         g = networkx.MultiDiGraph()
 
         for edge in self.edges:
-            possible_controls = ", ".join(set(control.id for control in edge.vulnerability.controls))
+            possible_controls = ", ".join(
+                set(control.id for control in edge.vulnerability.controls))
 
             g.add_edge(edge.source, edge.target,
-                       multiplicity=edge.multiplicity, vuln_name=edge.vulnerability.name,
+                       multiplicity=edge.multiplicity,
+                       vuln_name=edge.vulnerability.name,
                        possible_controls=possible_controls)
 
         return g
@@ -249,17 +253,22 @@ class Model(metaclass=abc.ABCMeta):
             if control.id not in edge.vulnerability.adjustment:
                 return {}
             return {'flow': edge.vulnerability.adjustment[control.id].flow,
-                    'max_flow': edge.vulnerability.adjustment[control.id].max_flow}
+                    'max_flow': edge.vulnerability.adjustment[
+                        control.id].max_flow}
 
         obj = {
             'name': cls.name,
             'controls': {
                 category: {
                     'name': spec[0],
-                    'level_name': [control.level_name for control in cls.control_subcategories[category]],
-                    'cost': [control.cost for control in cls.control_subcategories[category]],
-                    'ind_cost': [control.ind_cost for control in cls.control_subcategories[category]],
-                    'flow': [control.flow for control in cls.control_subcategories[category]]
+                    'level_name': [control.level_name for control in
+                                   cls.control_subcategories[category]],
+                    'cost': [control.cost for control in
+                             cls.control_subcategories[category]],
+                    'ind_cost': [control.ind_cost for control in
+                                 cls.control_subcategories[category]],
+                    'flow': [control.flow for control in
+                             cls.control_subcategories[category]]
                 }
                 for category, spec in cls.control_categories.items()
             },
@@ -301,19 +310,21 @@ class JSONModel(Model, ABC):
             d = json.loads(file)
 
         try:
-            control_categories = {control[0]: (control[1]['name'], len(control[1]['level_name']),
-                                               control[1].get('no_control_name', 'None'))
-                                  for control in d.get('controls', {}).items()}
+            control_categories = {
+                control[0]: (control[1]['name'], len(control[1]['level_name']),
+                             control[1].get('no_control_name', 'None'))
+                for control in d.get('controls', {}).items()}
             control_subcategories = {}
             for category_id, category in control_categories.items():
                 control_subcategories[category_id] = []
                 for level in range(category[1]):
                     control = d.get('controls', {})[category_id]
-                    control_subcategories[category_id].append(Control(category_id, level + 1,
-                                                                      control['level_name'][level],
-                                                                      control['cost'][level],
-                                                                      control['ind_cost'][level],
-                                                                      control['flow'][level]))
+                    control_subcategories[category_id].append(
+                        Control(category_id, level + 1,
+                                control['level_name'][level],
+                                control['cost'][level],
+                                control['ind_cost'][level],
+                                control['flow'][level]))
         except KeyError as ke:
             raise cls.JSONError("Invalid specification of control.") from ke
 
@@ -321,43 +332,59 @@ class JSONModel(Model, ABC):
         multiplicity = defaultdict(lambda: 0)
         for edge in d.get('edges', []):
             try:
-                edge_obj = Edge(edge['source'], edge['target'], multiplicity[edge['source'], edge['target']],
-                                edge['default_flow'] if 'default_flow' in edge else 1,
-                                Vulnerability(edge['vulnerability']['name'], set(), {}))
+                edge_obj = Edge(edge['source'], edge['target'],
+                                multiplicity[edge['source'], edge['target']],
+                                edge[
+                                    'default_flow'] if 'default_flow' in edge else 1,
+                                Vulnerability(edge['vulnerability']['name'],
+                                              set(), {}))
                 multiplicity[edge['source'], edge['target']] += 1
-                for control_id, control_settings in edge['vulnerability']['controls'].items():
+                for control_id, control_settings in edge['vulnerability'][
+                    'controls'].items():
                     if 'flow' in control_settings:
-                        edge_obj.vulnerability.adjustment[control_id] = Adjustment(control_settings['flow'],
-                                                                                   control_settings.get('max_flow', 1),
-                                                                                   None)
+                        edge_obj.vulnerability.adjustment[
+                            control_id] = Adjustment(control_settings['flow'],
+                                                     control_settings.get(
+                                                         'max_flow', 1),
+                                                     None)
                     elif 'custom' in control_settings:
-                        edge_obj.vulnerability.adjustment[control_id] = Adjustment(float('nan'), float('nan'),
-                                                                                   control_settings['custom'])
+                        edge_obj.vulnerability.adjustment[
+                            control_id] = Adjustment(float('nan'), float('nan'),
+                                                     control_settings['custom'])
                     for level in range(control_categories[control_id][1]):
                         try:
                             control = control_subcategories[control_id][level]
                         except KeyError as ke:
-                            raise cls.JSONError("Control id: %s lvl: %s does not exist." % (control_id, level)) from ke
+                            raise cls.JSONError(
+                                "Control id: %s lvl: %s does not exist." % (
+                                control_id, level)) from ke
                         edge_obj.vulnerability.controls.add(control)
                 edges.append(edge_obj)
             except KeyError as ke:
-                raise cls.JSONError("Invalid specification of edge %s." % edge) from ke
+                raise cls.JSONError(
+                    "Invalid specification of edge %s." % edge) from ke
 
-        obj = {'name': d['name'],
-               'control_categories': control_categories,
-               'control_subcategories': control_subcategories,
-               'n': len(d['vertices']),
-               'vertices': d['vertices'],
-               'edges': edges,
-               'targets': d.get('default_target', [len(d['vertices'])-1]),
-               'targets_inclusion': {int(key): value for key, value in d.get('targets_inclusion', {}).items()}
-               }
-        #if __debug__:
-        #    print(obj)
+        obj = {
+            'name': d['name'],
+            'control_categories': control_categories,
+            'control_subcategories': control_subcategories,
+            'n': len(d['vertices']),
+            'vertices': d['vertices'],
+            'edges': edges,
+            'targets': d.get('default_target', [len(d['vertices']) - 1]),
+            'targets_inclusion': {int(key): value for key, value in
+                                  d.get('targets_inclusion', {}).items()},
+            '__module__': __name__
+        }
+        if __debug__:
+            print(obj)
 
         # Checking
-        if max(chain((edge.source for edge in edges), (edge.target for edge in edges))) >= len(d['vertices']):
+        if max(chain((edge.source for edge in edges),
+                     (edge.target for edge in edges))) >= len(d['vertices']):
             raise cls.JSONError("An edge exists from/to a non-existent vertex.")
 
         result = type(d['name'], (JSONModel,), obj)
+        globals()[d['name']] = result  # So it's available for multiprocessing
+
         return result

@@ -474,7 +474,10 @@ def main(document):
     optimise_iterative.on_click(partial(optimise_callback, True))
 
     optimisation_box = column(
-        [slider1, slider2, optimise, optimise_iterative]
+        [
+            slider1, slider2, optimise,
+            #optimise_iterative
+        ]
     )
 
     # Add load/save buttons
@@ -566,7 +569,7 @@ def main(document):
 
             document.add_next_tick_callback(_callback)
 
-        def _update(px, py, pz, portfolios):
+        def _update(px, py, pz, portfolios, count_time):
             new_pareto = figure(
                 x_axis_label="Indirect cost"
                 if constant_group.active == 0
@@ -598,17 +601,17 @@ def main(document):
             pareto_column.children[0] = new_pareto
 
             calculate_button.disabled = False
-            calculate_button.label = "Recalculate"
+            calculate_button.label = f"Recalculate (last calculation time: {count_time:.2f} s)"
 
         def _thread():
-            py, px, pz, portfolios = optimisation.pareto_frontier(
+            py, px, pz, portfolios, count_time = optimisation.pareto_frontier(
                 model,
                 slider1.value if constant_group.active == 0 else None,
                 slider2.value if constant_group.active == 1 else None,
                 _update_progress,
             )
             document.add_next_tick_callback(
-                partial(_update, px, py, pz, portfolios)
+                partial(_update, px, py, pz, portfolios, count_time)
             )
 
         thread = Thread(target=_thread)
