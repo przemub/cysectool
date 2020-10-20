@@ -575,6 +575,10 @@ def main(document):
                 if constant_group.active == 0
                 else "Cost",
                 y_axis_label="Security damage",
+                y_axis_type="linear"
+                if scale_group.active == 0
+                else
+                "log",
                 active_scroll=WheelZoomTool(),
             )
             source = ColumnDataSource(data={"x": px, "y": py, "z": pz})
@@ -631,11 +635,15 @@ def main(document):
     constant_group.on_click(constant_callback)
     constant_row = row([slider2, constant_group], id="constant-row")
 
+    scale_group = RadioButtonGroup(
+        labels=["Linear scale", "Logarithmic scale"], active=1
+    )
+
     pareto = figure(x_axis_label="Cost", y_axis_label="Security damage")
 
     calculate_button.on_click(calculate_frontier_callback)
     pareto_column = column(
-        [pareto, constant_row, calculate_button, pareto_current_controls]
+        [pareto, constant_row, scale_group, calculate_button, pareto_current_controls]
     )
 
     # Layout
