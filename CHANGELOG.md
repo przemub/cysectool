@@ -1,4 +1,4 @@
-### v1.1 - 19th of November, 2020
+### v1.1 - 19th of October, 2020
 State before the meeting with Pasquale before the meeting with NCSC.
 
 * New model, ClearSCADA, added. Edges and attacks based on the document supplied by NCSC while controls are mostly based on the last year's case study.
