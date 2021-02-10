@@ -1,4 +1,4 @@
-name: Deploy to cysectool.quiz.moe
+name: Continuous integration
 
 on:
   push:
@@ -28,6 +28,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: test
+    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Update server-side repository
