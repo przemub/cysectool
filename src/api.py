@@ -80,11 +80,11 @@ class ApiHandler(tornado.web.RequestHandler):
             else:
                 self.finish(json.dumps({"uid": str(uid)}))
         elif request["cmd"] == "save":
-            if "uid" in request:
+            if "id" in request:
                 mem = Memory.get_instance()
                 model = mem.documents[request["uid"]]
             else:
-                with open("doc/default.json", "r") as f:
+                with open("doc/templates/0_default.json", "r") as f:
                     model = JSONModel.create(f)()
             self.set_header("Content-Type", "application/json")
             self.set_header(

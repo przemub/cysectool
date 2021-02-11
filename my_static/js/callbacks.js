@@ -68,8 +68,9 @@ function get() {
 function save_model() {
     let dict = {'cmd': 'save'};
     let get_table = get();
-    if ('uid' in get_table)
-        dict['uid'] = get_table['uid'];
+    if ('id' in get_table)
+        dict['id'] = get_table['id'];
+    console.log(get_table, get_table['id'])
     let json = JSON.stringify(dict);
 
     let http = new XMLHttpRequest();
