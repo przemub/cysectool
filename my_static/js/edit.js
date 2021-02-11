@@ -165,35 +165,55 @@ function model_to_json() {
 }
 
 function save_edit() {
+    /**
+     * Uploads the model and, if it uploaded correctly, gives a JSON file
+     * to download it.
+     */
     const json = model_to_json();
 
-    let blob = new Blob([json]);
-    let link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "model.json";
-    document.body.appendChild(link);
-    link.click();
-    window.URL.revokeObjectURL(link.href);
-    link.remove();
+    upload_model(function () {
+        try {
+            JSON.parse(this.responseText);
+        } catch (e) {
+            alert(this.responseText);
+            return
+        }
+
+        const blob = new Blob([json]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = $("#graph_title").val() + ".json";
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+        link.remove();
+    });
 }
 
-function view_edit() {
+function upload_model(callback) {
     const json = model_to_json();
 
     let http = new XMLHttpRequest();
     http.open('POST', "/api", true);
     http.setRequestHeader('Content-Type', 'application/json');
+    http.onload = callback;
 
-    http.onload = function () {
+    http.send(JSON.stringify({'cmd': 'load', 'file': json}))
+}
+
+/** Uploads the model and opens it in the visualiser. */
+function view_edit() {
+    upload_model(function () {
         try {
             let response = JSON.parse(this.responseText);
             window.open("/visualiser?id=" + response['uid'], "_blank");
         } catch (e) {
             alert(this.responseText);
         }
-    };
+    });
+}
 
-    http.send(JSON.stringify({'cmd': 'load', 'file': json}))
+function validate_edit() {
 }
 
 function main() {
