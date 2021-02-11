@@ -241,6 +241,13 @@ function main() {
         ]
     });
 
+    const flowValidator = {
+        validator: "range",
+        message: function(value, item) {
+           return "The flow should be between 0 and 1."
+        },
+        param: [0, 1]
+    }
 
     levels_grid.jsGrid({
         width: "100%",
@@ -259,7 +266,7 @@ function main() {
             {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
             {name: "cost", title: "Cost", type: "number", width: 50, validate: "required"},
             {name: "ind_cost", title: "Indirect cost", type: "number", width: 50, validate: "required"},
-            {name: "flow", title: "Flow", type: "decimal", width: 50},
+            {name: "flow", title: "Flow", type: "decimal", width: 50, validate: flowValidator},
             {type: "control", deleteButton: false}
         ]
     });
@@ -279,7 +286,7 @@ function main() {
         fields: [
             {name: "source", title: "Source", type: "select", width: 80, validate: "required"},
             {name: "target", title: "Target", type: "select", width: 80, validate: "required"},
-            {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: "required"},
+            {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: flowValidator},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
             {name: "controls", title: "Valid controls", type: "text", width: 100},
             {type: "control"}
