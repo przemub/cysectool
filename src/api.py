@@ -71,7 +71,7 @@ class ApiHandler(tornado.web.RequestHandler):
             except MemoryError:
                 self.set_status(413)
                 self.finish("413: Payload too long.")
-            except JSONModel.JSONError as jsone:
+            except (JSONModel.JSONError, json.decoder.JSONDecodeError) as jsone:
                 self.set_status(400)
                 self.finish("400:\n%s" % jsone.args)
             except GraphError as ge:

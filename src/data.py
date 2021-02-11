@@ -381,9 +381,14 @@ class JSONModel(Model, ABC):
             print(obj)
 
         # Checking
-        if max(chain((edge.source for edge in edges),
-                     (edge.target for edge in edges))) >= len(d['vertices']):
-            raise cls.JSONError("An edge exists from/to a non-existent vertex.")
+        if (src := max(edge.source for edge in edges)) >= len(d['vertices']):
+            raise cls.JSONError(
+                f"An edge exists from a non-existent vertex {src}."
+            )
+        if (target := max(edge.source for edge in edges)) >= len(d['vertices']):
+            raise cls.JSONError(
+                f"An edge exists to a non-existent vertex {target}."
+            )
 
         class_name = str(uuid.uuid4())
         result = type(class_name, (JSONModel,), obj)
