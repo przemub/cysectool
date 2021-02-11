@@ -41,7 +41,7 @@ function load_model() {
         http.onload = function () {
             try {
                 let response = JSON.parse(this.responseText);
-                window.location.href = "/visualiser?id=" + response['uid'];
+                window.location.href = "/visualiser?id=" + response['id'];
             } catch (e) {
                 alert(this.responseText);
             }
@@ -96,14 +96,14 @@ function edit_model() {
     let url = "/edit";
     let get_table = get();
     if ('id' in get_table)
-        url += "?uid=" + get_table['id'];
+        url += "?id=" + get_table['id'];
 
     window.open(url, "_blank");
 }
 
 // noinspection JSUnusedGlobalSymbols
 function new_model() {
-    window.open("/edit?uid=empty", "_blank");
+    window.open("/edit?id=empty", "_blank");
 }
 
 // noinspection JSUnusedGlobalSymbols

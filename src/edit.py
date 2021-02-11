@@ -14,15 +14,16 @@ class EditHandler(tornado.web.RequestHandler):
     def get(self):
         template = env.get_template("edit.html")
 
-        uid = self.get_argument("uid", None)
+        _id = self.get_argument("id", None)
+        print(_id)
         memory = Memory.get_instance()
-        if uid == "empty":
+        if _id == "empty":
             result = template.render()
             self.finish(result)
             return
-        elif uid:
+        elif _id:
             try:
-                model = memory.documents[UUID(uid)]
+                model = memory.documents[UUID(_id)]
             except KeyError:
                 self.set_status(404)
                 self.finish("404: Model not found.")

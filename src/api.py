@@ -34,8 +34,8 @@ class Memory:
             if not file.endswith(".json"):
                 continue
             with open(os.path.join("doc/templates/", file), "r") as f:
-                uid = self.add_document(f.read())
-                self.templates.append(uid)
+                _id = self.add_document(f.read())
+                self.templates.append(_id)
 
     def add_document(self, text) -> uuid.UUID:
         while len(self.documents) > 100:
@@ -44,9 +44,9 @@ class Memory:
             raise MemoryError("Too large file.")
 
         model = JSONModel.create(text)
-        uid = uuid.uuid4()
-        self.documents[uid] = model()
-        return uid
+        _id = uuid.uuid4()
+        self.documents[_id] = model()
+        return _id
 
 
 # noinspection PyAbstractClass
@@ -67,7 +67,7 @@ class ApiHandler(tornado.web.RequestHandler):
             file = request["file"]
             mem = Memory.get_instance()
             try:
-                uid = mem.add_document(file)
+                _id = mem.add_document(file)
             except MemoryError:
                 self.set_status(413)
                 self.finish("413: Payload too long.")
@@ -78,11 +78,11 @@ class ApiHandler(tornado.web.RequestHandler):
                 self.set_status(422)
                 self.finish("422:\n%s" % ge.args)
             else:
-                self.finish(json.dumps({"uid": str(uid)}))
+                self.finish(json.dumps({"id": str(_id)}))
         elif request["cmd"] == "save":
             if "id" in request:
                 mem = Memory.get_instance()
-                model = mem.documents[request["uid"]]
+                model = mem.documents[request["id"]]
             else:
                 with open("doc/templates/0_default.json", "r") as f:
                     model = JSONModel.create(f)()

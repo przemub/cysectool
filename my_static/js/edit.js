@@ -171,7 +171,7 @@ function save_edit() {
      */
     const json = model_to_json();
 
-    upload_model(function () {
+    _upload_model(json, function () {
         try {
             JSON.parse(this.responseText);
         } catch (e) {
@@ -190,30 +190,49 @@ function save_edit() {
     });
 }
 
-function upload_model(callback) {
-    const json = model_to_json();
-
+function _upload_model(model, callback) {
     let http = new XMLHttpRequest();
     http.open('POST', "/api", true);
     http.setRequestHeader('Content-Type', 'application/json');
     http.onload = callback;
 
-    http.send(JSON.stringify({'cmd': 'load', 'file': json}))
+    http.send(JSON.stringify({'cmd': 'load', 'file': model}))
 }
 
 /** Uploads the model and opens it in the visualiser. */
 function view_edit() {
-    upload_model(function () {
+    const json = model_to_json();
+
+    _upload_model(json, function () {
         try {
             let response = JSON.parse(this.responseText);
-            window.open("/visualiser?id=" + response['uid'], "_blank");
+            window.open("/visualiser?id=" + response['id'], "_blank");
         } catch (e) {
             alert(this.responseText);
         }
     });
 }
 
-function validate_edit() {
+/** Uploads the given model and opens it in the editor. */
+function open_edit() {
+    const file_list = document.querySelector("input#file").files;
+    if (!file_list)
+        return;
+
+    const file = file_list[0];
+    const reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+
+    reader.onload = function() {
+        _upload_model(reader.result, function () {
+            try {
+                let response = JSON.parse(this.responseText);
+                window.open("/edit?id=" + response['id'], "_blank");
+            } catch (e) {
+                alert(this.responseText);
+            }
+        });
+    }
 }
 
 function main() {
