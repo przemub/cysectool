@@ -2,6 +2,7 @@ import abc
 import heapq
 import json
 import math
+import pprint
 import uuid
 from abc import ABC
 from collections import defaultdict
@@ -117,11 +118,14 @@ class Model(metaclass=abc.ABCMeta):
     Superclass documenting properties required to define a model.
 
     Attributes (controls):
-        control_categories: Mapping[str, Tuple[str, int] - specification of categories (mapping of category ids
-                                                           on category full name and number of levels
-                                                           and description of no control)
-        control_subcategories: Mapping[str, Sequence[Control] - mapping of control ids to a sequence of their levels
-        edges: Sequence[Edge] - all edges in the graph
+        control_categories: Mapping[str, Tuple[str, int]
+            specification of categories (mapping of category ids
+            on (category full name, number of levels,
+            description of no control))
+        control_subcategories: Mapping[str, Sequence[Control]
+            mapping of control ids to a sequence of their levels
+        edges: Sequence[Edge]
+            all edges in the graph
     """
 
     name: str
@@ -219,7 +223,7 @@ class Model(metaclass=abc.ABCMeta):
         return g
 
     def bfs(self, start: int) -> Tuple[Tuple[List[int], ...], List[int]]:
-        depth = [-1 for _ in range(max(self.graph.nodes) + 1)]
+        depth = [-1 for _ in range(self.n)]
 
         queue = [(start, 0)]
         while len(queue) > 0:
@@ -250,6 +254,10 @@ class Model(metaclass=abc.ABCMeta):
 
     @classmethod
     def save(cls) -> str:
+        """
+        Converts the model to a JSON representation.
+        :return: A JSON representation of the model.
+        """
         def control_settings(edge, control):
             if control.id not in edge.vulnerability.adjustment:
                 return {}
@@ -378,7 +386,7 @@ class JSONModel(Model, ABC):
             '__module__': __name__
         }
         if __debug__:
-            print(obj)
+            pprint.pprint(obj)
 
         # Checking
         if (src := max(edge.source for edge in edges)) >= len(d['vertices']):
