@@ -77,6 +77,7 @@ def main(document):
         ("edge flow", "@edge_flow{0.0[0000]}"),
         ("vulnerability", "@vuln_name"),
         ("controls", "@possible_controls"),
+        ("", "@url_desc")
     ]
 
     plot.add_tools(hover, BoxSelectTool())
@@ -155,7 +156,7 @@ def main(document):
                 args={"edge_source": graph.edge_renderer.data_source,
                       "node_source": graph.node_renderer.data_source},
             )
-        )
+        ),
     )
 
     # Drawing edges

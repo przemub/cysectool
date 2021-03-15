@@ -217,11 +217,16 @@ class Model(metaclass=abc.ABCMeta):
             possible_controls = ", ".join(
                 set(control.id for control in edge.vulnerability.controls))
 
-            g.add_edge(edge.source, edge.target,
-                       multiplicity=edge.multiplicity,
-                       vuln_name=edge.vulnerability.name,
-                       possible_controls=possible_controls,
-                       url=edge.url)
+            url_desc = "Click to learn more" if edge.url else ""
+
+            g.add_edge(
+                edge.source, edge.target,
+                multiplicity=edge.multiplicity,
+                vuln_name=edge.vulnerability.name,
+                possible_controls=possible_controls,
+                url=edge.url,
+                url_desc=url_desc
+            )
 
         return g
 
@@ -261,6 +266,7 @@ class Model(metaclass=abc.ABCMeta):
         Converts the model to a JSON representation.
         :return: A JSON representation of the model.
         """
+
         def control_settings(edge, control):
             if control.id not in edge.vulnerability.adjustment:
                 return {}
@@ -369,7 +375,7 @@ class JSONModel(Model, ABC):
                         except KeyError as ke:
                             raise cls.JSONError(
                                 "Control id: %s lvl: %s does not exist." % (
-                                control_id, level)) from ke
+                                    control_id, level)) from ke
                         edge_obj.vulnerability.controls.add(control)
                 edges.append(edge_obj)
             except KeyError as ke:

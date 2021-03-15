@@ -143,14 +143,18 @@ def javascript(name: str, *, args: dict[str, Any] = None,
     :param name: Name of the method.
     :param args: Dictionary of variables which will be available in the context
                  of the method call.
-    :param code_args: List of arguments to be passed to the function.
-                      By default it is auto-generated from args.
-                      Useful if you want to pass, for example, a value of
+    :param code_args: List of arguments to be passed to the function,
+                      which are not in args.
+                      Useful if you want to pass something from the context
+                      of the callback caller, for example, a value of
                       the object clicked in a Select using this.item.
     :return: A CustomJS object calling the method.
     """
     if args is None:
         args = {}
     if code_args is None:
-        code_args = list(args.keys())
-    return CustomJS(code="%s(%s);" % (name, ", ".join(code_args)), args=args)
+        code_args = []
+
+    all_args = list(args.keys()) + code_args
+
+    return CustomJS(code="%s(%s);" % (name, ", ".join(all_args)), args=args)
