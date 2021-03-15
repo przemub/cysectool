@@ -1,0 +1,188 @@
+{
+  "name": "ClearSCADA second try",
+  "controls": {},
+  "vertices": [
+    "The Internet",
+    "Home PC or laptop",
+    "Corporate thin client",
+    "Vendor software",
+    "Field laptop",
+    "Site machine",
+    "Test system",
+    "ViewX",
+    "WebX",
+    "Control system",
+    "File server"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.9,
+      "vulnerability": {
+        "name": "Spearphishing Attachment",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0865"
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.6,
+      "vulnerability": {
+        "name": "Drive-by Compromise",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0817"
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.9,
+      "vulnerability": {
+        "name": "Spearphishing Attachment",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0865"
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.6,
+      "vulnerability": {
+        "name": "Drive-by Compromise",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0817"
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "Supply Chain Compromise",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 0,
+      "target": 4,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "Replication Through USB",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0847"
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Infection via vendor",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 3,
+      "target": 6,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for testing",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 6,
+      "target": 4,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for production",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 6,
+      "target": 5,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for production",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 6,
+      "target": 7,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for production",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 5,
+      "target": 9,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Exercise full control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 7,
+      "target": 9,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Exercise full control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 8,
+      "target": 9,
+      "default_flow": 0.5,
+      "vulnerability": {
+        "name": "Exercise limited control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 1,
+      "target": 8,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "(temporary)",
+        "controls": {}
+      }
+    },
+    {
+      "source": 0,
+      "target": 10,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "External access to SMB",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0822"
+    },
+    {
+      "source": 0,
+      "target": 5,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "Wireless Compromise",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0860"
+    }
+  ]
+}

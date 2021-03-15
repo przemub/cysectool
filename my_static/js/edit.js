@@ -151,7 +151,8 @@ function model_to_json() {
             'vulnerability': {
                 'name': edge.name,
                 'controls': controlsReprToObj(edge.controls)
-            }
+            },
+            'url': edge.url
         });
 
     let obj = {
@@ -282,9 +283,7 @@ function main() {
 
     const flowValidator = {
         validator: "range",
-        message: function(value, item) {
-           return "The flow should be between 0 and 1."
-        },
+        message: "The flow should be between 0 and 1.",
         param: [0, 1]
     }
 
@@ -328,10 +327,10 @@ function main() {
             {name: "default_flow", title: "Default flow", type: "decimal", width: 50, validate: flowValidator},
             {name: "name", title: "Vulnerability name", type: "text", width: 150, validate: "required"},
             {name: "controls", title: "Valid controls", type: "text", width: 100},
+            {name: "url", title: "URL", type: "text", width: 30},
             {type: "control"}
         ]
     });
-
 
     update_vertices();
 }

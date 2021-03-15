@@ -9,7 +9,7 @@ from collections import defaultdict
 from io import IOBase
 from itertools import chain
 from typing import Tuple, NamedTuple, Sequence, Set, Mapping, MutableMapping, \
-    List, Type
+    List, Type, Optional
 
 import networkx
 
@@ -90,12 +90,14 @@ class Edge(NamedTuple):
         source, target: vertices connected by the edge
         multiplicity: id of the edge among multiple edges
         default_flow: flow when this edge has no applied controls
+        url: URL to open when clicking on the edge (i.e. vuln description)
     """
     source: int
     target: int
     multiplicity: int
     default_flow: float = 1.0
     vulnerability: Vulnerability = None
+    url: Optional[str] = None
 
     def __hash__(self):
         val = hash(pow(self.source + 1, 1.3) * pow(self.target + 1, 1.8) * pow(
@@ -218,7 +220,8 @@ class Model(metaclass=abc.ABCMeta):
             g.add_edge(edge.source, edge.target,
                        multiplicity=edge.multiplicity,
                        vuln_name=edge.vulnerability.name,
-                       possible_controls=possible_controls)
+                       possible_controls=possible_controls,
+                       url=edge.url)
 
         return g
 
@@ -346,7 +349,7 @@ class JSONModel(Model, ABC):
                                 edge[
                                     'default_flow'] if 'default_flow' in edge else 1,
                                 Vulnerability(edge['vulnerability']['name'],
-                                              set(), {}))
+                                              set(), {}), edge.get('url'))
                 multiplicity[edge['source'], edge['target']] += 1
                 for control_id, control_settings in edge['vulnerability'][
                     'controls'].items():

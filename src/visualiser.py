@@ -29,7 +29,9 @@ from bokeh.models import (
     Panel,
     Tabs,
     MultiSelect,
-    WheelZoomTool, CustomJS,
+    WheelZoomTool,
+    CustomJS,
+    OpenURL,
 )
 
 # noinspection PyProtectedMember
@@ -145,6 +147,17 @@ def main(document):
     graph.selection_policy = EdgesAndLinkedNodes()
     graph.inspection_policy = EdgesAndLinkedNodes()
 
+    # See open_url() in callbacks.js.
+    plot.add_tools(
+        TapTool(
+            callback=javascript(
+                "open_url",
+                args={"edge_source": graph.edge_renderer.data_source,
+                      "node_source": graph.node_renderer.data_source},
+            )
+        )
+    )
+
     # Drawing edges
     # Support drawing 1) multiple edges, 2) edges circumventing vertices
     multiplicity = defaultdict(lambda: defaultdict(int))
@@ -230,16 +243,18 @@ def main(document):
                             end_y -= GLYPH_HEIGHT / 2
 
                 mid_x = (
-                    (start_x + end_x) / 2 +
-                    BEZIER_CONTROL * distance * math.cos(angle) *
-                    (1 if z % 2 else -1) *
-                    (z // 2 + 1)
+                    start_x + end_x
+                ) / 2 + BEZIER_CONTROL * distance * math.cos(angle) * (
+                    1 if z % 2 else -1
+                ) * (
+                    z // 2 + 1
                 )
                 mid_y = (
-                        (start_y + end_y) / 2 +
-                        BEZIER_CONTROL * distance * -math.sin(angle) *
-                        (1 if z % 2 else -1) *
-                        (z // 2 + 1)
+                    start_y + end_y
+                ) / 2 + BEZIER_CONTROL * distance * -math.sin(angle) * (
+                    1 if z % 2 else -1
+                ) * (
+                    z // 2 + 1
                 )
 
                 # https://stackoverflow.com/questions/6711707/draw-a-quadratic-b%C3%A9zier-curve-through-three-given-points
@@ -308,10 +323,11 @@ def main(document):
         graph.edge_renderer.data_source.data["edge_flow"] = edge_flow
         graph.edge_renderer.data_source.data["color"] = color
 
-        total_cost_p.text = "Total costs: <strong>%d</strong>" % model.direct_cost
+        total_cost_p.text = (
+            "Total costs: <strong>%d</strong>" % model.direct_cost
+        )
         total_ind_cost_p.text = (
-            "Total indirect costs: <strong>%d</strong>"
-            % model.indirect_cost
+            "Total indirect costs: <strong>%d</strong>" % model.indirect_cost
         )
         pareto_current_controls.text = (
             "<strong>Current controls</strong>: %s"
@@ -475,8 +491,10 @@ def main(document):
 
     optimisation_box = column(
         [
-            slider1, slider2, optimise,
-            #optimise_iterative
+            slider1,
+            slider2,
+            optimise,
+            # optimise_iterative
         ]
     )
 
@@ -499,7 +517,7 @@ def main(document):
     templates_drop = Dropdown(label="Load Template", menu=menu)
     templates_drop.js_on_event(
         events.MenuItemClick,
-        javascript("template_change", code_args="this.item")
+        javascript("template_change", code_args=["this.item"]),
     )
 
     button_box = column(
@@ -575,10 +593,7 @@ def main(document):
                 if constant_group.active == 0
                 else "Cost",
                 y_axis_label="Security damage",
-                y_axis_type="linear"
-                if scale_group.active == 0
-                else
-                "log",
+                y_axis_type="linear" if scale_group.active == 0 else "log",
                 active_scroll=WheelZoomTool(),
             )
             source = ColumnDataSource(data={"x": px, "y": py, "z": pz})
@@ -605,7 +620,9 @@ def main(document):
             pareto_column.children[0] = new_pareto
 
             calculate_button.disabled = False
-            calculate_button.label = f"Recalculate (last calculation time: {count_time:.2f} s)"
+            calculate_button.label = (
+                f"Recalculate (last calculation time: {count_time:.2f} s)"
+            )
 
         def _thread():
             py, px, pz, portfolios, count_time = optimisation.pareto_frontier(
@@ -643,7 +660,13 @@ def main(document):
 
     calculate_button.on_click(calculate_frontier_callback)
     pareto_column = column(
-        [pareto, constant_row, scale_group, calculate_button, pareto_current_controls]
+        [
+            pareto,
+            constant_row,
+            scale_group,
+            calculate_button,
+            pareto_current_controls,
+        ]
     )
 
     # Layout
