@@ -55,6 +55,7 @@ class EditHandler(tornado.web.RequestHandler):
                 "default_flow": edge.default_flow,
                 "name": edge.vulnerability.name,
                 "controls": edge.vulnerability.controls_repr(),
+                "url": edge.url
             }
             for edge in model.edges
         ]
