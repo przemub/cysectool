@@ -1,5 +1,5 @@
 import math
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, Dict
 
 import colorcet
 import networkx
@@ -135,7 +135,7 @@ def map_color(value: float) -> str:
     return PALETTE[threshold]
 
 
-def javascript(name: str, *, args: dict[str, Any] = None,
+def javascript(name: str, *, args: Dict[str, Any] = None,
                code_args: List[str] = None) -> CustomJS:
     """
     Wraps a call to a global method (usually defined in my_static/js)
