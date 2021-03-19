@@ -31,9 +31,17 @@ class EditHandler(tornado.web.RequestHandler):
         else:
             model = memory.documents[memory.templates[0]]
 
-        vertices = [{"name": vertex} for vertex in model.vertices]
+        vertices = [
+            {"name": vertex_name, "target": vertex_id in model.targets}
+            for vertex_id, vertex_name in enumerate(model.vertices)
+        ]
         groups = [
-            {"id": category_id, "name": category[0], "levels": category[1]}
+            {
+                "id": category_id,
+                "name": category[0],
+                "levels": category[1],
+                "no_control_name": category[2],
+            }
             for category_id, category in model.control_categories.items()
         ]
         levels = [
@@ -55,7 +63,7 @@ class EditHandler(tornado.web.RequestHandler):
                 "default_flow": edge.default_flow,
                 "name": edge.vulnerability.name,
                 "controls": edge.vulnerability.controls_repr(),
-                "url": edge.url
+                "url": edge.url,
             }
             for edge in model.edges
         ]

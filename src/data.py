@@ -120,7 +120,7 @@ class Model(metaclass=abc.ABCMeta):
     Superclass documenting properties required to define a model.
 
     Attributes (controls):
-        control_categories: Mapping[str, Tuple[str, int]
+        control_categories: Mapping[str, Tuple[str, int, str]
             specification of categories (mapping of category ids
             on (category full name, number of levels,
             description of no control))
@@ -389,7 +389,7 @@ class JSONModel(Model, ABC):
             'n': len(d['vertices']),
             'vertices': d['vertices'],
             'edges': edges,
-            'targets': d.get('default_target', [len(d['vertices']) - 1]),
+            'targets': d.get('default_targets', [len(d['vertices']) - 1]),
             'targets_inclusion': {int(key): value for key, value in
                                   d.get('targets_inclusion', {}).items()},
             '__module__': __name__
@@ -398,11 +398,13 @@ class JSONModel(Model, ABC):
             pprint.pprint(obj)
 
         # Checking
-        if (src := max(edge.source for edge in edges)) >= len(d['vertices']):
+        src = max(edge.source for edge in edges)
+        if src >= len(d['vertices']):
             raise cls.JSONError(
                 f"An edge exists from a non-existent vertex {src}."
             )
-        if (target := max(edge.source for edge in edges)) >= len(d['vertices']):
+        target = max(edge.source for edge in edges)
+        if target >= len(d['vertices'])
             raise cls.JSONError(
                 f"An edge exists to a non-existent vertex {target}."
             )
