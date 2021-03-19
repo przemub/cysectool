@@ -404,7 +404,7 @@ class JSONModel(Model, ABC):
                 f"An edge exists from a non-existent vertex {src}."
             )
         target = max(edge.source for edge in edges)
-        if target >= len(d['vertices'])
+        if target >= len(d['vertices']):
             raise cls.JSONError(
                 f"An edge exists to a non-existent vertex {target}."
             )
