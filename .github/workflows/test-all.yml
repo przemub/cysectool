@@ -4,9 +4,9 @@ jobs:
     name: "Test the visualiser on ${{ matrix.os }}"
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest] # macos-latest disabled due to the CI not catching that the tests on macOS finished…
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15  # Allow extra time for macOS
+    # timeout-minutes: 15  # Allow extra time for macOS
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
