@@ -1,5 +1,5 @@
 ## Requirements
-* Python 3.6+
+* Python 3.7+
 * virtualenv & pip OR conda
 
 ## virtualenv way
