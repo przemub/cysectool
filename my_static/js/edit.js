@@ -8,7 +8,7 @@ function update_grid(_grid, _item) {
 
     let new_levels = [];
     for (const group of groups) {
-        for (let i = 1; i <= group.levels; i++)
+        for (let i = 0; i <= group.levels; i++)
             new_levels.push({
                 'gid': group.id,
                 'level': i.toString(),
@@ -101,7 +101,8 @@ function model_to_json() {
             'level_name': [],
             'cost': [],
             'ind_cost': [],
-            'flow': []
+            'flow': [],
+            'no_control_name': group.no_control_name
         };
         for (const level of levelsData) {
             if (level.gid === group.id) {
@@ -115,8 +116,12 @@ function model_to_json() {
     }
 
     let vertices_obj = [];
-    for (const vertex of verticesData)
+    let targets = [];
+    for (const vertex of verticesData) {
         vertices_obj.push(vertex.name);
+        if (vertex.target)
+            targets.push(vertex.id);
+    }
 
     function controlsReprToObj(control) {
         const controls = control.split(";");
@@ -161,6 +166,8 @@ function model_to_json() {
         'vertices': vertices_obj,
         'edges': edges_obj
     };
+    if (targets.length > 0)
+        obj['default_targets'] = targets;
 
     return JSON.stringify(obj, null, 2);
 }
@@ -254,6 +261,7 @@ function main() {
         fields: [
             {name: "id", title: "ID", type: "text", width: 50, readOnly: true},
             {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
+            {name: "target", title: "Default target", type: "checkbox", width: 10},
             {type: "control"}
         ]
     });
@@ -277,6 +285,7 @@ function main() {
             {name: "id", title: "ID", type: "text", width: 50, validate: "required"},
             {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
             {name: "levels", title: "Number of levels", type: "number", width: 50, validate: "required"},
+            {name: "no_control_name", title: "No control name", type: "text", width: 50},
             {type: "control"}
         ]
     });
