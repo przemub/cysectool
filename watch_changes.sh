@@ -1,5 +1,8 @@
 #!/bin/sh
+set -eux
 # A script that runs the visualiser and restarts it on changes.
+
+conda activate visualiser-env || true
 
 # Bokeh settings
 export BOKEH_MINIFIED="False"
