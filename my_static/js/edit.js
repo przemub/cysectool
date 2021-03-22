@@ -8,7 +8,7 @@ function update_grid(_grid, _item) {
 
     let new_levels = [];
     for (const group of groups) {
-        for (let i = 0; i <= group.levels; i++)
+        for (let i = 1; i <= group.levels; i++)
             new_levels.push({
                 'gid': group.id,
                 'level': i.toString(),
@@ -120,7 +120,7 @@ function model_to_json() {
     for (const vertex of verticesData) {
         vertices_obj.push(vertex.name);
         if (vertex.target)
-            targets.push(vertex.id);
+            targets.push(parseInt(vertex.id));
     }
 
     function controlsReprToObj(control) {
@@ -259,7 +259,7 @@ function main() {
         onItemDeleted: update_vertices,
 
         fields: [
-            {name: "id", title: "ID", type: "text", width: 50, readOnly: true},
+            {name: "id", title: "ID", type: "number", width: 50, readOnly: true},
             {name: "name", title: "Name", type: "text", width: 150, validate: "required"},
             {name: "target", title: "Default target", type: "checkbox", width: 10},
             {type: "control"}
