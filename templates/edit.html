@@ -44,8 +44,21 @@
 
     <h3>Edges</h3>
     <div id="edgesGrid"></div>
-    <p>Controls specification: semicolon-separated list of restricting controls. Adjusted flow can be given using syntax
-        <tt>Control(flow,max_flow)</tt>, ie. <tt>Sc(2,1)</tt> for flow increased up to 1.</p>
+    <p>Controls specification: semicolon-separated list of restricting controls.</p>
+    <p>
+        If a vulnerability is impacted in a different way than the default
+        for the control group, you can manually set reductions for each control
+        in the group,
+        for example <code>Control[0.6,0.4,0.2]</code>.
+    </p>
+    <!--
+        Deprecated syntax:
+        <p>
+            Adjusted flow can be given using syntax
+            <code>Control(flow,max_flow)</code>, ie. <code>Sc(2,1)</code>
+            for flow increased up to 1.
+        </p>
+    -->
 
     <div class="buttons">
         <input type="file" id="file" accept=".json" style="display: none;" onchange="open_edit()">
