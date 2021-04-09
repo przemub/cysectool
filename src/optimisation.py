@@ -161,7 +161,10 @@ def model_solve(
 def model_solve_iterate(
     model: Model, budget: float, indirect_budget: float
 ) -> Sequence[Control]:
-    """Iterates over model_solve to spend all the budget."""
+    """
+    Iterates over model_solve to spend all the budget.
+    TODO: Not working at all, lol.
+    """
     result = (0, 0, [], 0, 0)
     model_tmp = copy.deepcopy(model)
     turned_off = set()
@@ -217,7 +220,7 @@ def pareto_frontier(model, budget, ind_budget, update_progress):
     else:
         raise TypeError("Missing required budget or ind_budget")
 
-    step = max((1, math.ceil(total_ind_cost / 1000)))
+    step = max((1, math.ceil(total_ind_cost / 2000)))
     tasks_to_run = math.ceil(total_ind_cost / step) + 1
 
     px, py, pz, solution = [], [], [], []

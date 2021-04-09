@@ -104,10 +104,10 @@ class Edge(NamedTuple):
             self.multiplicity + 1, 2.57))
         return val
 
-    def __eq__(self, other):
-        return self.source, self.target, self.multiplicity == other.source, other.target, other.multiplicity
+    def __eq__(self, other) -> bool:
+        return (self.source, self.target, self.multiplicity) == (other.source, other.target, other.multiplicity)
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
 
@@ -147,6 +147,7 @@ class Model(metaclass=abc.ABCMeta):
     edge_flow: Mapping[Edge, float]
     vertex_flow: Mapping[int, float]
     tree_flow: Mapping[Edge, float]
+    critical_path: Sequence[Edge]
     max_flow: float
     direct_cost: int
     indirect_cost: int
@@ -210,10 +211,25 @@ class Model(metaclass=abc.ABCMeta):
         self.indirect_cost = sum(control.ind_cost for control in controls)
         self.max_flow = max(vertex_flow[i] for i in self.all_targets())
 
+        # Find the critical path
+        self.critical_path = []
+        in_edges = self.graph.in_edges(self.all_targets(), "id")
+        while in_edges:
+            critical_edge: Edge = None
+            max_flow = -1
+            for edge in in_edges:
+                edge_obj: Edge = self.edges[edge[2]]
+                if self.tree_flow[edge_obj] > max_flow:
+                    critical_edge = edge_obj
+                    max_flow = self.tree_flow[edge_obj]
+
+            self.critical_path.append(critical_edge)
+            in_edges = self.graph.in_edges(critical_edge.source, "id")
+
     def to_networkx(self) -> networkx.MultiDiGraph:
         g = networkx.MultiDiGraph()
 
-        for edge in self.edges:
+        for i, edge in enumerate(self.edges):
             possible_controls = ", ".join(
                 set(control.id for control in edge.vulnerability.controls))
 
@@ -221,6 +237,7 @@ class Model(metaclass=abc.ABCMeta):
 
             g.add_edge(
                 edge.source, edge.target,
+                id=i,
                 multiplicity=edge.multiplicity,
                 vuln_name=edge.vulnerability.name,
                 possible_controls=possible_controls,

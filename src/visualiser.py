@@ -136,7 +136,7 @@ def main(document):
         palette=PALETTE, low=10 ** BAR_MIN, high=10 ** BAR_MAX
     )
     graph.edge_renderer.glyph = MultiLine(
-        line_color="color", line_alpha=0.8, line_width=3
+        line_color="color", line_alpha=0.8, line_width="width"
     )
     graph.edge_renderer.selection_glyph = MultiLine(
         line_color=Spectral8[4], line_width=3
@@ -313,16 +313,20 @@ def main(document):
         flow = []
         edge_flow = []
         color = []
+        width = []
         for _x in graph_data:
             for _y in graph_data[_x]:
                 for _z in range(multiplicity[_x][_y]):
-                    flow.append(model.tree_flow[Edge(_x, _y, _z)])
-                    edge_flow.append(model.edge_flow[Edge(_x, _y, _z)])
+                    edge = Edge(_x, _y, _z)
+                    flow.append(model.tree_flow[edge])
+                    edge_flow.append(model.edge_flow[edge])
                     color.append(map_color(flow[-1]))
+                    width.append(5 if edge in model.critical_path else 3)
 
         graph.edge_renderer.data_source.data["flow"] = flow
         graph.edge_renderer.data_source.data["edge_flow"] = edge_flow
         graph.edge_renderer.data_source.data["color"] = color
+        graph.edge_renderer.data_source.data["width"] = width
 
         total_cost_p.text = (
             "Total costs: <strong>%d</strong>" % model.direct_cost
@@ -429,14 +433,14 @@ def main(document):
     slider1 = Slider(
         start=0,
         end=total_cost,
-        value=total_cost // 2,
+        value=total_cost,
         step=1,
         title="Target cost",
     )
     slider2 = Slider(
         start=0,
         end=total_ind_cost,
-        value=total_ind_cost // 2,
+        value=total_ind_cost,
         step=1,
         title="Target indirect cost",
     )
