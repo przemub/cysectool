@@ -43,8 +43,8 @@ def tree_layout(
         graph_data: networkx.DiGraph,
         root: int,
         depth: List[int],
-        width: float = 1.5,
-        vert_gap: float = 0.5,
+        width: float = 2.1,
+        vert_gap: float = 0.75,
         vert_loc: float = 0,
         x_center: float = 0,
 ):

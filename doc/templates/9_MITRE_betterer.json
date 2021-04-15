@@ -1,0 +1,515 @@
+{
+  "name": "ClearSCADA sixth try",
+  "controls": {
+    "NSeg": {
+      "name": "Network segmentation",
+      "level_name": [
+        "ViewX and OT Active Directory removed from IT zone.",
+        "Access to OT from IT limited to WebX"
+      ],
+      "cost": [
+        24,
+        36
+      ],
+      "ind_cost": [
+        13,
+        19
+      ],
+      "flow": [
+        0.5,
+        0.2
+      ],
+      "no_control_name": "No segmentation"
+    },
+    "USB": {
+      "name": "USB devices",
+      "level_name": [
+        "Company issued and periodically formatted drives only.",
+        "Single-use CDs only recorded directly by SCADA software."
+      ],
+      "cost": [
+        3,
+        13
+      ],
+      "ind_cost": [
+        12,
+        17
+      ],
+      "flow": [
+        0.5,
+        0.2
+      ],
+      "no_control_name": "No restrictions"
+    },
+    "Acc": {
+      "name": "Access management",
+      "level_name": [
+        "Limited access from WebX.",
+        "WebX reduced to site monitoring.",
+        "Access levels introduced to ViewX.",
+        "Separate PLC designed to catch and discard dangerous control messages"
+      ],
+      "cost": [
+        10,
+        22,
+        36,
+        254
+      ],
+      "ind_cost": [
+        5,
+        11,
+        18,
+        78
+      ],
+      "flow": [
+        0.7,
+        0.5,
+        0.4,
+        0.1
+      ],
+      "no_control_name": "Full access from WebX"
+    },
+    "Upd": {
+      "name": "Update site machines",
+      "level_name": [
+        "Yearly updates",
+        "Monthly updates"
+      ],
+      "cost": [
+        8,
+        20
+      ],
+      "ind_cost": [
+        6,
+        12
+      ],
+      "flow": [
+        0.7,
+        0.5
+      ],
+      "no_control_name": "No updates"
+    },
+    "Sign": {
+      "name": "Code signing and testing",
+      "level_name": [
+        "Code testing",
+        "Code signing on PCs",
+        "Code signing on PCs and PLCs"
+      ],
+      "cost": [
+        286,
+        376,
+        776
+      ],
+      "ind_cost": [
+        278,
+        368,
+        768
+      ],
+      "flow": [
+        0.5,
+        0.2,
+        0.1
+      ],
+      "no_control_name": "No code signing"
+    },
+    "Wifi": {
+      "name": "Wireless security",
+      "level_name": [
+        "DES encryption",
+        "AES encryption"
+      ],
+      "cost": [
+        20,
+        100
+      ],
+      "ind_cost": [
+        10,
+        30
+      ],
+      "flow": [
+        0.5,
+        0.05
+      ],
+      "no_control_name": "No encryption"
+    },
+    "IT": {
+      "name": "IT network protection",
+      "level_name": [
+        "Firewall and antivirus installed on thin clients"
+      ],
+      "cost": [
+        8
+      ],
+      "ind_cost": [
+        6
+      ],
+      "flow": [
+        0.8
+      ],
+      "no_control_name": "No protection"
+    },
+    "WebAcc": {
+      "name": "WebX access",
+      "level_name": [
+        "2FA with a personal device",
+        "2FA with a physical key",
+        "Company-provided devices with a physical key"
+      ],
+      "cost": [
+        19,
+        28,
+        38
+      ],
+      "ind_cost": [
+        13,
+        35,
+        75
+      ],
+      "flow": [
+        0.7,
+        0.3,
+        0.1
+      ],
+      "no_control_name": "Password"
+    },
+    "ViewAcc": {
+      "name": "ViewX access",
+      "level_name": [
+        "2FA with a personal device",
+        "2FA with a physical key"
+      ],
+      "cost": [
+        19,
+        28
+      ],
+      "ind_cost": [
+        13,
+        35
+      ],
+      "flow": [
+        0.7,
+        0.3
+      ],
+      "no_control_name": "Password"
+    },
+    "Patch": {
+      "name": "Patch management",
+      "level_name": [
+        "Patch management installed"
+      ],
+      "cost": [
+        29
+      ],
+      "ind_cost": [
+        28
+      ],
+      "flow": [
+        0.8
+      ],
+      "no_control_name": "No management"
+    }
+  },
+  "vertices": [
+    "The Internet",
+    "Home PC or laptop",
+    "Corporate thin client",
+    "Vendor software",
+    "Site machine",
+    "Test system",
+    "ViewX",
+    "WebX",
+    "Control system",
+    "OT AD"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.9,
+      "vulnerability": {
+        "name": "Spearphishing Attachment",
+        "controls": {
+          "WebAcc": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0865"
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.6,
+      "vulnerability": {
+        "name": "Drive-by Compromise",
+        "controls": {
+          "WebAcc": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0817"
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.9,
+      "vulnerability": {
+        "name": "Spearphishing Attachment",
+        "controls": {
+          "Patch": {},
+          "IT": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0865"
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "default_flow": 0.6,
+      "vulnerability": {
+        "name": "Drive-by Compromise",
+        "controls": {
+          "Patch": {},
+          "IT": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0817"
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "Supply Chain Compromise",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 0,
+      "target": 4,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "Replication Through USB",
+        "controls": {
+          "Sign": {
+            "custom": [
+              1,
+              0.8,
+              0.8
+            ]
+          },
+          "USB": {},
+          "Upd": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0847"
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "default_flow": 0.66,
+      "vulnerability": {
+        "name": "Infection via vendor",
+        "controls": {
+          "Sign": {},
+          "IT": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 3,
+      "target": 5,
+      "default_flow": 0.33,
+      "vulnerability": {
+        "name": "Deployed for testing",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 5,
+      "target": 4,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for production",
+        "controls": {
+          "Sign": {
+            "custom": [
+              0.4,
+              0.1,
+              0.1
+            ]
+          }
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 5,
+      "target": 6,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Deployed for production",
+        "controls": {
+          "Sign": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0862"
+    },
+    {
+      "source": 4,
+      "target": 8,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Exercise full control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 6,
+      "target": 8,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Exercise full control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 7,
+      "target": 8,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Exercise limited control",
+        "controls": {}
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
+    },
+    {
+      "source": 1,
+      "target": 7,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "Execution through API",
+        "controls": {
+          "Acc": {
+            "custom": [
+              0.5,
+              0.1,
+              0.1,
+              0.1
+            ]
+          }
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0871"
+    },
+    {
+      "source": 0,
+      "target": 4,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "Wireless Compromise",
+        "controls": {
+          "Wifi": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0860"
+    },
+    {
+      "source": 2,
+      "target": 9,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Access OT AD",
+        "controls": {
+          "NSeg": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Mitigation/M1030"
+    },
+    {
+      "source": 9,
+      "target": 7,
+      "default_flow": 0.8,
+      "vulnerability": {
+        "name": "Valid Accounts",
+        "controls": {
+          "Acc": {
+            "custom": [
+              0.5,
+              0.1,
+              0.1,
+              0.1
+            ]
+          }
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0859"
+    },
+    {
+      "source": 9,
+      "target": 6,
+      "default_flow": 0.2,
+      "vulnerability": {
+        "name": "Lateral movement",
+        "controls": {
+          "ViewAcc": {},
+          "Acc": {
+            "custom": [
+              1,
+              1,
+              0.75,
+              0.3
+            ]
+          },
+          "NSeg": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Lateral_Movement"
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "default_flow": 0.3,
+      "vulnerability": {
+        "name": "Remote File Copy",
+        "controls": {
+          "ViewAcc": {},
+          "Acc": {
+            "custom": [
+              1,
+              1,
+              0.75,
+              0.3
+            ]
+          },
+          "NSeg": {}
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0867"
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 0.8,
+      "vulnerability": {
+        "name": "Valid Accounts",
+        "controls": {
+          "WebAcc": {
+            "custom": [
+              0.3,
+              0.2,
+              0.1
+            ]
+          }
+        }
+      },
+      "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0859"
+    }
+  ],
+  "default_targets": [
+    8
+  ]
+}
