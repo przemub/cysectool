@@ -81,7 +81,50 @@ class GUITest(unittest.TestCase):
         )
 
         WebDriverWait(self.driver, 5).until(
-            lambda d: d.find_element_by_xpath('//div[.="Total indirect costs: 25"]')
+            lambda d: d.find_element_by_xpath('//div[.="Total indirect costs: 34"]')
+        )
+        self.driver.find_element_by_xpath('//div[.="Total costs: 26"]')
+        self.driver.find_element_by_xpath(
+            '//div[.="Max flow to the target(s): 8.3333e-05"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="3) whitelisting" and @selected="true"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="3) in-depth packet inspection" and @selected="true"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="3) strongly monitored policies" and @selected="true"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="2) prompt disabling when users leave" and @selected="true"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="2) regularly change password" and @selected="true"]'
+        )
+        self.driver.find_element_by_xpath(
+            '//option[@value="1) access control" and @selected="true"]'
+        )
+
+        not_selected = self.driver.find_elements_by_xpath(
+            '//option[@value="None" and @selected="true"]'
+        )
+
+        self.assertEqual(len(not_selected), 4)
+
+    @unittest.expectedFailure  # it has not yet been figured out how to set sliders' value in Selenium
+    def test_half_optimise(self):
+        """Try setting both targets to their half-value and clicking the optimise button."""
+        button = self.driver.find_element_by_xpath('//button[.="Optimise"]')
+        button.click()
+
+        WebDriverWait(self.driver, 5).until(
+            lambda d: d.find_elements_by_xpath('//button[.="Optimise"]'),
+            "Failed to optimise in 5 secs"
+        )
+
+        WebDriverWait(self.driver, 5).until(
+            lambda d: d.find_element_by_xpath('//div[.="Total indirect costs: 26"]')
         )
         self.driver.find_element_by_xpath(
             '//div[.="Max flow to the target(s): 0.00012"]'
