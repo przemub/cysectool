@@ -41,7 +41,7 @@
       ],
       "no_control_name": "No restrictions"
     },
-    "WebX": {
+    "WebAcc": {
       "name": "WebX access policy",
       "level_name": [
         "Limited access from WebX.",
@@ -56,10 +56,26 @@
         111
       ],
       "flow": [
-        0.7,
-        0.3
+        0.5,
+        0.1
       ],
       "no_control_name": "Full access from WebX"
+    },
+    "ViewAcc": {
+      "name": "ViewX access policy",
+      "level_name": [
+        "Access levels introduced"
+      ],
+      "cost": [
+        46
+      ],
+      "ind_cost": [
+        27
+      ],
+      "flow": [
+        0.5
+      ],
+      "no_control_name": "Full access from ViewX"
     },
     "Upd": {
       "name": "Update site machines",
@@ -184,22 +200,6 @@
         0.2
       ],
       "no_control_name": "Password"
-    },
-    "ViewX": {
-      "name": "ViewX access policy",
-      "level_name": [
-        "Access levels introduced"
-      ],
-      "cost": [
-        46
-      ],
-      "ind_cost": [
-        27
-      ],
-      "flow": [
-        0.5
-      ],
-      "no_control_name": "Full access from ViewX"
     }
   },
   "vertices": [
@@ -359,7 +359,7 @@
       "vulnerability": {
         "name": "Exercise full control",
         "controls": {
-          "ViewX": {}
+          "ViewAcc": {}
         }
       },
       "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
@@ -371,7 +371,7 @@
       "vulnerability": {
         "name": "Exercise full control",
         "controls": {
-          "ViewX": {}
+          "ViewAcc": {}
         }
       },
       "url": "https://collaborate.mitre.org/attackics/index.php/Impact"
@@ -393,7 +393,7 @@
       "vulnerability": {
         "name": "Execution through API",
         "controls": {
-          "WebX": {}
+          "WebAcc": {}
         }
       },
       "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0871"
@@ -413,7 +413,7 @@
     {
       "source": 2,
       "target": 9,
-      "default_flow": 1,
+      "default_flow": 0.2,
       "vulnerability": {
         "name": "Access OT AD",
         "controls": {
@@ -429,7 +429,7 @@
       "vulnerability": {
         "name": "Valid Accounts",
         "controls": {
-          "WebX": {}
+          "WebAcc": {}
         }
       },
       "url": "https://collaborate.mitre.org/attackics/index.php/Technique/T0859"
