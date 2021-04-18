@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.9.2
+FROM condaforge/miniforge3:4.9.2-7
 
 EXPOSE 5006
 CMD conda run --no-capture-output -n visualiser-env python -O main.py
