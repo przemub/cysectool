@@ -5,7 +5,7 @@ from numbers import Real, Integral
 from typing import Sequence, Mapping, Callable
 
 from multiprocess.pool import Pool
-from pulp import LpProblem, LpVariable, LpMinimize, LpInteger, lpSum
+from pulp import LpProblem, LpVariable, LpMinimize, LpInteger, lpSum, PULP_CBC_CMD
 
 from src.data import Model, Control, Edge, Vulnerability
 
@@ -72,7 +72,7 @@ def _optimal_solve(
         # print(model)
     # ============ SOLVE OPTIMIZATION
     #     model.solve(GUROBI_CMD())
-    model.solve()
+    model.solve(PULP_CBC_CMD(msg=__debug__))
     if not model.status == 1:
         print("STATUS: unsatisfiable, status= ", model.status)
     # print('model.status:', model.status,'\nobjective value',math.exp(model.objective.value()),'\nSolution:\n')
