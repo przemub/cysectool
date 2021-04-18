@@ -23,11 +23,7 @@ def _optimal_solve(
     cost: Callable[[Control], Real],
     ind_cost: Callable[[Control], Real],
     eps: Real,
-    selected=None,
 ):
-    if selected is None:
-        selected = []
-
     model = LpProblem("simple", LpMinimize)
 
     # set up optimization variables
@@ -62,12 +58,12 @@ def _optimal_solve(
             x[c] * math.log(p(c, e)) for c in control_ind[e]
         )
 
-    for c in selected:  # CONSTRAINTS: select the selected or higher level
-        category = x[c]  # Magical OR implementation in LP
-        for control in controls:
-            if control.id == c.id and control.level > c.level:
-                category += x[control]
-        model += category == 1
+    #for c in selected:  # CONSTRAINTS: select the selected or higher level
+    #    category = x[c]  # Magical OR implementation in LP
+    #    for control in controls:
+    #        if control.id == c.id and control.level > c.level:
+    #            category += x[control]
+    #    model += category == 1
 
         # print(model)
     # ============ SOLVE OPTIMIZATION
@@ -100,18 +96,11 @@ def model_solve(
     model: Model,
     budget: float,
     indirect_budget: float,
-    selected=None,
-    turned_off=None,
 ) -> Sequence[Control]:
     """
     Passes model to the original optimisation function.
     Returns a sequence of controls to turn on.
     """
-    if selected is None:
-        selected = []
-    if turned_off is None:
-        turned_off = []
-
     controls = []
     controls.extend(
         sum((level for level in model.control_subcategories.values()), [])
@@ -125,13 +114,13 @@ def model_solve(
     ]
 
     control_ind = {edge: edge.vulnerability.controls for edge in edges}
-    pi = lambda edge: 0.00001 if edge in turned_off else edge.default_flow
+    pi = lambda edge: edge.default_flow
 
     def p(control, edge):
         if control.id in edge.vulnerability.adjustment:
             adj = edge.vulnerability.adjustment[control.id]
             if math.isnan(adj[0]):
-                return control.flow * adj.get_custom(control.level)
+                return adj.get_custom(control.level)
             else:
                 return min([control.flow * adj[0], adj[1]])
         else:
@@ -152,8 +141,7 @@ def model_solve(
         p,
         cost,
         ind_cost,
-        0.00001,
-        selected,
+        0.00001
     )
     return result
 
@@ -195,7 +183,7 @@ def model_solve_iterate(
 
         turned_off.add(turn_off)
         result = model_solve(
-            model_tmp, budget, indirect_budget, result[2], turned_off
+            model_tmp, budget, indirect_budget #, result[2], turned_off
         )
 
     return result
