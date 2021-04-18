@@ -1,0 +1,68 @@
+{
+  "name": "Test",
+  "controls": {
+    "C": {
+      "name": "Control",
+      "level_name": [
+        "C 1",
+        "C 2",
+        "C 3"
+      ],
+      "cost": [
+        1,
+        1,
+        1
+      ],
+      "ind_cost": [
+        1,
+        1,
+        1
+      ],
+      "flow": [
+        0.8,
+        0.7,
+        0.6
+      ],
+      "no_control_name": "No"
+    }
+  },
+  "vertices": [
+    "Start",
+    "End"
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Normal",
+        "controls": {
+          "C": {}
+        }
+      },
+      "url": ""
+    },
+    {
+      "source": 0,
+      "target": 1,
+      "default_flow": 1,
+      "vulnerability": {
+        "name": "Adjusted",
+        "controls": {
+          "C": {
+            "custom": [
+              1,
+              0.9,
+              0.5
+            ]
+          }
+        }
+      },
+      "url": ""
+    }
+  ],
+  "default_targets": [
+    1
+  ]
+}

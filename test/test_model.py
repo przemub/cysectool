@@ -22,6 +22,7 @@ class ModelTestCase(unittest.TestCase):
 
 
 class SimulationResult(NamedTuple):
+    """A special tuple to list expected results for given parameters."""
     portfolio: Sequence[Tuple[str, int]]
     direct_cost: int
     indirect_cost: int
@@ -42,25 +43,25 @@ class TemplateTestCase(unittest.TestCase):
     control_subcategories: int = None
 
     # Expected flowing results.
-    flowing_tests = []
+    flowing_tests: Sequence[SimulationResult] = []
 
     # Tests for which the portfolio is optimal.
-    optimal_tests = []
+    optimal_tests: Sequence[SimulationResult] = []
 
     @classmethod
     def setUpClass(cls):
         if cls.model_number is None:
-            raise unittest.SkipTest("Model number has not been set.")
+            assert False, "Model number has not been set."
 
     def setUp(self):
         memory = Memory.get_instance()
         self.model = memory.documents[memory.templates[self.model_number]]
 
     def test_parameters(self):
-        self.assertEquals(len(self.model.targets), self.targets)
-        self.assertEquals(len(self.model.edges), self.edges)
-        self.assertEquals(len(self.model.vertices), self.vertices)
-        self.assertEquals(
+        self.assertEqual(len(self.model.targets), self.targets)
+        self.assertEqual(len(self.model.edges), self.edges)
+        self.assertEqual(len(self.model.vertices), self.vertices)
+        self.assertEqual(
             len(self.model.control_categories), self.control_categories
         )
 
@@ -68,7 +69,7 @@ class TemplateTestCase(unittest.TestCase):
             len(category)
             for category in self.model.control_subcategories.values()
         )
-        self.assertEquals(number_of_subcategories, self.control_subcategories)
+        self.assertEqual(number_of_subcategories, self.control_subcategories)
 
     def test_flowing(self):
         """
@@ -103,7 +104,52 @@ class TemplateTestCase(unittest.TestCase):
                 portfolio = [
                     Control(*control) for control in simulation.portfolio
                 ]
-                self.assertListEqual(solution[2], portfolio)
+                self.assertSequenceEqual(solution[2], portfolio)
+
+
+class FixtureTestCase(TemplateTestCase):
+    """
+    Test case which is the same as TemplateTestCase, except the model is loaded
+    from "doc/fixtures", the directory which contains special models only for testing.
+    """
+    fixture_name: str = None
+
+    @classmethod
+    def setUpClass(cls):
+        if cls.fixture_name is None:
+            assert False, "Fixture name has not been set."
+
+    def setUp(self):
+        with open(f"doc/fixtures/{self.fixture_name}.json", "r") as file:
+            self.model = JSONModel.create(file)()
+
+
+class CustomAdjustmentTestCase(FixtureTestCase):
+    """
+    A simple fixture for testing custom control adjustment for and edge,
+    that is the ability to override the default flow reductions.
+    It consists of two vertices and two edges joining them, one with
+    default flows and one with overridden.
+    """
+    fixture_name = "custom_adjustment"
+
+    targets = 1
+    edges = 2
+    vertices = 2
+    control_categories = 1
+    control_subcategories = 3
+
+    flowing_tests = [
+        SimulationResult([], 0, 0, 1),
+        SimulationResult([("C", 1)], 1, 1, 1),
+        SimulationResult([("C", 2)], 1, 1, 0.9),
+        SimulationResult([("C", 3)], 1, 1, 0.6)
+    ]
+
+    optimal_tests = [
+        flowing_tests[0],
+        flowing_tests[-1]
+    ]
 
 
 class DefaultModelTestCase(TemplateTestCase):
@@ -130,17 +176,18 @@ class NISTModelTestCase(TemplateTestCase):
     control_categories = 6
     control_subcategories = 7
 
-    simulation_tests = [
+    flowing_tests = [
         SimulationResult([("ScW", 1), ("ScS", 1)], 2, 2, 4.32e-8),
         SimulationResult([("ScW", 1), ("ScS", 1), ("N2", 1)], 3, 3, 4.32e-10),
         SimulationResult([("ScW", 1), ("ScS", 1), ("ScDb", 1)], 3, 7, 4.32e-15),
     ]
 
-    optimal_tests = simulation_tests
+    optimal_tests = flowing_tests
 
 
-# Don't run the template test case
+# Don't run the template test cases
 del TemplateTestCase
+del FixtureTestCase
 
 if __name__ == "__main__":
     unittest.main()

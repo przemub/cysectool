@@ -179,7 +179,7 @@ class Model(metaclass=abc.ABCMeta):
                 if control.id in edge.vulnerability.adjustment:
                     adj = edge.vulnerability.adjustment[control.id]
                     if math.isnan(adj[0]):
-                        flow *= control.flow * adj.get_custom(control.level)
+                        flow = adj.get_custom(control.level)
                     else:
                         flow *= min([control.flow * adj[0], adj[1]])
                 else:
