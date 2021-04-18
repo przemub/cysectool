@@ -82,7 +82,7 @@ class ApiHandler(tornado.web.RequestHandler):
         elif request["cmd"] == "save":
             if "id" in request:
                 mem = Memory.get_instance()
-                model = mem.documents[request["id"]]
+                model = mem.documents[uuid.UUID(request["id"])]
             else:
                 with open("doc/templates/0_default.json", "r") as f:
                     model = JSONModel.create(f)()
