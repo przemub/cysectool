@@ -20,7 +20,7 @@ jobs:
           activate-environment: visualiser-env
       - name: Run Python tests
         shell: bash -l {0}
-        run: python -m unittest
+        run: python -O -m unittest
 
   deploy:
     name: Deploy

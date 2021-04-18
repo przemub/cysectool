@@ -5,6 +5,7 @@ from functools import partial
 from threading import Thread
 from typing import List, Dict
 
+import bokeh.core.validation
 from bokeh import events
 from bokeh.layouts import row, column
 from bokeh.models import (
@@ -30,13 +31,13 @@ from bokeh.models import (
     Tabs,
     MultiSelect,
     WheelZoomTool,
-    CustomJS,
-    OpenURL,
 )
-
 # noinspection PyProtectedMember
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure, from_networkx
+
+bokeh.core.validation.silence(1000)  # MISSING_RENDERERS
+
 from jinja2 import FileSystemLoader, Environment
 
 from src import optimisation
