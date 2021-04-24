@@ -53,7 +53,7 @@ function main() {
             Bokeh.index["attack-figure"].resize_layout(); // Bokeh >= 1.1
     }, false);
 
-    arrow().then();
+    // arrow().then();
     check_connection().then();
 }
 
