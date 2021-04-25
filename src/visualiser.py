@@ -139,11 +139,8 @@ def main(document):
     graph.edge_renderer.glyph = MultiLine(
         line_color="color", line_alpha=0.8, line_width="width"
     )
-    graph.edge_renderer.selection_glyph = MultiLine(
-        line_color=Spectral8[4], line_width=3
-    )
     graph.edge_renderer.hover_glyph = MultiLine(
-        line_color=Spectral8[1], line_width=3
+        line_color=Spectral8[1], line_width="width"
     )
 
     graph.selection_policy = EdgesAndLinkedNodes()
