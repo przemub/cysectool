@@ -8,7 +8,7 @@
             <SchemaInfo>
               <option name="name" value="Visualiser schema" />
               <option name="relativePathToSchema" value="doc/schema.json" />
-              <option name="schemaVersion" value="JSON schema version 7" />
+              <option name="schemaVersion" value="JSON Schema version 7" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -19,6 +19,9 @@
                   </Item>
                   <Item>
                     <option name="path" value="file://$USER_HOME$/Pobrane/model.json" />
+                  </Item>
+                  <Item>
+                    <option name="path" value="doc/templates/A_MITRE_organised_controls.json" />
                   </Item>
                 </list>
               </option>
