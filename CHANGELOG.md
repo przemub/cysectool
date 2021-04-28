@@ -1,3 +1,16 @@
+### v1.2 - 29th of April, 2021
+The release made before submitting the final version of the report, on which all the data, graphs, and conclusions in the paper are based. It is also the release used during the viva and preparation for it.
+
+* Seven more iterations of ClearSCADA model are added. The final, eighth "try" represents the state of the model as described in the report. The differences between iterations can be used to show how a model can be developed.
+* A simple greedy algorithm to find the critical path (the most probable attack vector) and mark it with a thicker line was added.
+* The ability to set a different impact of a control group on each edge was reworked. Now, for each vulnerability, either the default impact for all controls in the group is used, or one can specify impacts for each control in the group.
+* Add an ability to associate an URL with a vulnerability, which will be opened when a corresponding edge is clicked.
+* Adapt the Dockerfile for ARM64 and ppc64le compatibility.
+* Add an ability to set the default targets in the editor.
+* Saving and loading bugfixes.
+* Improve error reporting.
+* When running Python in non-debugging mode, most debugging messages are silenced.
+
 ### v1.1 - 19th of October, 2020
 State before the meeting with Pasquale before the meeting with NCSC.
 
