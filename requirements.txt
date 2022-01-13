@@ -12,7 +12,7 @@ networkx==2.5
 numpy==1.19.5
 packaging==20.8
 param==1.10.1
-Pillow==8.3.2
+Pillow==9.0.0
 PuLP==2.3
 pyct==0.4.8
 pyparsing==2.4.7
