@@ -59,7 +59,7 @@ For testing the GUI, see `test/test_gui.py`. These tests are run using headless 
     * main.js - some fix-ups to Bokeh
     * callbacks.js - events handling
 * templates - HTML templates of the sites, written in [Jinja2](https://jinja.palletsprojects.com/en/2.10.x/)
-* tests - see [Tests](#Tests)
+* tests - see [Test](#Test)
 * doc - all kinds of research output and analysis tools
     * **doc/templates - graph templates used in the application** (probably should be moved)
     * doc/fixtures - graph templates used for automated testing
