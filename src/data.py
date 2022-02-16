@@ -193,7 +193,9 @@ class Model(metaclass=abc.ABCMeta):
         while heap:
             vertex, flow = heapq.heappop(heap)
             if vertex in vertex_flow:
-                continue
+                # make sure the stored vertex flow is larger
+                if vertex_flow[vertex] > -flow:
+                    continue
             vertex_flow[vertex] = -flow
 
             for other in self.graph.out_edges(vertex, data="multiplicity"):
