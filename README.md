@@ -2,6 +2,11 @@
 * https://cysectool.prem.moe (always up to date)
 * http://hegel.eecs.qmul.ac.uk:5006/visualiser
 
+## Research
+Read the paper here: https://arxiv.org/abs/2204.11707
+
+CySecTool is a tool that finds a cost-optimal security controls portfolio in a given budget for a probabilistic attack graph. A portfolio is a set of counter-measures, or controls, against vulnerabilities adopted for a computer system, while an attack graph is a type of a threat scenario model. In an attack graph, nodes are privilege states of the attacker, edges are vulnerabilities escalating privileges, and controls reduce the probabilities of some vulnerabilities being exploited. The tool builds on an optimisation algorithm published by Khouzani et al. (2019), enabling a user to quickly create, edit, and incrementally improve models, analyse results for given portfolios and display the best solutions for all possible budgets in the form of a Pareto frontier. A case study was performed utilising a system graph and suspected attack paths prepared by industrial security engineers based on an industrial source with which they work. The goal of the case study is to model a supervisory control and data acquisition (SCADA) industrial system which, due to having the potential to harm people, necessitates strong protection while not allowing the use of typical penetration tools like vulnerability scanners. Results are analysed to show how a cyber-security analyst would use CySecTool to store cyber-security intelligence and draw further conclusions. 
+
 ## Requirements
 * Python 3.7+
 * virtualenv & pip OR conda
