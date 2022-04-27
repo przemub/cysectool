@@ -1,3 +1,7 @@
+## Public instances
+* https://cysectool.prem.moe (always up to date)
+* http://hegel.eecs.qmul.ac.uk:5006/visualiser
+
 ## Requirements
 * Python 3.7+
 * virtualenv & pip OR conda
