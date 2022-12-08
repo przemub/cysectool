@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.8.8  # For Mac M1 compatibility
-  - pip=20.3.3
-  - numpy=1.19.5
-  - Pillow=8.1.1
+  - python=3.11.1
+  - pip=22.3.1
+  - numpy=1.23.5
+  - Pillow=9.3.0
   - pip:
       - -r file:requirements.txt
