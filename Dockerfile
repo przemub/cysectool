@@ -1,4 +1,4 @@
-FROM condaforge/miniforge3:22.9.0-2
+FROM condaforge/miniforge3:23.3.1-1
 
 EXPOSE 5006
 CMD conda run --no-capture-output -n visualiser-env python -O main.py
