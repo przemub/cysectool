@@ -5,7 +5,7 @@ colorcet==3.0.1
 decorator==5.1.1
 dill==0.3.7
 docutils==0.20.1
-Jinja2==3.0.1  # Last compatible with bokeh==2.0.2
+Jinja2==3.1.3  # Last compatible with bokeh==2.0.2
 MarkupSafe==2.1.3
 multiprocess==0.70.15
 networkx==3.2.1
