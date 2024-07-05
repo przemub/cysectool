@@ -1,6 +1,6 @@
 amply==0.1.6
 bokeh==2.0.2  # Updating it ALWAYS breaks something. Beware…
-certifi==2023.11.17
+certifi==2024.7.4
 colorcet==3.0.1
 decorator==5.1.1
 dill==0.3.7
